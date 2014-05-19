@@ -22,19 +22,24 @@ import java.util.List;
 
 final class BufferBerDecoder implements BerDecoder {
 
-  @Override public BerFrame decode(byte[] src) {
+  @Override public BerFrame decode(final byte[] src) {
     BerBuffer berBuffer = new BerBuffer(src);
-    return decode(berBuffer);
+    return decode(berBuffer, 0);
   }
 
-  @Override public BerFrame decode(ByteBuffer src) {
+  @Override public BerFrame decode(final ByteBuffer src) {
     BerBuffer berBuffer = new BerBuffer(src);
-    return decode(berBuffer);
+    return decode(berBuffer, 0);
   }
 
-  private BerFrame decode(BerBuffer berBuffer) {
+  @Override public BerFrame decode(final ByteBuffer src, final int offset) {
+    BerBuffer berBuffer = new BerBuffer(src);
+    return decode(berBuffer, offset);
+  }
+
+  private BerFrame decode(final BerBuffer berBuffer, final int offset) {
     List<BerTlv> root = new ArrayList<>();
-    getLevel(berBuffer, root, 0, berBuffer.capacity());
+    getLevel(berBuffer, root, offset, berBuffer.capacity());
     return new BerFrame(berBuffer, root);
   }
 

@@ -16,6 +16,7 @@
 
 package org.nightcode.tools.ber;
 
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 import javax.xml.bind.DatatypeConverter;
@@ -40,6 +41,30 @@ public class BufferBerDecoderTest {
     final BerDecoder berDecoder = new BufferBerDecoder();
     BerFrame berFrame = berDecoder.decode(DatatypeConverter
         .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060"));
+
+    Assert.assertArrayEquals(DatatypeConverter.parseHexBinary("315041592E5359532E4444463031")
+        , berFrame.getContent(new byte[] {(byte) 0x84}));
+    Assert.assertArrayEquals(DatatypeConverter.parseHexBinary("8801025F2D02656E")
+        , berFrame.getContent(new byte[] {(byte) 0xA5}));
+    Assert.assertArrayEquals(DatatypeConverter.parseHexBinary("02")
+        , berFrame.getContent(new byte[] {(byte) 0x88}));
+    Assert.assertArrayEquals(DatatypeConverter.parseHexBinary("656E")
+        , berFrame.getContent(new byte[] {(byte) 0x5F, (byte) 0x2D}));
+    Assert.assertArrayEquals(DatatypeConverter.parseHexBinary("0060")
+        , berFrame.getContent(new byte[] {(byte) 0x9F, (byte) 0x36}));
+  }
+
+  @Test
+  public void testDecodeConstructedWithOffset() {
+    final byte[] ber = DatatypeConverter
+        .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
+    final int offset = 10;
+    final ByteBuffer buffer = ByteBuffer.allocate(ber.length + offset);
+    buffer.put((byte) 0xE1);
+    buffer.position(offset);
+    buffer.put(ber);
+    final BerDecoder berDecoder = new BufferBerDecoder();
+    BerFrame berFrame = berDecoder.decode(buffer, offset);
 
     Assert.assertArrayEquals(DatatypeConverter.parseHexBinary("315041592E5359532E4444463031")
         , berFrame.getContent(new byte[] {(byte) 0x84}));

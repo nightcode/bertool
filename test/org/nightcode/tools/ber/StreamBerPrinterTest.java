@@ -17,6 +17,7 @@
 package org.nightcode.tools.ber;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -25,11 +26,27 @@ import org.junit.Test;
 public class StreamBerPrinterTest {
 
   @Test
-  public void testDecode() throws IOException {
+  public void testPrint() throws IOException {
     BerDecoder berDecoder = new BufferBerDecoder();
     BerFrame berFrame = berDecoder.decode(DatatypeConverter
         .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E77299f2701009f36" 
             + "0200609f2608c2c12b098f3da6e39f10120111258013423a02cfec00000002011400ff9000"));
+    BerPrinter printer = new StreamBerPrinter(System.out);
+    berFrame.print(printer);
+  }
+
+  @Test
+  public void testPrintWithOffset() throws IOException {
+    final byte[] ber = DatatypeConverter
+        .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E77299f2701009f36" 
+            + "0200609f2608c2c12b098f3da6e39f10120111258013423a02cfec00000002011400ff9000");
+    final int offset = 10;
+    final ByteBuffer buffer = ByteBuffer.allocate(ber.length + offset);
+    buffer.put((byte) 0xE1);
+    buffer.position(offset);
+    buffer.put(ber);
+    final BerDecoder berDecoder = new BufferBerDecoder();
+    BerFrame berFrame = berDecoder.decode(buffer, offset);
     BerPrinter printer = new StreamBerPrinter(System.out);
     berFrame.print(printer);
   }

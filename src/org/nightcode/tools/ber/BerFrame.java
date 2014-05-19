@@ -28,10 +28,16 @@ import javax.annotation.Nullable;
 public final class BerFrame {
 
   private final BerBuffer buffer;
+  private final int offset;
   private final List<BerTlv> tlvs;
 
-  BerFrame(BerBuffer buffer, List<BerTlv> tlvs) {
+  BerFrame(final BerBuffer buffer, final List<BerTlv> tlvs) {
+    this(buffer, 0, tlvs);
+  }
+
+  BerFrame(final BerBuffer buffer, final int offset, final List<BerTlv> tlvs) {
     this.buffer = buffer;
+    this.offset = offset;
     this.tlvs = tlvs;
   }
 
@@ -60,7 +66,7 @@ public final class BerFrame {
     for (BerTlv tlv : tlvs) {
       if (contains(identifier, tlv.identifierPosition(), tlv.identifierLength())) {
         byte[] content = new byte[tlv.contentLength()];
-        buffer.getBytes(tlv.contentPosition(), content);
+        buffer.getBytes(offset + tlv.contentPosition(), content);
         result = content;
       } else if (tlv.isConstructed()) {
         result = getContent(identifier, tlv.children());
@@ -91,7 +97,7 @@ public final class BerFrame {
       return false;
     }
     for (int i = 0; i < length; i++) {
-      if (target[i] != buffer.getByte(position + i)) {
+      if (target[i] != buffer.getByte(offset + position + i)) {
         return false;
       }
     }

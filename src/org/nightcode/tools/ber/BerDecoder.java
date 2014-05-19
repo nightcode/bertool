@@ -31,4 +31,6 @@ public interface BerDecoder {
   BerFrame decode(byte[] src);
 
   BerFrame decode(ByteBuffer src);
+
+  BerFrame decode(ByteBuffer src, int offset);
 }
