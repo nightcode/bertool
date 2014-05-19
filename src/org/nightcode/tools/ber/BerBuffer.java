@@ -23,16 +23,18 @@ import java.security.PrivilegedExceptionAction;
 
 import sun.misc.Unsafe;
 
-class BerBuffer {
+final class BerBuffer {
 
   private static final Unsafe UNSAFE;
 
   static {
     try {
-      final PrivilegedExceptionAction<Unsafe> action = () -> {
-        final Field field = Unsafe.class.getDeclaredField("theUnsafe");
-        field.setAccessible(true);
-        return (Unsafe) field.get(null);
+      final PrivilegedExceptionAction<Unsafe> action = new PrivilegedExceptionAction<Unsafe>() {
+        @Override public Unsafe run() throws Exception {
+          final Field field = Unsafe.class.getDeclaredField("theUnsafe");
+          field.setAccessible(true);
+          return (Unsafe) field.get(null);
+        }
       };
       UNSAFE = AccessController.doPrivileged(action);
     } catch (final Exception ex) {
@@ -75,13 +77,7 @@ class BerBuffer {
   }
 
   public ByteBuffer duplicateByteBuffer() {
-    final ByteBuffer duplicate;
-    if (buffer == null) {
-      duplicate = ByteBuffer.wrap(array);
-    } else {
-      duplicate = buffer.duplicate();
-    }
-    return duplicate;
+    return (buffer != null) ? buffer.duplicate() : ByteBuffer.wrap(array);
   }
 
   public byte getByte(final int index) {

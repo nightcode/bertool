@@ -22,7 +22,10 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-final class BerFrame {
+/**
+ *
+ */
+public final class BerFrame {
 
   private final BerBuffer buffer;
   private final List<BerTlv> tlvs;

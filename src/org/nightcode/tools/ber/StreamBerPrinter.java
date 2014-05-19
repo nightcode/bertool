@@ -28,11 +28,12 @@ public class StreamBerPrinter implements BerPrinter {
 
   private static final char[] UPPER_HEX_DIGITS = "0123456789ABCDEF".toCharArray();
 
+  private static final byte CARRIAGE_RETURN = 0x0A;
   private static final byte SPACE = 0x20;
   private static final byte LEFT_BRACKET = 0x5B;
   private static final byte RIGHT_BRACKET = 0x5D;
 
-  private static final byte[] LINE_FEED = new byte[] {0x0A, SPACE};
+  private static final byte[] LINE_FEED = new byte[] {CARRIAGE_RETURN, SPACE};
 
   private static final byte[] LEAF_NEXT_PREFIX = new byte[] {SPACE, SPACE, SPACE};
   private static final byte[] NODE_NEXT_PREFIX
@@ -54,6 +55,7 @@ public class StreamBerPrinter implements BerPrinter {
   @Override public void print(BerFrame berFrame) throws IOException {
     BerBuffer buffer = berFrame.berBuffer();
     printLevel(buffer, berFrame.getTlvs(), LINE_FEED, LINE_FEED.length);
+    stream.write(CARRIAGE_RETURN);
   }
 
   private void printLevel(BerBuffer berBuffer, List<BerTlv> tlvs, byte[] prefix, int prefixLength)
