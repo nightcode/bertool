@@ -46,7 +46,7 @@ public class StreamBerPrinterTest {
     buffer.position(offset);
     buffer.put(ber);
     final BerDecoder berDecoder = new BufferBerDecoder();
-    BerFrame berFrame = berDecoder.decode(buffer, offset);
+    BerFrame berFrame = berDecoder.decode(buffer, offset, ber.length);
     BerPrinter printer = new StreamBerPrinter(System.out);
     berFrame.print(printer);
   }

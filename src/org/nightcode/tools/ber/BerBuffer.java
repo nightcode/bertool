@@ -76,6 +76,14 @@ final class BerBuffer {
     return capacity;
   }
 
+  public int checkLimit(final int limit) {
+    if (limit > capacity) {
+      throw new IndexOutOfBoundsException(String.format("limit is beyond capacity (l=%d; c=%d)"
+          , limit, capacity));
+    }
+    return limit;
+  }
+
   public ByteBuffer duplicateByteBuffer() {
     return (buffer != null) ? buffer.duplicate() : ByteBuffer.wrap(array);
   }
@@ -108,8 +116,8 @@ final class BerBuffer {
       dstOffset = ((sun.nio.ch.DirectBuffer) dstBuffer).address();
     }
 
-    UNSAFE.copyMemory(array, addressOffset + index, dstArray, dstOffset + dstBuffer.position(),
-        count);
+    UNSAFE.copyMemory(array, addressOffset + index
+        , dstArray, dstOffset + dstBuffer.position(), count);
     dstBuffer.position(dstBuffer.position() + count);
     return count;
   }

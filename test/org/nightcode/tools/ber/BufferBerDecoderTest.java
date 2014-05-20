@@ -64,7 +64,7 @@ public class BufferBerDecoderTest {
     buffer.position(offset);
     buffer.put(ber);
     final BerDecoder berDecoder = new BufferBerDecoder();
-    BerFrame berFrame = berDecoder.decode(buffer, offset);
+    BerFrame berFrame = berDecoder.decode(buffer, offset, ber.length);
 
     Assert.assertArrayEquals(DatatypeConverter.parseHexBinary("315041592E5359532E4444463031")
         , berFrame.getContent(new byte[] {(byte) 0x84}));

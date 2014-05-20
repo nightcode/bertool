@@ -23,24 +23,24 @@ import java.util.List;
 final class BufferBerDecoder implements BerDecoder {
 
   @Override public BerFrame decode(final byte[] src) {
-    BerBuffer berBuffer = new BerBuffer(src);
-    return decode(berBuffer, 0);
+    ByteBuffer buffer = ByteBuffer.wrap(src);
+    return decode(buffer, 0, src.length);
   }
 
-  @Override public BerFrame decode(final ByteBuffer src) {
-    BerBuffer berBuffer = new BerBuffer(src);
-    return decode(berBuffer, 0);
+  @Override public BerFrame decode(final ByteBuffer srcBuffer) {
+    return decode(srcBuffer, 0, srcBuffer.limit());
   }
 
-  @Override public BerFrame decode(final ByteBuffer src, final int offset) {
-    BerBuffer berBuffer = new BerBuffer(src);
-    return decode(berBuffer, offset);
+  @Override public BerFrame decode(final ByteBuffer srcBuffer, final int offset, final int length) {
+    BerBuffer berBuffer = new BerBuffer(srcBuffer);
+    return decode(berBuffer, offset, length);
   }
 
-  private BerFrame decode(final BerBuffer berBuffer, final int offset) {
+  private BerFrame decode(final BerBuffer berBuffer, final int offset, final int length) {
+    final int limit = berBuffer.checkLimit(offset + length);
     List<BerTlv> root = new ArrayList<>();
-    getLevel(berBuffer, root, offset, berBuffer.capacity());
-    return new BerFrame(berBuffer, root);
+    getLevel(berBuffer, root, offset, limit);
+    return new BerFrame(berBuffer, offset, limit, root);
   }
 
   private void getLevel(BerBuffer src, List<BerTlv> level, final int position, final int limit) {
