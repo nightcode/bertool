@@ -28,9 +28,30 @@ public interface BerDecoder {
   int MASK_INDEFINITE_FORM = 0x80;
   int MASK_DEFINITE_LONG_FORM = 0x80;
 
+  /**
+   * Decode the BER data which contains in the supplied bytes array.
+   *
+   * @param src which contains the BER data
+   * @exception java.lang.IndexOutOfBoundsException
+   */
   BerFrame decode(byte[] src);
 
+  /**
+   * Decode the BER data which contains in the supplied {@link ByteBuffer}.
+   *
+   * @param srcBuffer which contains the BER data
+   * @exception java.lang.IndexOutOfBoundsException
+   */
   BerFrame decode(ByteBuffer srcBuffer);
 
+  /**
+   * Decode the BER data which contains in the supplied {@link ByteBuffer}
+   * with specified offset and length.
+   *
+   * @param srcBuffer which contains the BER data
+   * @param offset in the supplied srcBuffer
+   * @param length of the BER data in bytes
+   * @exception java.lang.IndexOutOfBoundsException
+   */
   BerFrame decode(ByteBuffer srcBuffer, int offset, int length);
 }
