@@ -113,4 +113,37 @@ public class BufferBerDecoderTest {
       Assert.assertEquals("Indefinite form is not supported yet.", ex.getMessage());
     }
   }
+  
+  @Test
+  public void testWrongBerLength() {
+    final BerDecoder berDecoder = new BufferBerDecoder();
+    final byte[] ber = DatatypeConverter
+        .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f360200");
+    final int offset = 10;
+    final ByteBuffer buffer = ByteBuffer.allocate(ber.length + offset * 2);
+    buffer.put((byte) 0xE1);
+    buffer.position(offset);
+    buffer.put(ber);
+    try {
+      berDecoder.decode(buffer, offset, ber.length);
+      Assert.fail("Incorrect message length check.");
+    } catch (IndexOutOfBoundsException ex) {
+      Assert.assertEquals("content bound is beyond content limit (b=43; l=42)", ex.getMessage());
+    }
+    
+    try {
+      berDecoder.decode(DatatypeConverter
+        .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801022D02656E9f36020060"));
+      Assert.fail("Incorrect message length check.");
+    } catch (IndexOutOfBoundsException ex) {
+      Assert.assertEquals("content bound is beyond content limit (b=137; l=27)", ex.getMessage());
+    }
+    
+    try {
+      berDecoder.decode(DatatypeConverter.parseHexBinary("9f"));
+      Assert.fail("Incorrect message length check.");
+    } catch (IndexOutOfBoundsException ex) {
+      Assert.assertEquals("index is beyond bound (i=1; b=0)", ex.getMessage());
+    }
+  }
 }

@@ -16,7 +16,6 @@
 
 package org.nightcode.tools.ber;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,10 +60,6 @@ public final class BerFrame {
 
   public int offset() {
     return offset;
-  }
-
-  public void print(BerPrinter printer) throws IOException {
-    printer.print(this);
   }
 
   private @Nullable byte[] getContent(byte[] identifier, List<BerTlv> tlvs) {

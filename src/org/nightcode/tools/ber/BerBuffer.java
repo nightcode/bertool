@@ -159,4 +159,12 @@ final class BerBuffer {
     srcBuffer.position(srcBuffer.position() + count);
     return count;
   }
+
+  int checkIndex(final int index) {
+    if (index >= capacity) {
+      throw new IndexOutOfBoundsException(String.format("index is beyond bound (i=%d; b=%d)"
+          , index, capacity - 1));
+    }
+    return index;
+  }
 }

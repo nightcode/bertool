@@ -43,26 +43,30 @@ final class BufferBerDecoder implements BerDecoder {
     return new BerFrame(berBuffer, offset, limit, root);
   }
 
-  private void getLevel(BerBuffer src, List<BerTlv> level, final int position, final int limit) {
+  private void getLevel(final BerBuffer src, final List<BerTlv> level, final int position,
+      final int limit) {
     int index = position;
     while (index < limit) {
-      index = getBerTlv(src, index, level);
+      index = getBerTlv(src, index, level, limit);
     }
   }
 
-  private int getBerTlv(BerBuffer src, final int identPosition, List<BerTlv> level) {
+  private int getBerTlv(final BerBuffer src, final int identPosition, final List<BerTlv> level,
+      final int limit) {
     int index = identPosition;
     byte firstIdentifier = src.getByte(index++);
     boolean constructed = (firstIdentifier & MASK_CONSTRUCTED) == MASK_CONSTRUCTED;
     if ((firstIdentifier & 0x1F) == 0x1F) {
       byte b;
       do {
+        src.checkIndex(index);
         b = src.getByte(index++);
       } while ((b & 0x80) == 0x80);
     }
     final int identLength = index - identPosition;
     final int contentPos;
     int contentLength = 0;
+    src.checkIndex(index);
     int firstLength = src.getByte(index++) & 0xFF;
     if ((firstLength ^ MASK_INDEFINITE_FORM) == 0) {
       throw new IllegalStateException("Indefinite form is not supported yet.");
@@ -71,11 +75,17 @@ final class BufferBerDecoder implements BerDecoder {
       int numberOfSubsequentOctets = firstLength & 0x7F;
       contentPos = index + numberOfSubsequentOctets;
       for (int i = 0; i < numberOfSubsequentOctets; i++) {
+        src.checkIndex(index);
         contentLength = (contentLength << 8) + (src.getByte(index++) & 0xFF);
       }
     } else {
       contentPos = index;
       contentLength = firstLength;
+    }
+    if (contentPos + contentLength > limit) {
+        throw new IndexOutOfBoundsException(String
+            .format("content bound is beyond content limit (b=%d; l=%d)"
+                , contentPos + contentLength, limit));
     }
     BerTlv tlv = new BerTlv(identPosition, identLength, constructed, contentPos, contentLength);
     level.add(tlv);
