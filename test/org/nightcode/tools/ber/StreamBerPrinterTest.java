@@ -27,7 +27,7 @@ public class StreamBerPrinterTest {
 
   @Test
   public void testPrint() throws IOException {
-    BerDecoder berDecoder = new BufferBerDecoder();
+    BerDecoder berDecoder = new BerDecoder();
     BerFrame berFrame = berDecoder.decode(DatatypeConverter
         .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E77299f2701009f36" 
             + "0200609f2608c2c12b098f3da6e39f10120111258013423a02cfec00000002011400ff9000"));
@@ -45,7 +45,7 @@ public class StreamBerPrinterTest {
     buffer.put((byte) 0xE1);
     buffer.position(offset);
     buffer.put(ber);
-    final BerDecoder berDecoder = new BufferBerDecoder();
+    final BerDecoder berDecoder = new BerDecoder();
     BerFrame berFrame = berDecoder.decode(buffer, offset, ber.length);
     BerPrinter printer = new StreamBerPrinter(System.out);
     printer.print(berFrame);

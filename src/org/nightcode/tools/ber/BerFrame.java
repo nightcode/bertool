@@ -38,15 +38,11 @@ public final class BerFrame {
     this.tlvs = tlvs;
   }
 
-  public BerBuffer berBuffer() {
-    return buffer;
-  }
-
-  public @Nullable byte[] getContent(byte[] identifier) {
+  public @Nullable byte[] getContent(byte... identifier) {
     return getContent(identifier, tlvs);
   }
 
-  public List<byte[]> getAllContents(byte[] identifier) {
+  public List<byte[]> getAllContents(byte... identifier) {
     return getAllContents(identifier, tlvs);
   }
 
@@ -60,6 +56,10 @@ public final class BerFrame {
 
   public int offset() {
     return offset;
+  }
+
+  BerBuffer berBuffer() {
+    return buffer;
   }
 
   private @Nullable byte[] getContent(byte[] identifier, List<BerTlv> tlvs) {
