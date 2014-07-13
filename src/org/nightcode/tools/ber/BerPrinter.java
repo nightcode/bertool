@@ -19,7 +19,7 @@ package org.nightcode.tools.ber;
 import java.io.IOException;
 
 /**
- *
+ * Prints BerFrame content.
  */
 public interface BerPrinter {
 

@@ -19,19 +19,34 @@ package org.nightcode.tools.ber;
 import java.nio.ByteBuffer;
 
 /**
- *
+ * The BerEncoder performs encoding BER packet.
  */
 public class BerEncoder {
 
+  /**
+   * Encode the BER data which contains in the supplied builder.
+   *
+   * @param builder which contains BER tags
+   */
   public void encode(BerBuilder builder, byte[] dst) {
     final ByteBuffer byteBuffer = ByteBuffer.wrap(dst);
     encode(builder, byteBuffer);
   }
 
+  /**
+   * Encode the BER data which contains in the supplied builder.
+   *
+   * @param builder which contains BER tags
+   */
   public void encode(BerBuilder builder, ByteBuffer dstBuffer) {
     encode(builder, dstBuffer, 0);
   }
 
+  /**
+   * Encode the BER data which contains in the supplied builder.
+   *
+   * @param builder which contains BER tags
+   */
   public void encode(BerBuilder builder, ByteBuffer dstBuffer, int offset) {
     final BerBuffer berBuffer = new BerBuffer(dstBuffer);
     berBuffer.checkLimit(offset + builder.length());

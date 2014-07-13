@@ -22,7 +22,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 /**
- *
+ * Main BER tags container.
  */
 public final class BerFrame {
 

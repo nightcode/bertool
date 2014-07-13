@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- *
+ * Collects BER tags which will be used to create ber packet.
  */
 public class BerBuilder {
 
