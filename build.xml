@@ -29,10 +29,18 @@
     <fileset dir="${lib.dir}/build" includes="*.jar" />
   </path>
 
-  <target name="deploy" description="deploy snapshot version to Maven snapshot repository">
+  <target name="deploy" depends="dist" description="deploy snapshot version to Maven snapshot repository">
     <echo message="deploy file: ${module.jar}" />
     <copy file="pom.xml" todir="${build.dir}" />
     <deploy pom="${build.dir}/pom.xml" file="${module.jar}" />
+  </target>
+
+  <target name="stage" depends="dist" description="deploy release version to Maven snapshot repository">
+    <echo message="stage files: ${module.jar} ${sources.jar} ${javadoc.jar}" />
+    <copy file="pom.xml" todir="${build.dir}" />
+    <stage pom="${build.dir}/pom.xml" file="${module.jar}" />
+    <stage.classifier pom="${build.dir}/pom.xml" file="${sources.jar}" classifier="sources" />
+    <stage.classifier pom="${build.dir}/pom.xml" file="${module.jar}" classifier="javadoc" />
   </target>
 
 </project>

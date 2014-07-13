@@ -23,10 +23,10 @@
     <version>7</version>
   </parent>
 
-  <groupId>org.nightcode.bertool</groupId>
+  <groupId>org.nightcode</groupId>
   <artifactId>bertool</artifactId>
   <packaging>jar</packaging>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1</version>
   <name>BerTool</name>
   <description>Basic Encoding Rules tool.</description>
   <url>http://github.com/nightcode/bertool/</url>

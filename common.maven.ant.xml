@@ -16,8 +16,11 @@
 -->
 <project name="common.maven" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
+  <!-- there server id in the Maven settings.xml -->
   <property name="maven-snapshots-repository-id" value="sonatype-nexus-snapshots" />
   <property name="maven-snapshots-repository-url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
+
+  <!-- there server id in the Maven settings.xml -->
   <property name="maven-staging-repository-id" value="sonatype-nexus-staging" />
   <property name="maven-staging-repository-url" value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
 
