@@ -27,7 +27,8 @@ How to decode
 -------------
 
 ```
-  byte[] byteArray = DatatypeConverter.parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
+  byte[] byteArray = DatatypeConverter.parseHexBinary("6F1A840E315041592E5359532E4444463031A508"
+    + "8801025F2D02656E9f36020060");
 
   BerDecoder berDecoder = new BerDecoder();
   BerFrame berFrame = berDecoder.decode(byteArray);
