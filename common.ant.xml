@@ -225,6 +225,7 @@
              classpath="${javadoc.classpath}">
       <fileset dir="${src.dir}" />
       <arg value="-XDignore.symbol.file"/>
+      <arg value="-Xdoclint:none"/>
     </javadoc>
     <jar jarfile="${javadoc.jar}">
       <fileset dir="${docs.dir}" />

@@ -38,28 +38,43 @@ public final class BerFrame {
     this.tlvs = tlvs;
   }
 
+  /**
+   * Returns the contents octets of a BER tag, or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
   public @Nullable byte[] getContent(byte... identifier) {
     return getContent(identifier, tlvs);
   }
 
+  /**
+   * Returns a list of objects containing all of the contents octets the given BER tag has,
+   * or empty list if the BER tag does not exists.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
   public List<byte[]> getAllContents(byte... identifier) {
     return getAllContents(identifier, tlvs);
   }
 
-  public List<BerTlv> getTlvs() {
+  BerBuffer berBuffer() {
+    return buffer;
+  }
+
+  List<BerTlv> getTlvs() {
     return tlvs;
   }
 
-  public int limit() {
+  int limit() {
     return limit;
   }
 
-  public int offset() {
+  int offset() {
     return offset;
-  }
-
-  BerBuffer berBuffer() {
-    return buffer;
   }
 
   private @Nullable byte[] getContent(byte[] identifier, List<BerTlv> tlvs) {

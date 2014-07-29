@@ -41,7 +41,7 @@ public class BerEncoderTest {
     final byte[] identifier = new byte[] {(byte) 0x9F, (byte) 0x26};
     final byte[] content = DatatypeConverter.parseHexBinary("C2C12B098F3DA6E3");
 
-    BerBuilder builder = new BerBuilder();
+    BerBuilder builder = BerBuilder.newInstance();
     builder.add(identifier, content);
 
     ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -56,15 +56,15 @@ public class BerEncoderTest {
     final byte[] expected = DatatypeConverter
         .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
 
-    BerBuilder builderA5 = new BerBuilder();
+    BerBuilder builderA5 = BerBuilder.newInstance();
     builderA5.add((byte) 0x88, new byte[] {0x02});
     builderA5.addAsciiString((byte) 0x5F, (byte) 0x2D, "en");
 
-    BerBuilder builder6F = new BerBuilder();
+    BerBuilder builder6F = BerBuilder.newInstance();
     builder6F.addHexString((byte) 0x84, "315041592E5359532E4444463031");
     builder6F.add((byte) 0xA5, builderA5);
 
-    BerBuilder builder = new BerBuilder();
+    BerBuilder builder = BerBuilder.newInstance();
     builder.add((byte) 0x6F, builder6F);
     builder.add((byte) 0x9F, (byte) 0x36, new byte[] {0x00, 0x60});
 
@@ -80,15 +80,15 @@ public class BerEncoderTest {
     final byte[] expected = DatatypeConverter
         .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
 
-    BerBuilder builderA5 = new BerBuilder();
+    BerBuilder builderA5 = BerBuilder.newInstance();
     builderA5.add((byte) 0x88, new byte[] {0x02});
     builderA5.addAsciiString((byte) 0x5F, (byte) 0x2D, "en");
 
-    BerBuilder builder6F = new BerBuilder();
+    BerBuilder builder6F = BerBuilder.newInstance();
     builder6F.addHexString((byte) 0x84, "315041592E5359532E4444463031");
     builder6F.add((byte) 0xA5, builderA5);
 
-    BerBuilder builder = new BerBuilder();
+    BerBuilder builder = BerBuilder.newInstance();
     builder.add((byte) 0x6F, builder6F);
     builder.add((byte) 0x9F, (byte) 0x36, new byte[] {0x00, 0x60});
 
@@ -116,7 +116,7 @@ public class BerEncoderTest {
     expected[3] = (byte) 0xB3;
     System.arraycopy(content, 0, expected, 4, content.length);
 
-    BerBuilder builder = new BerBuilder();
+    BerBuilder builder = BerBuilder.newInstance();
     builder.add(identifier, content);
 
     ByteBuffer buffer = ByteBuffer.allocate(1024);

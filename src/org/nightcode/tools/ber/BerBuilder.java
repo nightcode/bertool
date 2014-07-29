@@ -24,9 +24,18 @@ import java.util.Objects;
 /**
  * Collects BER tags which will be used to create ber packet.
  */
-public class BerBuilder {
+public final class BerBuilder {
 
   private static final Charset ASCII = Charset.forName("US-ASCII");
+
+  /**
+   * Creates new BerBuilder instance.
+   *
+   * @return new BerBuilder instance.
+   */
+  public static BerBuilder newInstance() {
+    return new BerBuilder();
+  }
 
   private static abstract class BerTlvContainer {
 
@@ -104,38 +113,86 @@ public class BerBuilder {
   private int length;
   private List<BerTlvContainer> containers;
 
-  public BerBuilder() {
+  private BerBuilder() {
     containers = new ArrayList<>();
     length = 0;
   }
 
+  /**
+   * Adds a bytes array for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param content the contents octets
+   */
   public BerBuilder add(final byte identifier, final byte[] content) {
     return add(new byte[] {identifier}, content);
   }
 
+  /**
+   * Adds a bytes array for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte (right-most)
+   * @param content the contents octets
+   */
   public BerBuilder add(final byte b1, final byte b2, final byte[] content) {
     return add(new byte[] {b1, b2}, content);
   }
 
+  /**
+   * Adds a bytes array for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte
+   * @param b3 the BER tag value third byte (right-most)
+   * @param content the contents octets
+   */
   public BerBuilder add(final byte b1, final byte b2, final byte b3, final byte[] content) {
     return add(new byte[] {b1, b2, b3}, content);
   }
 
+  /**
+   * Adds a bytes array for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte
+   * @param b3 the BER tag value third byte
+   * @param b4 the BER tag value fourth byte (right-most)
+   * @param content the contents octets
+   */
   public BerBuilder add(final byte b1, final byte b2, final byte b3, final byte b4,
       final byte[] content) {
     return add(new byte[] {b1, b2, b3, b4}, content);
   }
 
+  /**
+   * Adds a bytes array for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param content the contents octets
+   */
   public BerBuilder add(final int identifier, final byte[] content) {
     final byte[] buffer = identifierToByteArray(identifier);
     return add(buffer, content);
   }
 
+  /**
+   * Adds a bytes array for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param content the contents octets
+   */
   public BerBuilder add(final long identifier, final byte[] content) {
     final byte[] buffer = identifierToByteArray(identifier);
     return add(buffer, content);
   }
 
+  /**
+   * Adds a bytes array for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param content the contents octets
+   */
   public BerBuilder add(final byte[] identifier, final byte[] content) {
     final int numberOfLengthOctets = calculateNumberOfLengthOctets(content.length);
     BerTlvContainer container
@@ -145,33 +202,81 @@ public class BerBuilder {
     return this;
   }
 
+  /**
+   * Adds a BerBuilder for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param builder the contents octets
+   */
   public BerBuilder add(final byte identifier, final BerBuilder builder) {
     return add(new byte[] {identifier}, builder);
   }
 
+  /**
+   * Adds a BerBuilder for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte (right-most)
+   * @param builder the contents octets
+   */
   public BerBuilder add(final byte b1, final byte b2, final BerBuilder builder) {
     return add(new byte[] {b1, b2}, builder);
   }
 
+  /**
+   * Adds a BerBuilder for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte
+   * @param b3 the BER tag value third byte (right-most)
+   * @param builder the contents octets
+   */
   public BerBuilder add(final byte b1, final byte b2, final byte b3, final BerBuilder builder) {
     return add(new byte[] {b1, b2, b3}, builder);
   }
 
+  /**
+   * Adds a BerBuilder for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte
+   * @param b3 the BER tag value third byte
+   * @param b4 the BER tag value fourth byte (right-most)
+   * @param builder the contents octets
+   */
   public BerBuilder add(final byte b1, final byte b2, final byte b3, final byte b4,
       final BerBuilder builder) {
     return add(new byte[] {b1, b2, b3, b4}, builder);
   }
 
+  /**
+   * Adds a BerBuilder for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param builder the contents octets
+   */
   public BerBuilder add(final int identifier, final BerBuilder builder) {
     final byte[] buffer = identifierToByteArray(identifier);
     return add(buffer, builder);
   }
 
+  /**
+   * Adds a BerBuilder for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param builder the contents octets
+   */
   public BerBuilder add(final long identifier, final BerBuilder builder) {
     final byte[] buffer = identifierToByteArray(identifier);
     return add(buffer, builder);
   }
 
+  /**
+   * Adds a BerBuilder for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param builder the contents octets
+   */
   public BerBuilder add(final byte[] identifier, final BerBuilder builder) {
     final int numberOfLengthOctets = calculateNumberOfLengthOctets(builder.length);
     BerTlvContainer container
@@ -181,72 +286,179 @@ public class BerBuilder {
     return this;
   }
 
+  /**
+   * Adds an ASCII string for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param src the contents octets
+   */
   public BerBuilder addAsciiString(final byte identifier, final String src) {
     return addAsciiString(new byte[] {identifier}, src);
   }
 
-  public BerBuilder addAsciiString(final byte b1, final byte b2, final String src) {
+  /**
+   * Adds an ASCII string for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte (right-most)
+   * @param src the contents octets
+   */
+   public BerBuilder addAsciiString(final byte b1, final byte b2, final String src) {
     return addAsciiString(new byte[] {b1, b2}, src);
   }
 
-  public BerBuilder addAsciiString(final byte b1, final byte b2, final byte b3, final String src) {
+  /**
+   * Adds an ASCII string for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte
+   * @param b3 the BER tag value third byte (right-most)
+   * @param src the contents octets
+   */
+   public BerBuilder addAsciiString(final byte b1, final byte b2, final byte b3, final String src) {
     return addAsciiString(new byte[] {b1, b2, b3}, src);
   }
 
-  public BerBuilder addAsciiString(final byte b1, final byte b2, final byte b3, final byte b4,
+  /**
+   * Adds an ASCII string for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte
+   * @param b3 the BER tag value third byte
+   * @param b4 the BER tag value fourth byte (right-most)
+   * @param src the contents octets
+   */
+   public BerBuilder addAsciiString(final byte b1, final byte b2, final byte b3, final byte b4,
       final String src) {
     return addAsciiString(new byte[] {b1, b2, b3, b4}, src);
   }
 
+  /**
+   * Adds an ASCII string for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param src the contents octets
+   */
   public BerBuilder addAsciiString(final int identifier, final String src) {
     final byte[] buffer = identifierToByteArray(identifier);
     return addAsciiString(buffer, src);
   }
 
-  public BerBuilder addAsciiString(final long identifier, final String src) {
+  /**
+   * Adds an ASCII string for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param src the contents octets
+   */
+   public BerBuilder addAsciiString(final long identifier, final String src) {
     final byte[] buffer = identifierToByteArray(identifier);
     return addAsciiString(buffer, src);
   }
 
-  public BerBuilder addAsciiString(final byte[] identifier, final String src) {
+  /**
+   * Adds an ASCII string for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param src the contents octets
+   */
+   public BerBuilder addAsciiString(final byte[] identifier, final String src) {
     return add(identifier, src.getBytes(ASCII));
   }
 
+  /**
+   * Adds a hex string for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param src the contents octets
+   */
   public BerBuilder addHexString(final byte identifier, final String src) {
     return addHexString(new byte[] {identifier}, src);
   }
 
+  /**
+   * Adds a hex string for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte (right-most)
+   * @param src the contents octets
+   */
   public BerBuilder addHexString(final byte b1, final byte b2, final String src) {
     return addHexString(new byte[] {b1, b2}, src);
   }
 
+  /**
+   * Adds a hex string for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte
+   * @param b3 the BER tag value third byte (right-most)
+   * @param src the contents octets
+   */
   public BerBuilder addHexString(final byte b1, final byte b2, final byte b3, final String src) {
     return addHexString(new byte[] {b1, b2, b3}, src);
   }
 
+  /**
+   * Adds a hex string for encoding.
+   *
+   * @param b1 the BER tag value first byte (left-most)
+   * @param b2 the BER tag value second byte
+   * @param b3 the BER tag value third byte
+   * @param b4 the BER tag value fourth byte (right-most)
+   * @param src the contents octets
+   */
   public BerBuilder addHexString(final byte b1, final byte b2, final byte b3, final byte b4,
       final String src) {
     return addHexString(new byte[] {b1, b2, b3, b4}, src);
   }
 
+  /**
+   * Adds a hex string for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param src the contents octets
+   */
   public BerBuilder addHexString(final int identifier, final String src) {
     final byte[] buffer = identifierToByteArray(identifier);
     return addHexString(buffer, src);
   }
 
+  /**
+   * Adds a hex string for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param src the contents octets
+   */
   public BerBuilder addHexString(final long identifier, final String src) {
     final byte[] buffer = identifierToByteArray(identifier);
     return addHexString(buffer, src);
   }
 
+  /**
+   * Adds a hex string for encoding.
+   *
+   * @param identifier the BER tag value
+   * @param src the contents octets
+   */
   public BerBuilder addHexString(final byte[] identifier, final String src) {
     return add(identifier, hexToByteArray(src));
   }
 
+  /**
+   * Returns the length of encoding.
+   *
+   * @return the length of encoding
+   */
   public int length() {
     return length;
   }
 
+  /**
+   * Encodes and puts collected data to the supplied buffer.
+   *
+   * @param buffer the destination of encoded content
+   * @param offset in the supplied buffer
+   */
   public void writeTo(final BerBuffer buffer, final int offset) {
     buffer.checkLimit(offset + length);
     int index = offset;

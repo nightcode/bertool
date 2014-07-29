@@ -47,6 +47,11 @@ public class StreamBerPrinter implements BerPrinter {
 
   private byte[] tmpBuffer;
 
+  /**
+   * Creates a new StreamBerPrinter.
+   *
+   * @param stream the supplied output stream
+   */
   public StreamBerPrinter(OutputStream stream) {
     this.stream = stream;
     tmpBuffer = new byte[1024];

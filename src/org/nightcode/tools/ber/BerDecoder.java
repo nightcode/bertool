@@ -34,7 +34,6 @@ public class BerDecoder {
    * Decode the BER data which contains in the supplied bytes array.
    *
    * @param src which contains the BER data
-   * @exception java.lang.IndexOutOfBoundsException
    */
   public BerFrame decode(final byte[] src) {
     ByteBuffer buffer = ByteBuffer.wrap(src);
@@ -45,7 +44,6 @@ public class BerDecoder {
    * Decode the BER data which contains in the supplied {@link ByteBuffer}.
    *
    * @param srcBuffer which contains the BER data
-   * @exception java.lang.IndexOutOfBoundsException
    */
   public BerFrame decode(final ByteBuffer srcBuffer) {
     return decode(srcBuffer, 0, srcBuffer.limit());

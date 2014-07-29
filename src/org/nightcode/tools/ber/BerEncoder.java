@@ -27,6 +27,7 @@ public class BerEncoder {
    * Encode the BER data which contains in the supplied builder.
    *
    * @param builder which contains BER tags
+   * @param dst the destination of encoded content
    */
   public void encode(BerBuilder builder, byte[] dst) {
     final ByteBuffer byteBuffer = ByteBuffer.wrap(dst);
@@ -37,6 +38,7 @@ public class BerEncoder {
    * Encode the BER data which contains in the supplied builder.
    *
    * @param builder which contains BER tags
+   * @param dstBuffer the destination of encoded content
    */
   public void encode(BerBuilder builder, ByteBuffer dstBuffer) {
     encode(builder, dstBuffer, 0);
@@ -46,6 +48,8 @@ public class BerEncoder {
    * Encode the BER data which contains in the supplied builder.
    *
    * @param builder which contains BER tags
+   * @param dstBuffer the destination of encoded content
+   * @param offset in the supplied dstBuffer
    */
   public void encode(BerBuilder builder, ByteBuffer dstBuffer, int offset) {
     final BerBuffer berBuffer = new BerBuffer(dstBuffer);

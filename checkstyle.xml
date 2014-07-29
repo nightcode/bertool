@@ -48,6 +48,10 @@
       <property name="scope" value="public" />
     </module>
     <module name="JavadocStyle" />
+    <module name="JavadocMethod">
+      <property name="scope" value="public" />
+      <property name="allowMissingReturnTag" value="true" />
+    </module>
 
     <!-- Imports -->
     <module name="AvoidStarImport" />

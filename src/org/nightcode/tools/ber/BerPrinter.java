@@ -23,5 +23,11 @@ import java.io.IOException;
  */
 public interface BerPrinter {
 
+  /**
+   * Prints BerFrame content.
+   *
+   * @param berFrame the supplied ber frame
+   * @throws IOException if an I/O error occurs
+   */
   void print(BerFrame berFrame) throws IOException;
 }
