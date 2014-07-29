@@ -35,24 +35,22 @@ public class BerBuilder {
         buffer.putByte(offset, (byte) (contentLength & 0x7F));
       } else if (contentLength < 0x100) {
         buffer.putByte(offset, (byte) 0x81);
-        buffer.putByte(offset + 1, (byte) (contentLength & 0xFF));
+        buffer.putByte(offset + 1, (byte) contentLength);
       } else if (contentLength < 0x10000) {
         buffer.putByte(offset, (byte) 0x82);
-        buffer.putByte(offset + 1, (byte) ((contentLength >>> 8) & 0xFF));
-        buffer.putByte(offset + 2, (byte) (contentLength & 0xFF));
+        buffer.putByte(offset + 1, (byte) (contentLength >>> 8));
+        buffer.putByte(offset + 2, (byte) (contentLength >>> 0));
       } else if (contentLength < 0x1000000) {
         buffer.putByte(offset, (byte) 0x83);
-        buffer.putByte(offset + 1, (byte) ((contentLength >>> 16) & 0xFF));
-        buffer.putByte(offset + 2, (byte) ((contentLength >>> 8) & 0xFF));
-        buffer.putByte(offset + 3, (byte) (contentLength & 0xFF));
-      } else if (contentLength <= 0xFFFFFFFF) {
-        buffer.putByte(offset, (byte) 0x84);
-        buffer.putByte(offset + 1, (byte) ((contentLength >>> 24) & 0xFF));
-        buffer.putByte(offset + 2, (byte) ((contentLength >>> 16) & 0xFF));
-        buffer.putByte(offset + 3, (byte) ((contentLength >>> 8) & 0xFF));
-        buffer.putByte(offset + 4, (byte) (contentLength & 0xFF));
+        buffer.putByte(offset + 1, (byte) (contentLength >>> 16));
+        buffer.putByte(offset + 2, (byte) (contentLength >>>  8));
+        buffer.putByte(offset + 3, (byte) (contentLength >>>  0));
       } else {
-        throw new IllegalStateException("should never been thrown");
+        buffer.putByte(offset, (byte) 0x84);
+        buffer.putByte(offset + 1, (byte) (contentLength >>> 24));
+        buffer.putByte(offset + 2, (byte) (contentLength >>> 16));
+        buffer.putByte(offset + 3, (byte) (contentLength >>>  8));
+        buffer.putByte(offset + 4, (byte) (contentLength >>>  0));
       }
     }
 
@@ -128,6 +126,16 @@ public class BerBuilder {
     return add(new byte[] {b1, b2, b3, b4}, content);
   }
 
+  public BerBuilder add(final int identifier, final byte[] content) {
+    final byte[] buffer = identifierToByteArray(identifier);
+    return add(buffer, content);
+  }
+
+  public BerBuilder add(final long identifier, final byte[] content) {
+    final byte[] buffer = identifierToByteArray(identifier);
+    return add(buffer, content);
+  }
+
   public BerBuilder add(final byte[] identifier, final byte[] content) {
     final int numberOfLengthOctets = calculateNumberOfLengthOctets(content.length);
     BerTlvContainer container
@@ -152,6 +160,16 @@ public class BerBuilder {
   public BerBuilder add(final byte b1, final byte b2, final byte b3, final byte b4,
       final BerBuilder builder) {
     return add(new byte[] {b1, b2, b3, b4}, builder);
+  }
+
+  public BerBuilder add(final int identifier, final BerBuilder builder) {
+    final byte[] buffer = identifierToByteArray(identifier);
+    return add(buffer, builder);
+  }
+
+  public BerBuilder add(final long identifier, final BerBuilder builder) {
+    final byte[] buffer = identifierToByteArray(identifier);
+    return add(buffer, builder);
   }
 
   public BerBuilder add(final byte[] identifier, final BerBuilder builder) {
@@ -180,6 +198,16 @@ public class BerBuilder {
     return addAsciiString(new byte[] {b1, b2, b3, b4}, src);
   }
 
+  public BerBuilder addAsciiString(final int identifier, final String src) {
+    final byte[] buffer = identifierToByteArray(identifier);
+    return addAsciiString(buffer, src);
+  }
+
+  public BerBuilder addAsciiString(final long identifier, final String src) {
+    final byte[] buffer = identifierToByteArray(identifier);
+    return addAsciiString(buffer, src);
+  }
+
   public BerBuilder addAsciiString(final byte[] identifier, final String src) {
     return add(identifier, src.getBytes(ASCII));
   }
@@ -199,6 +227,16 @@ public class BerBuilder {
   public BerBuilder addHexString(final byte b1, final byte b2, final byte b3, final byte b4,
       final String src) {
     return addHexString(new byte[] {b1, b2, b3, b4}, src);
+  }
+
+  public BerBuilder addHexString(final int identifier, final String src) {
+    final byte[] buffer = identifierToByteArray(identifier);
+    return addHexString(buffer, src);
+  }
+
+  public BerBuilder addHexString(final long identifier, final String src) {
+    final byte[] buffer = identifierToByteArray(identifier);
+    return addHexString(buffer, src);
   }
 
   public BerBuilder addHexString(final byte[] identifier, final String src) {
@@ -227,15 +265,97 @@ public class BerBuilder {
       numberOfLengthOctets = 3;
     } else if (contentLength < 0x1000000) {
       numberOfLengthOctets = 4;
-    } else if (contentLength <= 0xFFFFFFFF) {
-      numberOfLengthOctets = 5;
     } else {
-      throw new IllegalStateException("should never been thrown");
+      numberOfLengthOctets = 5;
     }
     return numberOfLengthOctets;
   }
 
-  private byte[] hexToByteArray(String hex) {
+  private byte[] identifierToByteArray(final int identifier) {
+   final byte[] buffer;
+    final int i = identifier ^ 0x80000000;
+    if (i <= 0x800000FF) {
+      buffer = new byte[1];
+      buffer[0] = (byte) (identifier >>>  0);
+    } else if (i <= 0x8000FFFF) {
+      buffer = new byte[2];
+      buffer[0] = (byte) (identifier >>>  8);
+      buffer[1] = (byte) (identifier >>>  0);
+    } else if (i <= 0x80FFFFFF) {
+      buffer = new byte[3];
+      buffer[0] = (byte) (identifier >>> 16);
+      buffer[1] = (byte) (identifier >>>  8);
+      buffer[2] = (byte) (identifier >>>  0);
+    } else {
+      buffer = new byte[4];
+      buffer[0] = (byte) (identifier >>> 24);
+      buffer[1] = (byte) (identifier >>> 16);
+      buffer[2] = (byte) (identifier >>>  8);
+      buffer[3] = (byte) (identifier >>>  0);
+    }
+    return buffer;
+  }
+
+  private byte[] identifierToByteArray(final long identifier) {
+    final byte[] buffer;
+    final long l = identifier ^ 0x8000000000000000L;
+    if (l <= 0x80000000000000FFL) {
+      buffer = new byte[1];
+      buffer[0] = (byte) (identifier >>>  0);
+    } else if (l <= 0x800000000000FFFFL) {
+      buffer = new byte[2];
+      buffer[0] = (byte) (identifier >>>  8);
+      buffer[1] = (byte) (identifier >>>  0);
+    } else if (l <= 0x8000000000FFFFFFL) {
+      buffer = new byte[3];
+      buffer[0] = (byte) (identifier >>> 16);
+      buffer[1] = (byte) (identifier >>>  8);
+      buffer[2] = (byte) (identifier >>>  0);
+    } else if (l <= 0x80000000FFFFFFFFL) {
+      buffer = new byte[4];
+      buffer[0] = (byte) (identifier >>> 24);
+      buffer[1] = (byte) (identifier >>> 16);
+      buffer[2] = (byte) (identifier >>>  8);
+      buffer[3] = (byte) (identifier >>>  0);
+    } else if (l <= 0x800000FFFFFFFFFFL) {
+      buffer = new byte[5];
+      buffer[0] = (byte) (identifier >>> 32);
+      buffer[1] = (byte) (identifier >>> 24);
+      buffer[2] = (byte) (identifier >>> 16);
+      buffer[3] = (byte) (identifier >>>  8);
+      buffer[4] = (byte) (identifier >>>  0);
+    } else if (l <= 0x8000FFFFFFFFFFFFL) {
+      buffer = new byte[6];
+      buffer[0] = (byte) (identifier >>> 40);
+      buffer[1] = (byte) (identifier >>> 32);
+      buffer[2] = (byte) (identifier >>> 24);
+      buffer[3] = (byte) (identifier >>> 16);
+      buffer[4] = (byte) (identifier >>>  8);
+      buffer[5] = (byte) (identifier >>>  0);
+    } else if (l <= 0x80FFFFFFFFFFFFFFL) {
+      buffer = new byte[7];
+      buffer[0] = (byte) (identifier >>> 48);
+      buffer[1] = (byte) (identifier >>> 40);
+      buffer[2] = (byte) (identifier >>> 32);
+      buffer[3] = (byte) (identifier >>> 24);
+      buffer[4] = (byte) (identifier >>> 16);
+      buffer[5] = (byte) (identifier >>>  8);
+      buffer[6] = (byte) (identifier >>>  0);
+    } else {
+      buffer = new byte[8];
+      buffer[0] = (byte) (identifier >>> 56);
+      buffer[1] = (byte) (identifier >>> 48);
+      buffer[2] = (byte) (identifier >>> 40);
+      buffer[3] = (byte) (identifier >>> 32);
+      buffer[4] = (byte) (identifier >>> 24);
+      buffer[5] = (byte) (identifier >>> 16);
+      buffer[6] = (byte) (identifier >>>  8);
+      buffer[7] = (byte) (identifier >>>  0);
+    }
+    return buffer;
+  }
+
+  private byte[] hexToByteArray(final String hex) {
     Objects.requireNonNull(hex, "hexadecimal string");
     final int length = hex.length();
     if ((length & 0x1) != 0) {

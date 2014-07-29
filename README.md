@@ -6,17 +6,28 @@ How to encode
 -------------
 
 ```
+ ├─[6F]
+ │  ├─[84] 315041592E5359532E4444463031
+ │  └─[A5]
+ │     ├─[88] 02
+ │     └─[5F2D] 656E
+ └─[9F36] 0060
+```
+
+code
+
+```
   BerBuilder builderA5 = new BerBuilder();
-  builderA5.add((byte) 0x88, new byte[] {0x02});
-  builderA5.addAsciiString((byte) 0x5F, (byte) 0x2D, "en");
+  builderA5.add(0x88, new byte[] {0x02});
+  builderA5.addAsciiString(0x5F2D, "en");
 
   BerBuilder builder6F = new BerBuilder();
-  builder6F.addHexString((byte) 0x84, "315041592E5359532E4444463031");
-  builder6F.add((byte) 0xA5, builderA5);
+  builder6F.addHexString(0x84, "315041592E5359532E4444463031");
+  builder6F.add(0xA5, builderA5);
 
   BerBuilder builder = new BerBuilder();
-  builder.add((byte) 0x6F, builder6F);
-  builder.add((byte) 0x9F, (byte) 0x36, new byte[] {0x00, 0x60});
+  builder.add(0x6F, builder6F);
+  builder.add(0x9F36, new byte[] {0x00, 0x60});
 
   ByteBuffer buffer = ByteBuffer.allocate(1024);
   BerEncoder berEncoder = new BerEncoder();
