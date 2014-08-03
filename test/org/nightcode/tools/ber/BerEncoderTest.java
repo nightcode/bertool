@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,12 +35,11 @@ public class BerEncoderTest {
 
   @Test
   public void testEncodePrimitive() throws IOException {
-    final byte[] expected = DatatypeConverter.parseHexBinary("9F2608C2C12B098F3DA6E3");
-    final byte[] identifier = new byte[] {(byte) 0x9F, (byte) 0x26};
-    final byte[] content = DatatypeConverter.parseHexBinary("C2C12B098F3DA6E3");
+    final byte[] expected = BerUtil.hexToByteArray("9F2608C2C12B098F3DA6E3");
+    final byte[] content = BerUtil.hexToByteArray("C2C12B098F3DA6E3");
 
     BerBuilder builder = BerBuilder.newInstance();
-    builder.add(identifier, content);
+    builder.add(0x9F26, content);
 
     ByteBuffer buffer = ByteBuffer.allocate(1024);
     BerEncoder berEncoder = new BerEncoder();
@@ -53,20 +50,20 @@ public class BerEncoderTest {
 
   @Test
   public void testEncodeConstructed() {
-    final byte[] expected = DatatypeConverter
-        .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
+    final byte[] expected = BerUtil
+        .hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
 
     BerBuilder builderA5 = BerBuilder.newInstance();
-    builderA5.add((byte) 0x88, new byte[] {0x02});
-    builderA5.addAsciiString((byte) 0x5F, (byte) 0x2D, "en");
+    builderA5.add(0x88, new byte[] {0x02});
+    builderA5.addAsciiString(0x5F2D, "en");
 
     BerBuilder builder6F = BerBuilder.newInstance();
-    builder6F.addHexString((byte) 0x84, "315041592E5359532E4444463031");
-    builder6F.add((byte) 0xA5, builderA5);
+    builder6F.addHexString(0x84, "315041592E5359532E4444463031");
+    builder6F.add(0xA5, builderA5);
 
     BerBuilder builder = BerBuilder.newInstance();
-    builder.add((byte) 0x6F, builder6F);
-    builder.add((byte) 0x9F, (byte) 0x36, new byte[] {0x00, 0x60});
+    builder.add(0x6F, builder6F);
+    builder.add(0x9F36, new byte[] {0x00, 0x60});
 
     ByteBuffer buffer = ByteBuffer.allocate(1024);
     BerEncoder berEncoder = new BerEncoder();
@@ -77,20 +74,20 @@ public class BerEncoderTest {
 
   @Test
   public void testEncodeConstructedWithOffset() {
-    final byte[] expected = DatatypeConverter
-        .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
+    final byte[] expected = BerUtil
+        .hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
 
     BerBuilder builderA5 = BerBuilder.newInstance();
-    builderA5.add((byte) 0x88, new byte[] {0x02});
-    builderA5.addAsciiString((byte) 0x5F, (byte) 0x2D, "en");
+    builderA5.add(0x88, new byte[] {0x02});
+    builderA5.addAsciiString(0x5F2D, "en");
 
     BerBuilder builder6F = BerBuilder.newInstance();
-    builder6F.addHexString((byte) 0x84, "315041592E5359532E4444463031");
-    builder6F.add((byte) 0xA5, builderA5);
+    builder6F.addHexString(0x84, "315041592E5359532E4444463031");
+    builder6F.add(0xA5, builderA5);
 
     BerBuilder builder = BerBuilder.newInstance();
-    builder.add((byte) 0x6F, builder6F);
-    builder.add((byte) 0x9F, (byte) 0x36, new byte[] {0x00, 0x60});
+    builder.add(0x6F, builder6F);
+    builder.add(0x9F36, new byte[] {0x00, 0x60});
 
     final int offset = 10;
     final ByteBuffer buffer = ByteBuffer.allocate(expected.length + offset);

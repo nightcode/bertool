@@ -46,6 +46,42 @@ public final class BerFrame {
    * @param identifier the BER tag
    * @return the contents octets
    */
+  public @Nullable byte[] getContent(final byte identifier) {
+    return getContent(new byte[] {identifier}, tlvs);
+  }
+
+  /**
+   * Returns the contents octets of a BER tag, or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
+  public @Nullable byte[] getContent(final int identifier) {
+    return getContent(BerUtil.identifierToByteArray(identifier), tlvs);
+  }
+
+  /**
+   * Returns the contents octets of a BER tag, or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
+  public @Nullable byte[] getContent(final long identifier) {
+    return getContent(BerUtil.identifierToByteArray(identifier), tlvs);
+  }
+
+  /**
+   * Returns the contents octets of a BER tag, or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
   public @Nullable byte[] getContent(byte... identifier) {
     return getContent(identifier, tlvs);
   }

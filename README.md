@@ -38,22 +38,22 @@ How to decode
 -------------
 
 ```
-  byte[] byteArray = DatatypeConverter.parseHexBinary("6F1A840E315041592E5359532E4444463031A508"
+  byte[] byteArray = BerUtil.hexToByteArray("6F1A840E315041592E5359532E4444463031A508"
     + "8801025F2D02656E9f36020060");
 
   BerDecoder berDecoder = new BerDecoder();
   BerFrame berFrame = berDecoder.decode(byteArray);
 
-  byte[] tag84 = berFrame.getContent((byte) 0x84)
-  byte[] tag5F2D = berFrame.getContent((byte) 0x5F, (byte) 0x2D);
+  byte[] tag84 = berFrame.getContent(0x84)
+  byte[] tag5F2D = berFrame.getContent(0x5F2D);
 ```
 
 StreamBerPrinter example
 ------------------------
 
 ```
-  byte[] byteArray = DatatypeConverter
-    .parseHexBinary("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E77299f2701009f36"
+  byte[] byteArray = BerUtil
+    .hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E77299f2701009f36"
     + "0200609f2608c2c12b098f3da6e39f10120111258013423a02cfec00000002011400ff9000"); 
 
   BerDecoder berDecoder = new BerDecoder();

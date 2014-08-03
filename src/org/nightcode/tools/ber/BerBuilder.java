@@ -19,7 +19,6 @@ package org.nightcode.tools.ber;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Collects BER tags which will be used to create ber packet.
@@ -73,6 +72,7 @@ public final class BerBuilder {
 
     private BerTlvContainerByteArray(final byte[] identifier, final int numberOfLengthOctets,
         final byte[] content) {
+      BerUtil.checkIdentifier(identifier);
       this.identifier = identifier;
       this.numberOfLengthOctets = numberOfLengthOctets;
       this.content = content;
@@ -95,6 +95,7 @@ public final class BerBuilder {
 
     private BerTlvContainerBuilder(final byte[] identifier, final int numberOfLengthOctets,
         final BerBuilder builder) {
+      BerUtil.checkIdentifier(identifier);
       this.identifier = identifier;
       this.numberOfLengthOctets = numberOfLengthOctets;
       this.builder = builder;
@@ -172,7 +173,7 @@ public final class BerBuilder {
    * @param content the contents octets
    */
   public BerBuilder add(final int identifier, final byte[] content) {
-    final byte[] buffer = identifierToByteArray(identifier);
+    final byte[] buffer = BerUtil.identifierToByteArray(identifier);
     return add(buffer, content);
   }
 
@@ -183,7 +184,7 @@ public final class BerBuilder {
    * @param content the contents octets
    */
   public BerBuilder add(final long identifier, final byte[] content) {
-    final byte[] buffer = identifierToByteArray(identifier);
+    final byte[] buffer = BerUtil.identifierToByteArray(identifier);
     return add(buffer, content);
   }
 
@@ -256,7 +257,7 @@ public final class BerBuilder {
    * @param builder the contents octets
    */
   public BerBuilder add(final int identifier, final BerBuilder builder) {
-    final byte[] buffer = identifierToByteArray(identifier);
+    final byte[] buffer = BerUtil.identifierToByteArray(identifier);
     return add(buffer, builder);
   }
 
@@ -267,7 +268,7 @@ public final class BerBuilder {
    * @param builder the contents octets
    */
   public BerBuilder add(final long identifier, final BerBuilder builder) {
-    final byte[] buffer = identifierToByteArray(identifier);
+    final byte[] buffer = BerUtil.identifierToByteArray(identifier);
     return add(buffer, builder);
   }
 
@@ -340,7 +341,7 @@ public final class BerBuilder {
    * @param src the contents octets
    */
   public BerBuilder addAsciiString(final int identifier, final String src) {
-    final byte[] buffer = identifierToByteArray(identifier);
+    final byte[] buffer = BerUtil.identifierToByteArray(identifier);
     return addAsciiString(buffer, src);
   }
 
@@ -351,7 +352,7 @@ public final class BerBuilder {
    * @param src the contents octets
    */
    public BerBuilder addAsciiString(final long identifier, final String src) {
-    final byte[] buffer = identifierToByteArray(identifier);
+    final byte[] buffer = BerUtil.identifierToByteArray(identifier);
     return addAsciiString(buffer, src);
   }
 
@@ -419,7 +420,7 @@ public final class BerBuilder {
    * @param src the contents octets
    */
   public BerBuilder addHexString(final int identifier, final String src) {
-    final byte[] buffer = identifierToByteArray(identifier);
+    final byte[] buffer = BerUtil.identifierToByteArray(identifier);
     return addHexString(buffer, src);
   }
 
@@ -430,7 +431,7 @@ public final class BerBuilder {
    * @param src the contents octets
    */
   public BerBuilder addHexString(final long identifier, final String src) {
-    final byte[] buffer = identifierToByteArray(identifier);
+    final byte[] buffer = BerUtil.identifierToByteArray(identifier);
     return addHexString(buffer, src);
   }
 
@@ -441,7 +442,7 @@ public final class BerBuilder {
    * @param src the contents octets
    */
   public BerBuilder addHexString(final byte[] identifier, final String src) {
-    return add(identifier, hexToByteArray(src));
+    return add(identifier, BerUtil.hexToByteArray(src));
   }
 
   /**
@@ -481,105 +482,5 @@ public final class BerBuilder {
       numberOfLengthOctets = 5;
     }
     return numberOfLengthOctets;
-  }
-
-  private byte[] identifierToByteArray(final int identifier) {
-   final byte[] buffer;
-    final int i = identifier ^ 0x80000000;
-    if (i <= 0x800000FF) {
-      buffer = new byte[1];
-      buffer[0] = (byte) (identifier >>>  0);
-    } else if (i <= 0x8000FFFF) {
-      buffer = new byte[2];
-      buffer[0] = (byte) (identifier >>>  8);
-      buffer[1] = (byte) (identifier >>>  0);
-    } else if (i <= 0x80FFFFFF) {
-      buffer = new byte[3];
-      buffer[0] = (byte) (identifier >>> 16);
-      buffer[1] = (byte) (identifier >>>  8);
-      buffer[2] = (byte) (identifier >>>  0);
-    } else {
-      buffer = new byte[4];
-      buffer[0] = (byte) (identifier >>> 24);
-      buffer[1] = (byte) (identifier >>> 16);
-      buffer[2] = (byte) (identifier >>>  8);
-      buffer[3] = (byte) (identifier >>>  0);
-    }
-    return buffer;
-  }
-
-  private byte[] identifierToByteArray(final long identifier) {
-    final byte[] buffer;
-    final long l = identifier ^ 0x8000000000000000L;
-    if (l <= 0x80000000000000FFL) {
-      buffer = new byte[1];
-      buffer[0] = (byte) (identifier >>>  0);
-    } else if (l <= 0x800000000000FFFFL) {
-      buffer = new byte[2];
-      buffer[0] = (byte) (identifier >>>  8);
-      buffer[1] = (byte) (identifier >>>  0);
-    } else if (l <= 0x8000000000FFFFFFL) {
-      buffer = new byte[3];
-      buffer[0] = (byte) (identifier >>> 16);
-      buffer[1] = (byte) (identifier >>>  8);
-      buffer[2] = (byte) (identifier >>>  0);
-    } else if (l <= 0x80000000FFFFFFFFL) {
-      buffer = new byte[4];
-      buffer[0] = (byte) (identifier >>> 24);
-      buffer[1] = (byte) (identifier >>> 16);
-      buffer[2] = (byte) (identifier >>>  8);
-      buffer[3] = (byte) (identifier >>>  0);
-    } else if (l <= 0x800000FFFFFFFFFFL) {
-      buffer = new byte[5];
-      buffer[0] = (byte) (identifier >>> 32);
-      buffer[1] = (byte) (identifier >>> 24);
-      buffer[2] = (byte) (identifier >>> 16);
-      buffer[3] = (byte) (identifier >>>  8);
-      buffer[4] = (byte) (identifier >>>  0);
-    } else if (l <= 0x8000FFFFFFFFFFFFL) {
-      buffer = new byte[6];
-      buffer[0] = (byte) (identifier >>> 40);
-      buffer[1] = (byte) (identifier >>> 32);
-      buffer[2] = (byte) (identifier >>> 24);
-      buffer[3] = (byte) (identifier >>> 16);
-      buffer[4] = (byte) (identifier >>>  8);
-      buffer[5] = (byte) (identifier >>>  0);
-    } else if (l <= 0x80FFFFFFFFFFFFFFL) {
-      buffer = new byte[7];
-      buffer[0] = (byte) (identifier >>> 48);
-      buffer[1] = (byte) (identifier >>> 40);
-      buffer[2] = (byte) (identifier >>> 32);
-      buffer[3] = (byte) (identifier >>> 24);
-      buffer[4] = (byte) (identifier >>> 16);
-      buffer[5] = (byte) (identifier >>>  8);
-      buffer[6] = (byte) (identifier >>>  0);
-    } else {
-      buffer = new byte[8];
-      buffer[0] = (byte) (identifier >>> 56);
-      buffer[1] = (byte) (identifier >>> 48);
-      buffer[2] = (byte) (identifier >>> 40);
-      buffer[3] = (byte) (identifier >>> 32);
-      buffer[4] = (byte) (identifier >>> 24);
-      buffer[5] = (byte) (identifier >>> 16);
-      buffer[6] = (byte) (identifier >>>  8);
-      buffer[7] = (byte) (identifier >>>  0);
-    }
-    return buffer;
-  }
-
-  private byte[] hexToByteArray(final String hex) {
-    Objects.requireNonNull(hex, "hexadecimal string");
-    final int length = hex.length();
-    if ((length & 0x1) != 0) {
-      throw new IllegalStateException(String
-          .format("hexadecimal string <%s> must have an even number of characters.", hex));
-    }
-    byte[] result = new byte[length >> 1];
-    for (int i = 0; i < length; i += 2) {
-      int hn = Character.digit(hex.charAt(i), 16);
-      int ln = Character.digit(hex.charAt(i + 1), 16);
-      result[i >> 1] = (byte) ((hn << 4) | ln);
-    }
-    return result;
   }
 }

@@ -18,8 +18,6 @@ package org.nightcode.tools.ber;
 
 import java.nio.ByteBuffer;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,14 +33,13 @@ public class BerBuilderTest {
 
   @Test
   public void testAdd() {
-    final byte[] expected = DatatypeConverter
-        .parseHexBinary("5E01015F2D01025FDF030103EFDFDF0401045F2D0105");
+    final byte[] expected = BerUtil.hexToByteArray("5E01015F2D01025FDF030103DFDFDF0401045F2D0105");
 
     BerBuilder builder = BerBuilder.newInstance();
     builder.add((byte) 0x5E,                                        new byte[] {(byte) 0x01});
     builder.add((byte) 0x5F, (byte) 0x2D,                           new byte[] {(byte) 0x02});
     builder.add((byte) 0x5F, (byte) 0xDF, (byte) 0x03,              new byte[] {(byte) 0x03});
-    builder.add((byte) 0xEF, (byte) 0xDF, (byte) 0xDF, (byte) 0x04, new byte[] {(byte) 0x04});
+    builder.add((byte) 0xDF, (byte) 0xDF, (byte) 0xDF, (byte) 0x04, new byte[] {(byte) 0x04});
     builder.add(new byte[] {(byte) 0x5F, (byte) 0x2D},              new byte[] {(byte) 0x05});
 
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
@@ -54,14 +51,13 @@ public class BerBuilderTest {
 
   @Test
   public void testAddInt() {
-    final byte[] expected = DatatypeConverter
-        .parseHexBinary("5E01015F2D01025FDF030103EFDFDF0401045F2D0105");
+    final byte[] expected = BerUtil.hexToByteArray("5E01015F2D01025FDF030103DFDFDF0401045F2D0105");
 
     BerBuilder builder = BerBuilder.newInstance();
     builder.add(0x5E,       new byte[] {(byte) 0x01});
     builder.add(0x5F2D,     new byte[] {(byte) 0x02});
     builder.add(0x5FDF03,   new byte[] {(byte) 0x03});
-    builder.add(0xEFDFDF04, new byte[] {(byte) 0x04});
+    builder.add(0xDFDFDF04, new byte[] {(byte) 0x04});
     builder.add(0x5F2D,     new byte[] {(byte) 0x05});
 
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
@@ -73,20 +69,20 @@ public class BerBuilderTest {
   
   @Test
   public void testAddLong() {
-    final byte[] expected = DatatypeConverter
-        .parseHexBinary("5E01015F2D01025FDF030103EFDFDF0401045F2D0105EFDFDFDF060106EFDFDFDFDF070107" 
-            + "EFDFDFDFDFDF080108EFDFDFDFDFDFDF090109");
+    final byte[] expected = BerUtil
+        .hexToByteArray("5E01015F2D01025FDF030103DFDFDF0401045F2D0105DFDFDFDF060106DFDFDFDFDF070107" 
+            + "DFDFDFDFDFDF080108DFDFDFDFDFDFDF090109");
 
     BerBuilder builder = BerBuilder.newInstance();
     builder.add(0x5EL,               new byte[] {(byte) 0x01});
     builder.add(0x5F2DL,             new byte[] {(byte) 0x02});
     builder.add(0x5FDF03L,           new byte[] {(byte) 0x03});
-    builder.add(0xEFDFDF04L,         new byte[] {(byte) 0x04});
+    builder.add(0xDFDFDF04L,         new byte[] {(byte) 0x04});
     builder.add(0x5F2DL,             new byte[] {(byte) 0x05});
-    builder.add(0xEFDFDFDF06L,       new byte[] {(byte) 0x06});
-    builder.add(0xEFDFDFDFDF07L,     new byte[] {(byte) 0x07});
-    builder.add(0xEFDFDFDFDFDF08L,   new byte[] {(byte) 0x08});
-    builder.add(0xEFDFDFDFDFDFDF09L, new byte[] {(byte) 0x09});
+    builder.add(0xDFDFDFDF06L,       new byte[] {(byte) 0x06});
+    builder.add(0xDFDFDFDFDF07L,     new byte[] {(byte) 0x07});
+    builder.add(0xDFDFDFDFDFDF08L,   new byte[] {(byte) 0x08});
+    builder.add(0xDFDFDFDFDFDFDF09L, new byte[] {(byte) 0x09});
 
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
     BerEncoder berEncoder = new BerEncoder();
@@ -97,8 +93,8 @@ public class BerBuilderTest {
 
   @Test
   public void testAddBuilder() {
-    final byte[] expected = DatatypeConverter
-        .parseHexBinary("7E030101FF7F2D030101FF7FDF03030101FF7FDFDF04030101FF7F2D030101FF");
+    final byte[] expected = BerUtil
+        .hexToByteArray("7E030101FF7F2D030101FF7FDF03030101FF7FDFDF04030101FF7F2D030101FF");
 
     BerBuilder inner = BerBuilder.newInstance();
     inner.addHexString((byte) 0x01, "FF");
@@ -119,8 +115,8 @@ public class BerBuilderTest {
 
   @Test
   public void testAddAsciiString() {
-    final byte[] expected = DatatypeConverter
-        .parseHexBinary("5E02656E5F2D02656E5FDF0302656E5FDFDF0402656E5F2D02656E");
+    final byte[] expected = BerUtil
+        .hexToByteArray("5E02656E5F2D02656E5FDF0302656E5FDFDF0402656E5F2D02656E");
 
     BerBuilder builder = BerBuilder.newInstance();
     builder.addAsciiString((byte) 0x5E,                                        "en");
@@ -138,8 +134,8 @@ public class BerBuilderTest {
 
   @Test
   public void testAddHexString() {
-    final byte[] expected = DatatypeConverter
-        .parseHexBinary("5E01015F2D01025FDF0301035FDFDF0401045F2D0105");
+    final byte[] expected = BerUtil
+        .hexToByteArray("5E01015F2D01025FDF0301035FDFDF0401045F2D0105");
 
     BerBuilder builder = BerBuilder.newInstance();
     builder.addHexString((byte) 0x5E,                                        "01");
