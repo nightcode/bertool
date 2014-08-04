@@ -1,6 +1,8 @@
 # BerTool 
 
 Basic Encoding Rules tool.
+BerTool was primarily created to decode EMV records encoded in tag-length-value or BER TLV format (TLV is also known as type-length value).
+With this tool it is easy not only to decode but to encode records too.
 
 How to encode 
 -------------
