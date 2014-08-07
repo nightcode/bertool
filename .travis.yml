@@ -1,0 +1,8 @@
+language: java
+jdk:
+  - oraclejdk8
+os:
+  - linux
+before_install:
+  - if [[ $TRAVIS_JDK_VERSION = 'oraclejdk8' ]]; then sudo apt-get update; sudo apt-get install oracle-java8-installer; else true; fi
+script: ant
