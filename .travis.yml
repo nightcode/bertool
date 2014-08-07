@@ -5,4 +5,7 @@ os:
   - linux
 before_install:
   - if [[ $TRAVIS_JDK_VERSION = 'oraclejdk8' ]]; then sudo apt-get update; sudo apt-get install oracle-java8-installer; else true; fi
-script: mvn clean install
+  - wget http://prdownloads.sourceforge.net/findbugs/findbugs-3.0.0.tar.gz?download -O /tmp/findbugs-3.0.0.tar.gz
+  - tar -xvf /tmp/findbugs-3.0.0.tar.gz
+  - export FINDBUGS_HOME=$PWD/findbugs-3.0.0
+script: ant dist 
