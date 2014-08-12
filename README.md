@@ -20,7 +20,7 @@ How to encode
 
 code
 
-```
+```java
   BerBuilder builderA5 = new BerBuilder();
   builderA5.add(0x88, new byte[] {0x02});
   builderA5.addAsciiString(0x5F2D, "en");
@@ -41,7 +41,7 @@ code
 How to decode 
 -------------
 
-```
+```java
   byte[] byteArray = BerUtil.hexToByteArray("6F1A840E315041592E5359532E4444463031A508"
     + "8801025F2D02656E9f36020060");
 
@@ -55,7 +55,7 @@ How to decode
 StreamBerPrinter example
 ------------------------
 
-```
+```java
   byte[] byteArray = BerUtil
     .hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E77299f2701009f36"
     + "0200609f2608c2c12b098f3da6e39f10120111258013423a02cfec00000002011400ff9000"); 
@@ -83,5 +83,19 @@ output
  └─[90]
 ```
 
+Download
+--------
+
+Download [the latest jar][1] via Maven:
+```xml
+<dependency>
+  <groupId>org.nightcode</groupId>
+  <artifactId>bertool</artifactId>
+  <version>0.2</version>
+</dependency>
+```
 
 Feedback is welcome. Please don't hesitate to open up a new [github issue](https://github.com/nightcode/bertool/issues) or simply drop me a line at <dmitry@nightcode.org>.
+
+
+ [1]: http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=org.nightcode&a=bertool&v=LATEST

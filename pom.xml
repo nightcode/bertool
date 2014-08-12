@@ -26,7 +26,7 @@
   <groupId>org.nightcode</groupId>
   <artifactId>bertool</artifactId>
   <packaging>jar</packaging>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2</version>
   <name>BerTool</name>
   <description>Basic Encoding Rules tool.</description>
   <url>http://github.com/nightcode/bertool/</url>
