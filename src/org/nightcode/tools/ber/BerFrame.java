@@ -83,6 +83,9 @@ public final class BerFrame {
    * @return the contents octets
    */
   public @Nullable byte[] getContent(byte... identifier) {
+    if (identifier.length == 0) {
+      return null;
+    }
     return getContent(identifier, tlvs);
   }
 
@@ -93,7 +96,43 @@ public final class BerFrame {
    * @param identifier the BER tag
    * @return the contents octets
    */
+  public List<byte[]> getAllContents(final byte identifier) {
+    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
+  }
+
+  /**
+   * Returns a list of objects containing all of the contents octets the given BER tag has,
+   * or empty list if the BER tag does not exists.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
+  public List<byte[]> getAllContents(final int identifier) {
+    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
+  }
+
+  /**
+   * Returns a list of objects containing all of the contents octets the given BER tag has,
+   * or empty list if the BER tag does not exists.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
+  public List<byte[]> getAllContents(final long identifier) {
+    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
+  }
+
+  /**
+   * Returns a list of objects containing all of the contents octets the given BER tag has,
+   * or empty list if the BER tag does not exists.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
   public List<byte[]> getAllContents(byte... identifier) {
+    if (identifier.length == 0) {
+      return new ArrayList<>();
+    }
     return getAllContents(identifier, tlvs);
   }
 
