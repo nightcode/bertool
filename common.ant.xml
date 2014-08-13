@@ -26,11 +26,11 @@
   <property file="build.properties" />
 
   <tstamp />
-  <condition property="version" value="${module.version}-snapshot${DSTAMP}" else="${module.version}">
-    <istrue value="${snapshot}" />
+  <condition property="version" value="${module.version}" else="${module.version}-snapshot${DSTAMP}">
+    <istrue value="${release}" />
   </condition>
-  <condition property="version.impl" value="${version}${TSTAMP}" else="${version}">
-    <istrue value="${snapshot}" />
+  <condition property="version.impl" value="${version}" else="${version}${TSTAMP}">
+    <istrue value="${release}" />
   </condition>
 
   <property name="module.packagenames" value="org.nightcode.*" />
