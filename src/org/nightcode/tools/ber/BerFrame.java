@@ -184,7 +184,7 @@ public final class BerFrame {
   }
 
   private boolean contains(byte[] target, final int position, final int length) {
-    if (target.length != length || buffer.capacity() < position + target.length) {
+    if (target.length != length) {
       return false;
     }
     for (int i = 0; i < length; i++) {
