@@ -1,6 +1,6 @@
 # BerTool 
 
-[![Build Status](https://travis-ci.org/nightcode/bertool.svg?branch=master)](https://travis-ci.org/nightcode/bertool)
+[![Build Status](https://travis-ci.org/nightcode/bertool.svg?branch=master)](https://travis-ci.org/nightcode/bertool) [![Coverage Status](https://coveralls.io/repos/nightcode/bertool/badge.png?branch=master)](https://coveralls.io/r/nightcode/bertool?branch=master)
 
 Basic Encoding Rules tool.
 BerTool was primarily created to decode EMV records encoded in tag-length-value or BER TLV format (TLV is also known as type-length value).
@@ -42,8 +42,8 @@ How to decode
 -------------
 
 ```java
-  byte[] byteArray = BerUtil.hexToByteArray("6F1A840E315041592E5359532E4444463031A508"
-    + "8801025F2D02656E9f36020060");
+  byte[] byteArray = BerUtil.hexToByteArray("6F1A840E315041592E5359532E444446"
+    + "3031A5088801025F2D02656E9f36020060");
 
   BerDecoder berDecoder = new BerDecoder();
   BerFrame berFrame = berDecoder.decode(byteArray);
@@ -56,9 +56,9 @@ StreamBerPrinter example
 ------------------------
 
 ```java
-  byte[] byteArray = BerUtil
-    .hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E77299f2701009f36"
-    + "0200609f2608c2c12b098f3da6e39f10120111258013423a02cfec00000002011400ff9000"); 
+  byte[] byteArray = BerUtil.hexToByteArray("6F1A840E315041592E5359532E444446"
+    + "3031A5088801025F2D02656E77299f2701009f360200609f2608c2c12b098f3d"
+    + "a6e39f10120111258013423a02cfec00000002011400ff9000"); 
 
   BerDecoder berDecoder = new BerDecoder();
   BerFrame berFrame = berDecoder.decode(byteArray);

@@ -14,7 +14,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="common">
+<project name="common" xmlns:jacoco="antlib:org.jacoco.ant">
 
   <!-- Global Properties -->
   <property environment="env" />
@@ -52,6 +52,15 @@
   <property name="findbugs.dir" value="${findbugs.check}" />
   <property name="findbugs.out" value="${build.dir}/findbugs" />
 
+  <property name="coverage.enabled" value="true" />
+  <property name="coverage.dir" value="${build.dir}/coverage" />
+
+  <condition property="jacoco.check" value="${env.JACOCO_HOME}" else="/usr/local/jacoco">
+    <isset property="env.JACOCO_HOME" />
+  </condition>
+  <property name="jacoco.dir" value="${jacoco.check}" />
+  <property name="jacoco.out" value="${coverage.dir}/jacoco" />
+
   <property name="checkstyle.config" value="${root.dir}/checkstyle.xml" />
 
   <taskdef resource="net/sf/antcontrib/antcontrib.properties">
@@ -64,6 +73,10 @@
     <classpath>
       <pathelement location="${findbugs.dir}/lib/findbugs-ant.jar" />
     </classpath>
+  </taskdef>
+
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath path="${jacoco.dir}/lib/jacocoant.jar"/>
   </taskdef>
 
   <taskdef resource="checkstyletask.properties">
@@ -176,6 +189,55 @@
     </findbugs>
   </target>
 
+  <target name="coverage" depends="test.compile" description="Execute coverage task.">
+    <antcall target="coverage.mkdirs" />
+
+    <jacoco:coverage enabled="${coverage.enabled}" destfile="${jacoco.out}/jacoco.exec">
+      <junit fork="yes" printsummary="yes" failureproperty="test.failure">
+        <jvmarg line="-Xmx512m" />
+        <jvmarg line="-Xss512k" />
+        <classpath>
+          <pathelement location="${build.dir}/test" />
+          <pathelement location="${build.dir}/classes" />
+          <path refid="compile.classpath" />
+          <path refid="test.classpath" />
+        </classpath>
+
+        <batchtest todir="${build.dir}/test/reports">
+          <fileset dir="${test.dir}">
+            <include name="**/*Test.java" />
+          </fileset>
+          <formatter type="plain" />
+          <formatter type="xml" />
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
+
+    <condition property="stop.build" value="true">
+      <and>
+        <istrue value="${halt.on.failure}" />
+        <isset property="test.failure" />
+      </and>
+    </condition>
+
+    <fail message="One or more tests failed for: ${ant.project.name}" if="stop.build" status="2" />
+
+    <jacoco:report>
+      <executiondata>
+        <file file="${jacoco.out}/jacoco.exec" />
+      </executiondata>
+      <structure name="${ant.project.name}">
+        <classfiles>
+          <fileset dir="${build.dir}/classes" />
+        </classfiles>
+        <sourcefiles encoding="UTF-8">
+          <fileset dir="${src.dir}" />
+        </sourcefiles>
+      </structure>
+      <html destdir="${jacoco.out}/report" />
+    </jacoco:report>
+  </target>
+
   <target name="checkstyle" description="Checks source code style">
     <mkdir dir="${build.dir}" />
     <checkstyle config="${checkstyle.config}" classpath="${build.dir}/classes">
@@ -230,6 +292,11 @@
     <jar jarfile="${javadoc.jar}">
       <fileset dir="${docs.dir}" />
     </jar>
+  </target>
+
+  <target name="coverage.mkdirs" if="coverage.enabled">
+    <delete dir="${jacoco.out}" />
+    <mkdir dir="${jacoco.out}" />
   </target>
 
   <target name="findbugs.mkdirs">
