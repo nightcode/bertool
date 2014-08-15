@@ -196,6 +196,9 @@
             <goals>
               <goal>check</goal>
             </goals>
+            <configuration>
+              <rules />
+            </configuration>
           </execution>
         </executions>
       </plugin>
