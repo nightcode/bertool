@@ -98,7 +98,7 @@
         <classpath refid="compile.classpath" />
         <compilerarg value="-Xlint:unchecked"/>
         <compilerarg value="-XDignore.symbol.file"/> 
-      </javac>
+    </javac>
   </presetdef>
 
   <presetdef name="nightcode.jar">
@@ -193,7 +193,7 @@
     <antcall target="coverage.mkdirs" />
 
     <jacoco:coverage enabled="${coverage.enabled}" destfile="${jacoco.out}/jacoco.exec">
-      <junit fork="yes" printsummary="yes" failureproperty="test.failure">
+      <junit fork="yes" forkmode="once" printsummary="yes" failureproperty="test.failure">
         <jvmarg line="-Xmx512m" />
         <jvmarg line="-Xss512k" />
         <classpath>
@@ -295,6 +295,7 @@
   </target>
 
   <target name="coverage.mkdirs" if="coverage.enabled">
+    <mkdir dir="${build.dir}/test/reports" />
     <delete dir="${jacoco.out}" />
     <mkdir dir="${jacoco.out}" />
   </target>

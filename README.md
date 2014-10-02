@@ -21,15 +21,15 @@ How to encode
 code
 
 ```java
-  BerBuilder builderA5 = new BerBuilder();
+  BerBuilder builderA5 = BerBuilder.newInstance();
   builderA5.add(0x88, new byte[] {0x02});
   builderA5.addAsciiString(0x5F2D, "en");
 
-  BerBuilder builder6F = new BerBuilder();
+  BerBuilder builder6F = BerBuilder.newInstance();
   builder6F.addHexString(0x84, "315041592E5359532E4444463031");
   builder6F.add(0xA5, builderA5);
 
-  BerBuilder builder = new BerBuilder();
+  BerBuilder builder = BerBuilder.newInstance();
   builder.add(0x6F, builder6F);
   builder.add(0x9F36, new byte[] {0x00, 0x60});
 
