@@ -20,6 +20,18 @@ import java.util.Objects;
 
 final class BerUtil {
 
+  static final char[] UPPER_HEX_DIGITS = "0123456789ABCDEF".toCharArray();
+
+  static String byteArrayToHex(byte[] bytes) {
+    int capacity = bytes.length << 1;
+    StringBuilder builder = new StringBuilder(capacity);
+    for (byte b : bytes) {
+      builder.append(UPPER_HEX_DIGITS[(b & 0xF0) >> 4]);
+      builder.append(UPPER_HEX_DIGITS[b & 0x0F]);
+    }
+    return builder.toString();
+  }
+
   static byte[] identifierToByteArray(final int identifier) {
     final byte[] buffer;
     final int i = identifier ^ 0x80000000;

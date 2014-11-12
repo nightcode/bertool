@@ -21,16 +21,22 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.theories.DataPoint;
+import org.junit.experimental.theories.Theories;
+import org.junit.experimental.theories.Theory;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 
+@RunWith(Theories.class)
 public class StreamBerPrinterTest {
 
   private final byte[] BER = BerUtil.hexToByteArray(
       ("6F1A840E 31504159 2E535953 2E444446 3031A508 8801025F 2D02656E 77299f27"
-          + "01009f36 0200609F 2608c2c1 2b098f3d a6e39f10 12011125 8013423a 02cfec00"
-          + "00000201 1400ff90 00").replaceAll(" ", ""));
+     + "01009f36 0200609F 2608c2c1 2b098f3d a6e39f10 12011125 8013423a 02cfec00"
+     + "00000201 1400ff20 00").replaceAll(" ", ""));
 
   private final String expected =
       "\n"
@@ -44,7 +50,21 @@ public class StreamBerPrinterTest {
     + " │  ├─[9F36] 0060\n"
     + " │  ├─[9F26] C2C12B098F3DA6E3\n"
     + " │  └─[9F10] 0111258013423A02CFEC00000002011400FF\n"
-    + " └─[90]\n";
+    + " └─[20]";
+
+
+  
+  @DataPoint
+  public static BerFormatter DEFAULT_FORMATTER;
+
+  @DataPoint
+  public static BerFormatter EMV_FORMATTER;
+
+  @BeforeClass
+  public static void setUpOnce() throws IOException {
+    DEFAULT_FORMATTER = new DefaultBerFormatter();
+    EMV_FORMATTER = new EmvBerFormatter();
+  }
 
   private final BerDecoder berDecoder = new BerDecoder();
 
@@ -88,5 +108,12 @@ public class StreamBerPrinterTest {
 
     printer.print(berFrame);
     assertEquals(expected, baos.toString());
+  }
+
+  @Theory
+  public void shouldPrint(BerFormatter formatter) throws IOException {
+    BerFrame berFrame = berDecoder.decode(BER);
+    BerPrinter printer = new StreamBerPrinter(System.out, formatter);
+    printer.print(berFrame);
   }
 }

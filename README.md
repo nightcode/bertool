@@ -55,6 +55,8 @@ How to decode
 StreamBerPrinter example
 ------------------------
 
+with DefaultBerFormatter
+
 ```java
   byte[] byteArray = BerUtil.hexToByteArray("6F1A840E315041592E5359532E444446"
     + "3031A5088801025F2D02656E77299f2701009f360200609f2608c2c12b098f3d"
@@ -81,6 +83,50 @@ output
  │  ├─[9F26] C2C12B098F3DA6E3
  │  └─[9F10] 0111258013423A02CFEC00000002011400FF
  └─[90]
+```
+
+with EmvBerFormatter
+
+```java
+  byte[] byteArray = BerUtil.hexToByteArray("6F1A840E315041592E5359532E444446"
+    + "3031A5088801025F2D02656E77299f2701009f360200609f2608c2c12b098f3d"
+    + "a6e39f10120111258013423a02cfec00000002011400ff9000"); 
+
+  BerDecoder berDecoder = new BerDecoder();
+  BerFrame berFrame = berDecoder.decode(byteArray);
+
+  BerPrinter printer = new StreamBerPrinter(System.out, new EmvBerFormatter());
+  printer.print(berFrame);
+```
+
+output
+
+```
+ ├─[6F] File Control Information (FCI) Template
+ │  │ 84 0E 31 50 41 59 2E 53  59 53 2E 44 44 46 30 31
+ │  │ A5 08 88 01 02 5F 2D 02  65 6E
+ │  ├─[84] Dedicated File (DF) Name
+ │  │   31 50 41 59 2E 53 59 53  2E 44 44 46 30 31
+ │  └─[A5] File Control Information (FCI) Proprietary Template
+ │     │ 88 01 02 5F 2D 02 65 6E
+ │     ├─[88] Short File Identifier (SFI)
+ │     │   02
+ │     └─[5F2D] Language Preference
+ │         65 6E
+ ├─[77] Response Message Template Format 2
+ │  │ 9F 27 01 00 9F 36 02 00  60 9F 26 08 C2 C1 2B 09
+ │  │ 8F 3D A6 E3 9F 10 12 01  11 25 80 13 42 3A 02 CF
+ │  │ EC 00 00 00 02 01 14 00  FF
+ │  ├─[9F27] Cryptogram Information Data
+ │  │   00
+ │  ├─[9F36] Application Transaction Counter (ATC)
+ │  │   00 60
+ │  ├─[9F26] Application Cryptogram
+ │  │   C2 C1 2B 09 8F 3D A6 E3
+ │  └─[9F10] Issuer Application Data
+ │      01 11 25 80 13 42 3A 02  CF EC 00 00 00 02 01 14
+ │      00 FF
+ └─[90] Issuer Public Key Certificate
 ```
 
 Download

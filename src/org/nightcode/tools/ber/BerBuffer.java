@@ -37,7 +37,7 @@ final class BerBuffer {
         }
       };
       UNSAFE = AccessController.doPrivileged(action);
-    } catch (final Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }
