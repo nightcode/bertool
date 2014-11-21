@@ -130,7 +130,7 @@
   <target name="compile" description="Compile Java source.">
     <mkdir dir="${build.dir}/classes" />
     <nightcode.javac />
-    <copy toDir="${build.dir}/classes">
+    <copy toDir="${build.dir}/classes" failonerror="false">
       <fileset dir="${resources.dir}" excludes="**/*.java" />
     </copy>
   </target>
