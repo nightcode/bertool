@@ -34,6 +34,7 @@ public class BerDecoder {
    * Decode the BER data which contains in the supplied bytes array.
    *
    * @param src which contains the BER data
+   * @exception DecoderException
    */
   public BerFrame decode(final byte[] src) {
     ByteBuffer buffer = ByteBuffer.wrap(src);
@@ -44,6 +45,7 @@ public class BerDecoder {
    * Decode the BER data which contains in the supplied {@link ByteBuffer}.
    *
    * @param srcBuffer which contains the BER data
+   * @exception DecoderException
    */
   public BerFrame decode(final ByteBuffer srcBuffer) {
     return decode(srcBuffer, 0, srcBuffer.limit());
@@ -57,6 +59,7 @@ public class BerDecoder {
    * @param offset in the supplied srcBuffer
    * @param length of the BER data in bytes
    * @exception java.lang.IndexOutOfBoundsException
+   * @exception DecoderException
    */
   public BerFrame decode(final ByteBuffer srcBuffer, final int offset, final int length) {
     BerBuffer berBuffer = new BerBuffer(srcBuffer);
@@ -66,7 +69,20 @@ public class BerDecoder {
   private BerFrame decode(final BerBuffer berBuffer, final int offset, final int length) {
     final int limit = berBuffer.checkLimit(offset + length);
     List<BerTlv> root = new ArrayList<>();
-    getLevel(berBuffer, root, offset, limit);
+    try {
+      getLevel(berBuffer, root, offset, limit);
+    } catch (Exception ex) {
+      int undecodedLength;
+      if (root.isEmpty()) {
+        undecodedLength = length;
+      } else {
+        BerTlv last = root.get(root.size() - 1);
+        undecodedLength = limit - last.contentPosition() - last.contentLength();
+      }
+      byte[] undecoded = new byte[undecodedLength];
+      berBuffer.getBytes(limit - undecodedLength, undecoded);
+      throw new DecoderException(ex, new BerFrame(berBuffer, offset, limit, root), undecoded);
+    }
     return new BerFrame(berBuffer, offset, limit, root);
   }
 

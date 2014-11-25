@@ -18,6 +18,7 @@ package org.nightcode.tools.ber;
 
 import java.nio.ByteBuffer;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.theories.Theories;
@@ -26,6 +27,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 import static org.nightcode.tools.ber.BerUtil.hexToByteArray;
 
 @RunWith(Theories.class)
@@ -104,6 +106,52 @@ public class BerDecoderTest {
     BerFrame berFrame = berDecoder.decode(frame);
 
     assertArrayEquals(content, berFrame.getContent(0x84));
+  }
+
+  @Test
+  public void testDecoderExceptionCase1() {
+    byte[] ber = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f360200");
+    try {
+      new BerDecoder().decode(ber);
+      fail("should throw DecoderException");
+    } catch (DecoderException ex) {
+      Assert.assertArrayEquals(hexToByteArray("9f360200"), ex.getUndecoded());
+      Assert.assertArrayEquals(hexToByteArray("840E315041592E5359532E4444463031" 
+          + "A5088801025F2D02656E"), ex.getPartialBerFrame().getContent(0x6F));
+    }
+  }
+
+  @Test
+  public void testDecoderExceptionCase2() {
+    byte[] ber = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f360200");
+    final ByteBuffer buffer = ByteBuffer.allocate(ber.length + OFFSET * 2);
+    buffer.put((byte) 0xE1);
+    buffer.position(OFFSET);
+    buffer.put(ber);
+    try {
+      new BerDecoder().decode(buffer, OFFSET, ber.length);
+      fail("should throw DecoderException");
+    } catch (DecoderException ex) {
+      Assert.assertArrayEquals(hexToByteArray("9f360200"), ex.getUndecoded());
+      Assert.assertArrayEquals(hexToByteArray("840E315041592E5359532E4444463031" 
+          + "A5088801025F2D02656E"), ex.getPartialBerFrame().getContent(0x6F));
+    }
+  }
+
+  @Test
+  public void testDecoderExceptionCase3() {
+    byte[] ber = hexToByteArray("9f360200");
+    final ByteBuffer buffer = ByteBuffer.allocate(ber.length + OFFSET * 2);
+    buffer.put((byte) 0xE1);
+    buffer.position(OFFSET);
+    buffer.put(ber);
+    try {
+      new BerDecoder().decode(buffer, OFFSET, ber.length);
+      fail("should throw DecoderException");
+    } catch (DecoderException ex) {
+      Assert.assertArrayEquals(hexToByteArray("9f360200"), ex.getUndecoded());
+      Assert.assertFalse(ex.getPartialBerFrame().getIdentifiers().hasNext());
+    }
   }
 
   @Theory
