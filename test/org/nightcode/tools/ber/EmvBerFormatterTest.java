@@ -94,7 +94,7 @@ public class EmvBerFormatterTest {
   }
 
   @Theory
-  public void shouldThrowExceptionForLimitAboveCapacity() throws IOException {
+  public void shouldThrowExceptionForIoException() throws IOException {
     exceptionRule.expect(IOException.class);
     try {
       System.setProperty("emv.tags", "unset");
