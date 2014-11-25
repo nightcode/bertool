@@ -17,7 +17,9 @@
 package org.nightcode.tools.ber;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoint;
@@ -28,9 +30,11 @@ import org.junit.runner.RunWith;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.nightcode.tools.ber.BerUtil.hexToByteArray;
 
 @RunWith(Theories.class)
@@ -192,5 +196,24 @@ public class BerFrameTest {
     List<byte[]> result = berFrame.getAllContents();
 
     assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void testGetIdentifiers() {
+    BerFrame berFrame
+        = berDecoder.decode(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"));
+
+    Iterator<byte[]> i = berFrame.getIdentifiers();
+    assertTrue(i.hasNext());
+    assertArrayEquals(new byte[] {(byte) 0x84}, i.next());
+    assertTrue(i.hasNext());
+    assertArrayEquals(new byte[] {(byte) 0xA5}, i.next());
+    assertFalse(i.hasNext());
+    try {
+      i.next();
+      fail("should throw NoSuchElementException");
+    } catch (NoSuchElementException ex) {
+      // do nothing
+    }
   }
 }

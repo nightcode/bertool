@@ -17,7 +17,9 @@
 package org.nightcode.tools.ber;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.annotation.Nullable;
 
@@ -25,6 +27,43 @@ import javax.annotation.Nullable;
  * Main BER tags container.
  */
 public final class BerFrame {
+
+  private static final class BerTlvIterator implements Iterator<byte[]> {
+
+    private final BerBuffer buffer;
+    private final Iterator<BerTlv> iterator;
+
+    private BerTlv next;
+    private boolean ready = false;
+
+    private BerTlvIterator(BerFrame source) {
+      this.buffer = source.buffer;
+      this.iterator = source.tlvs.iterator();
+    }
+
+    @Override public boolean hasNext() {
+      return ready || tryNext();
+    }
+
+    @Override public byte[] next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      ready = false;
+      byte[] identifier = new byte[next.identifierLength()];
+      buffer.getBytes(next.identifierPosition(), identifier);
+      return identifier;
+    }
+
+    private boolean tryNext() {
+      if (iterator.hasNext()) {
+        next = iterator.next();
+        ready = true;
+        return true;
+      }
+      return false;
+    }
+  }
 
   private final BerBuffer buffer;
   private final int offset;
@@ -36,6 +75,53 @@ public final class BerFrame {
     this.offset = offset;
     this.limit = limit;
     this.tlvs = tlvs;
+  }
+
+  /**
+   * Returns a list of objects containing all of the contents octets the given BER tag has,
+   * or empty list if the BER tag does not exists.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
+  public List<byte[]> getAllContents(final byte identifier) {
+    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
+  }
+
+  /**
+   * Returns a list of objects containing all of the contents octets the given BER tag has,
+   * or empty list if the BER tag does not exists.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
+  public List<byte[]> getAllContents(final int identifier) {
+    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
+  }
+
+  /**
+   * Returns a list of objects containing all of the contents octets the given BER tag has,
+   * or empty list if the BER tag does not exists.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
+  public List<byte[]> getAllContents(final long identifier) {
+    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
+  }
+
+  /**
+   * Returns a list of objects containing all of the contents octets the given BER tag has,
+   * or empty list if the BER tag does not exists.
+   *
+   * @param identifier the BER tag
+   * @return the contents octets
+   */
+  public List<byte[]> getAllContents(byte... identifier) {
+    if (identifier.length == 0) {
+      return new ArrayList<>();
+    }
+    return getAllContents(identifier, tlvs);
   }
 
   /**
@@ -90,50 +176,12 @@ public final class BerFrame {
   }
 
   /**
-   * Returns a list of objects containing all of the contents octets the given BER tag has,
-   * or empty list if the BER tag does not exists.
+   * Returns the Iterator of BER tag identifiers of first level.
    *
-   * @param identifier the BER tag
-   * @return the contents octets
+   * @return the Iterator of BER tag identifiers of first level
    */
-  public List<byte[]> getAllContents(final byte identifier) {
-    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
-  }
-
-  /**
-   * Returns a list of objects containing all of the contents octets the given BER tag has,
-   * or empty list if the BER tag does not exists.
-   *
-   * @param identifier the BER tag
-   * @return the contents octets
-   */
-  public List<byte[]> getAllContents(final int identifier) {
-    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
-  }
-
-  /**
-   * Returns a list of objects containing all of the contents octets the given BER tag has,
-   * or empty list if the BER tag does not exists.
-   *
-   * @param identifier the BER tag
-   * @return the contents octets
-   */
-  public List<byte[]> getAllContents(final long identifier) {
-    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
-  }
-
-  /**
-   * Returns a list of objects containing all of the contents octets the given BER tag has,
-   * or empty list if the BER tag does not exists.
-   *
-   * @param identifier the BER tag
-   * @return the contents octets
-   */
-  public List<byte[]> getAllContents(byte... identifier) {
-    if (identifier.length == 0) {
-      return new ArrayList<>();
-    }
-    return getAllContents(identifier, tlvs);
+  public Iterator<byte[]> getIdentifiers() {
+    return new BerTlvIterator(this);
   }
 
   BerBuffer berBuffer() {
