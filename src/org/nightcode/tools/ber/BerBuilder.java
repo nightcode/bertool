@@ -120,6 +120,22 @@ public final class BerBuilder {
   }
 
   /**
+   * Adds all BER tags from supplied BerFrame.
+   *
+   * @param berFrame the supplied BerFrame
+   */
+  public BerBuilder add(BerFrame berFrame) {
+    for (BerTlv berTlv : berFrame.getTlvs()) {
+      byte[] identifier = new byte[berTlv.identifierLength()];
+      berFrame.berBuffer().getBytes(berTlv.identifierPosition(), identifier);
+      byte[] content = new byte[berTlv.contentLength()];
+      berFrame.berBuffer().getBytes(berTlv.contentPosition(), content);
+      add(identifier, content);
+    }
+    return this;
+  }
+
+  /**
    * Adds a bytes array for encoding.
    *
    * @param identifier the BER tag value

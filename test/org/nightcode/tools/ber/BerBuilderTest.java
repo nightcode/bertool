@@ -117,8 +117,8 @@ public class BerBuilderTest {
 
   @Test
   public void testAddAsciiString() {
-    final byte[] expected = hexToByteArray("5E02656E5F2D02656E5FDF0302656E5F"
-        + "DFDF0402656E5F2D02656E5FDFDFDF2D02656E");
+    final byte[] expected
+        = hexToByteArray("5E02656E5F2D02656E5FDF0302656E5FDFDF0402656E5F2D02656E5FDFDFDF2D02656E");
 
     BerBuilder builder = BerBuilder.newInstance();
     builder.addAsciiString((byte) 0x5E,                                        "en");
@@ -137,8 +137,8 @@ public class BerBuilderTest {
 
   @Test
   public void testAddHexString() {
-    final byte[] expected = hexToByteArray("5E01015F2D01025FDF0301035FDFDF04"
-        + "01045F2D01055FDFDFDF2D0106");
+    final byte[] expected
+        = hexToByteArray("5E01015F2D01025FDF0301035FDFDF0401045F2D01055FDFDFDF2D0106");
 
     BerBuilder builder = BerBuilder.newInstance();
     builder.addHexString((byte) 0x5E,                                        "01");
@@ -197,5 +197,27 @@ public class BerBuilderTest {
     berEncoder.encode(builder, buffer);
 
     assertArrayEquals(get(expected, 0, expected.capacity()), get(buffer, 0, builder.length()));
+  }
+
+  @Test
+  public void testAddBerFrame() {
+    final byte[] expected
+        = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
+    
+    BerFrame berFrame = new BerDecoder()
+        .decode(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"));
+
+    BerBuilder builder6F = BerBuilder.newInstance();
+    builder6F.add(berFrame);
+
+    BerBuilder builder = BerBuilder.newInstance();
+    builder.add(0x6F, builder6F);
+    builder.add(0x9F36, new byte[] {0x00, 0x60});
+
+    byte[] buffer = new byte[builder.length()];
+    BerEncoder berEncoder = new BerEncoder();
+    berEncoder.encode(builder, buffer);
+
+    assertArrayEquals(expected, buffer);
   }
 }
