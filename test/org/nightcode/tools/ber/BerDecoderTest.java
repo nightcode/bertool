@@ -154,6 +154,18 @@ public class BerDecoderTest {
     }
   }
 
+  @Test
+  public void testDecoderExceptionCase4() {
+    byte[] ber = hexToByteArray("B78F9D69485B90134E653D0C9CAA283700F29EA478D3FEECC2919997C093705B");
+    try {
+      new BerDecoder().decode(ber);
+      fail("should throw DecoderException");
+    } catch (DecoderException ex) {
+      Assert.assertArrayEquals(hexToByteArray("B78F9D69485B90134E653D0C9CAA283700F29EA478D3FEEC"
+          + "C2919997C093705B"), ex.getUndecoded());
+    }
+  }
+
   @Theory
   public void shouldThrowExceptionForDecodeIndefiniteForm() {
     exceptionRule.expectMessage("Indefinite form is not supported yet.");

@@ -97,6 +97,7 @@ public class BerDecoder {
   private int getBerTlv(final BerBuffer src, final int identPosition, final List<BerTlv> level,
       final int limit) {
     int index = identPosition;
+    src.checkIndex(index);
     byte firstIdentifier = src.getByte(index++);
     boolean constructed = (firstIdentifier & MASK_CONSTRUCTED) == MASK_CONSTRUCTED;
     if ((firstIdentifier & 0x1F) == 0x1F) {
@@ -116,6 +117,10 @@ public class BerDecoder {
     }
     if ((firstLength & MASK_DEFINITE_LONG_FORM) == MASK_DEFINITE_LONG_FORM) {
       int numberOfSubsequentOctets = firstLength & 0x7F;
+      // currently supported only int value
+      if (numberOfSubsequentOctets > 4) {
+        throw new IllegalStateException("Illegal ber packet structure.");
+      }
       contentPos = index + numberOfSubsequentOctets;
       for (int i = 0; i < numberOfSubsequentOctets; i++) {
         src.checkIndex(index);
