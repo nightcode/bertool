@@ -63,7 +63,7 @@ public class StreamBerPrinterTest {
   @BeforeClass
   public static void setUpOnce() throws IOException {
     DEFAULT_FORMATTER = new DefaultBerFormatter();
-    EMV_FORMATTER = new EmvBerFormatter();
+    EMV_FORMATTER = EmvBerFormatter.newInstance();
   }
 
   private final BerDecoder berDecoder = new BerDecoder();

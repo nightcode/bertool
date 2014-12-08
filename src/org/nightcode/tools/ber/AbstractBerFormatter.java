@@ -24,6 +24,16 @@ import java.io.OutputStream;
  */
 public abstract class AbstractBerFormatter implements BerFormatter {
 
+  protected final boolean printWithSpaces;
+
+  protected AbstractBerFormatter() {
+    this(false);
+  }
+
+  protected AbstractBerFormatter(boolean printWithSpaces) {
+    this.printWithSpaces = printWithSpaces;
+  }
+
   @Override public byte[] lineFeed() {
     return LINE_FEED;
   }
@@ -42,6 +52,15 @@ public abstract class AbstractBerFormatter implements BerFormatter {
   }
 
   void writeToStream(OutputStream stream, BerBuffer buffer, int offset, int length)
+      throws IOException {
+    if (printWithSpaces) {
+      writeToStreamWithSpaces(stream, buffer, offset, length);
+    } else {
+      writeToStreamSimple(stream, buffer, offset, length);
+    }
+  }
+
+  private void writeToStreamSimple(OutputStream stream, BerBuffer buffer, int offset, int length)
       throws IOException {
     int size = offset + length;
     buffer.checkLimit(size);

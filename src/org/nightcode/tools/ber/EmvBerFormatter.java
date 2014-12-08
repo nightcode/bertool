@@ -29,14 +29,26 @@ import java.util.Map;
 /**
  * BerFormatter which try to represents identifiers as EMV tags.
  */
-public class EmvBerFormatter extends AbstractBerFormatter {
-
-  private final Map<String, String> tags = new HashMap<>();
+public final class EmvBerFormatter extends AbstractBerFormatter {
 
   /**
    * @throws IOException if an I/O error occurs
    */
-  public EmvBerFormatter() throws IOException {
+   public static EmvBerFormatter newInstance() throws IOException {
+    return new EmvBerFormatter(false);
+  }
+
+  /**
+   * @throws IOException if an I/O error occurs
+   */
+  public static EmvBerFormatter newInstanceWithSpaces() throws IOException {
+    return new EmvBerFormatter(true);
+  }
+
+  private final Map<String, String> tags = new HashMap<>();
+
+  private EmvBerFormatter(boolean printWithSpaces) throws IOException {
+    super(printWithSpaces);
     String  resourceName = System.getProperty("emv.tags");
     try (InputStream in = (resourceName != null)
         ? new FileInputStream(resourceName)
@@ -71,21 +83,31 @@ public class EmvBerFormatter extends AbstractBerFormatter {
 
     final int contentLength = tlv.contentLength();
     if (contentLength > 0) {
-      final int contentPosition = tlv.contentPosition();
-      final int limit = contentPosition + contentLength;
-      for (int i = contentPosition; i < limit; i += 16) {
-        stream.write(prefix, 0, prefixLength);
-        stream.write(node ? NODE_NEXT_PREFIX : LEAF_NEXT_PREFIX);
-        if (tlv.isConstructed()) {
-          stream.write(LIGHT_VERTICAL);
+      if (printWithSpaces) {
+        final int contentPosition = tlv.contentPosition();
+        final int limit = contentPosition + contentLength;
+        for (int i = contentPosition; i < limit; i += 16) {
+          printContent(stream, buffer, tlv, prefix, prefixLength, node, i, Math.min(16, limit - i));
         }
-        stream.write(SPACE);
-        writeToStreamWithSpaces(stream, buffer, i, Math.min(16, limit - i));
+      } else {
+        printContent(stream, buffer, tlv, prefix, prefixLength, node, tlv.contentPosition()
+            , contentLength);
       }
     }
   }
 
   private String normalize(String str) {
     return str != null ? str.trim() : null;
+  }
+
+  private void printContent(OutputStream stream, BerBuffer buffer, BerTlv tlv, byte[] prefix,
+      int prefixLength, boolean node, int contentPosition, int contentLength) throws IOException {
+    stream.write(prefix, 0, prefixLength);
+    stream.write(node ? NODE_NEXT_PREFIX : LEAF_NEXT_PREFIX);
+    if (tlv.isConstructed()) {
+      stream.write(LIGHT_VERTICAL);
+    }
+    stream.write(SPACE);
+    writeToStream(stream, buffer, contentPosition, contentLength);
   }
 }

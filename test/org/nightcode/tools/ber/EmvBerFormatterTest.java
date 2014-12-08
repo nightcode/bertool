@@ -38,6 +38,29 @@ public class EmvBerFormatterTest {
 
   private final String expected =
       "\n ├─[6F] File Control Information (FCI) Template\n"
+      + " │  │ 840E315041592E5359532E4444463031A5088801025F2D02656E\n"
+      + " │  ├─[84] Dedicated File (DF) Name\n"
+      + " │  │   315041592E5359532E4444463031\n"
+      + " │  └─[A5] File Control Information (FCI) Proprietary Template\n"
+      + " │     │ 8801025F2D02656E\n"
+      + " │     ├─[88] Short File Identifier (SFI)\n"
+      + " │     │   02\n"
+      + " │     └─[5F2D] Language Preference\n"
+      + " │         656E\n"
+      + " ├─[77] Response Message Template Format 2\n"
+      + " │  │ 9F2701009F360200609F2608C2C12B098F3DA6E39F10120111258013423A02CFEC00000002011400FF\n"
+      + " │  ├─[9F27] Cryptogram Information Data\n"
+      + " │  │   00\n"
+      + " │  ├─[9F36] Application Transaction Counter (ATC)\n"
+      + " │  │   0060\n"
+      + " │  ├─[9F26] Application Cryptogram\n"
+      + " │  │   C2C12B098F3DA6E3\n"
+      + " │  └─[9F10] Issuer Application Data\n"
+      + " │      0111258013423A02CFEC00000002011400FF\n"
+      + " └─[20]";
+
+  private final String expectedWithSpaces =
+      "\n ├─[6F] File Control Information (FCI) Template\n"
       + " │  │ 84 0E 31 50 41 59 2E 53  59 53 2E 44 44 46 30 31\n"
       + " │  │ A5 08 88 01 02 5F 2D 02  65 6E\n"
       + " │  ├─[84] Dedicated File (DF) Name\n"
@@ -72,9 +95,18 @@ public class EmvBerFormatterTest {
   public void testPrint() throws Exception {
     BerFrame berFrame = berDecoder.decode(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    BerPrinter printer = new StreamBerPrinter(baos, new EmvBerFormatter());
+    BerPrinter printer = new StreamBerPrinter(baos, EmvBerFormatter.newInstance());
     printer.print(berFrame);
     assertEquals(expected, baos.toString());
+  }
+
+  @Test
+  public void testPrintWithSpaces() throws Exception {
+    BerFrame berFrame = berDecoder.decode(BER);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    BerPrinter printer = new StreamBerPrinter(baos, EmvBerFormatter.newInstanceWithSpaces());
+    printer.print(berFrame);
+    assertEquals(expectedWithSpaces, baos.toString());
   }
 
   @Test
@@ -84,13 +116,13 @@ public class EmvBerFormatterTest {
     BerFormatter berFormatter;
     try {
       System.setProperty("emv.tags", "resources/emv.tags");
-      berFormatter = new EmvBerFormatter();
+      berFormatter = EmvBerFormatter.newInstanceWithSpaces();
     } finally {
       System.clearProperty("emv.tags");
     }
     BerPrinter printer = new StreamBerPrinter(baos, berFormatter);
     printer.print(berFrame);
-    assertEquals(expected, baos.toString());
+    assertEquals(expectedWithSpaces, baos.toString());
   }
 
   @Theory
@@ -98,7 +130,7 @@ public class EmvBerFormatterTest {
     exceptionRule.expect(IOException.class);
     try {
       System.setProperty("emv.tags", "unset");
-      new EmvBerFormatter();
+      EmvBerFormatter.newInstanceWithSpaces();
     } finally {
       System.clearProperty("emv.tags");
     }

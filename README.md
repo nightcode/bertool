@@ -95,7 +95,7 @@ with EmvBerFormatter
   BerDecoder berDecoder = new BerDecoder();
   BerFrame berFrame = berDecoder.decode(byteArray);
 
-  BerPrinter printer = new StreamBerPrinter(System.out, new EmvBerFormatter());
+  BerPrinter printer = new StreamBerPrinter(System.out, EmvBerFormatter.newInstanceWithSpaces());
   printer.print(berFrame);
 ```
 
