@@ -16,7 +16,6 @@
 
 package org.nightcode.tools.ber;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +23,6 @@ import java.util.List;
  * Collects BER tags which will be used to create ber packet.
  */
 public final class BerBuilder {
-
-  private static final Charset ASCII = Charset.forName("US-ASCII");
 
   /**
    * Creates new BerBuilder instance.
@@ -379,7 +376,7 @@ public final class BerBuilder {
    * @param src the contents octets
    */
    public BerBuilder addAsciiString(final byte[] identifier, final String src) {
-    return add(identifier, src.getBytes(ASCII));
+    return add(identifier, src.getBytes(BerUtil.ASCII));
   }
 
   /**

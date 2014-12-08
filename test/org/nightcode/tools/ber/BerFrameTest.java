@@ -31,6 +31,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -42,17 +43,17 @@ public class BerFrameTest {
 
   @DataPoint
   public static final byte[] BER = hexToByteArray((
-        "5A01005E 01015F2D 01025FDF 030103DF DFDF0401 045F2D01 05DFDFDF DF060106"
-      + "DFDFDFDF DF070107 DFDFDFDF DFDF0801 08DFDFDF DFDFDFDF 090109"
+        "5A01305E 01315F2D 01325FDF 030133DF DFDF0401 345F2D01 35DFDFDF DF060136"
+      + "DFDFDFDF DF070137 DFDFDFDF DFDF0801 38DFDFDF DFDFDFDF 090139"
   ).replaceAll(" ", ""));
 
   @DataPoint
   public static final byte[] BER_WITH_DUP = hexToByteArray((
-        "5A01005E 01015F2D 01025FDF 030103DF DFDF0401 045F2D01 05DFDFDF DF060106"
-      + "DFDFDFDF DF070107 DFDFDFDF DFDF0801 08DFDFDF DFDFDFDF 090109DF DFDFDFDF"
-      + "DFDF0901 11DFDFDF 0401066F 1A840E31 5041592E 5359532E 44444630 31A50888"
+        "5A01305E 01315F2D 01325FDF 030133DF DFDF0401 345F2D01 35DFDFDF DF060136"
+      + "DFDFDFDF DF070137 DFDFDFDF DFDF0801 38DFDFDF DFDFDFDF 090139DF DFDFDFDF"
+      + "DFDF0901 41DFDFDF 0401366F 1A840E31 5041592E 5359532E 44444630 31A50888"
       + "01025F2D 02656E6F 1A840E31 5041592E 5359532E 44444630 31A50888 01025F2D"
-      + "02656F5E 0107"
+      + "02656F5E 0137"
   ).replaceAll(" ", ""));
 
   private final BerDecoder berDecoder = new BerDecoder();
@@ -95,49 +96,49 @@ public class BerFrameTest {
   public void shouldGetContentByByte(final byte[] buffer) {
     BerFrame berFrame = berDecoder.decode(buffer);
 
-    assertThat(berFrame.getContent((byte) 0x5A), is(hexToByteArray("00")));
-    assertThat(berFrame.getContent((byte) 0x5E), is(hexToByteArray("01")));
+    assertThat(berFrame.getContent((byte) 0x5A), is(hexToByteArray("30")));
+    assertThat(berFrame.getContent((byte) 0x5E), is(hexToByteArray("31")));
   }
 
   @Theory
   public void shouldGetContentByInt(final byte[] buffer) {
     BerFrame berFrame = berDecoder.decode(buffer);
 
-    assertThat(berFrame.getContent(0x5A),       is(hexToByteArray("00")));
-    assertThat(berFrame.getContent(0x5E),       is(hexToByteArray("01")));
-    assertThat(berFrame.getContent(0x5F2D),     is(hexToByteArray("02")));
-    assertThat(berFrame.getContent(0x5FDF03),   is(hexToByteArray("03")));
-    assertThat(berFrame.getContent(0xDFDFDF04), is(hexToByteArray("04")));
+    assertThat(berFrame.getContent(0x5A),       is(hexToByteArray("30")));
+    assertThat(berFrame.getContent(0x5E),       is(hexToByteArray("31")));
+    assertThat(berFrame.getContent(0x5F2D),     is(hexToByteArray("32")));
+    assertThat(berFrame.getContent(0x5FDF03),   is(hexToByteArray("33")));
+    assertThat(berFrame.getContent(0xDFDFDF04), is(hexToByteArray("34")));
   }
 
   @Theory
   public void shouldGetContentByLong(final byte[] buffer) {
     BerFrame berFrame = berDecoder.decode(buffer);
 
-    assertThat(berFrame.getContent(0x5AL),               is(hexToByteArray("00")));
-    assertThat(berFrame.getContent(0x5EL),               is(hexToByteArray("01")));
-    assertThat(berFrame.getContent(0x5F2DL),             is(hexToByteArray("02")));
-    assertThat(berFrame.getContent(0x5FDF03L),           is(hexToByteArray("03")));
-    assertThat(berFrame.getContent(0xDFDFDF04L),         is(hexToByteArray("04")));
-    assertThat(berFrame.getContent(0xDFDFDFDF06L),       is(hexToByteArray("06")));
-    assertThat(berFrame.getContent(0xDFDFDFDFDF07L),     is(hexToByteArray("07")));
-    assertThat(berFrame.getContent(0xDFDFDFDFDFDF08L),   is(hexToByteArray("08")));
-    assertThat(berFrame.getContent(0xDFDFDFDFDFDFDF09L), is(hexToByteArray("09")));
+    assertThat(berFrame.getContent(0x5AL),               is(hexToByteArray("30")));
+    assertThat(berFrame.getContent(0x5EL),               is(hexToByteArray("31")));
+    assertThat(berFrame.getContent(0x5F2DL),             is(hexToByteArray("32")));
+    assertThat(berFrame.getContent(0x5FDF03L),           is(hexToByteArray("33")));
+    assertThat(berFrame.getContent(0xDFDFDF04L),         is(hexToByteArray("34")));
+    assertThat(berFrame.getContent(0xDFDFDFDF06L),       is(hexToByteArray("36")));
+    assertThat(berFrame.getContent(0xDFDFDFDFDF07L),     is(hexToByteArray("37")));
+    assertThat(berFrame.getContent(0xDFDFDFDFDFDF08L),   is(hexToByteArray("38")));
+    assertThat(berFrame.getContent(0xDFDFDFDFDFDFDF09L), is(hexToByteArray("39")));
   }
 
   @Theory
   public void shouldGetContentByByteArray(final byte[] buffer) {
     BerFrame berFrame = berDecoder.decode(buffer);
 
-    assertThat(berFrame.getContent(hexToByteArray("5A")),               is(hexToByteArray("00")));
-    assertThat(berFrame.getContent(hexToByteArray("5E")),               is(hexToByteArray("01")));
-    assertThat(berFrame.getContent(hexToByteArray("5F2D")),             is(hexToByteArray("02")));
-    assertThat(berFrame.getContent(hexToByteArray("5FDF03")),           is(hexToByteArray("03")));
-    assertThat(berFrame.getContent(hexToByteArray("DFDFDF04")),         is(hexToByteArray("04")));
-    assertThat(berFrame.getContent(hexToByteArray("DFDFDFDF06")),       is(hexToByteArray("06")));
-    assertThat(berFrame.getContent(hexToByteArray("DFDFDFDFDF07")),     is(hexToByteArray("07")));
-    assertThat(berFrame.getContent(hexToByteArray("DFDFDFDFDFDF08")),   is(hexToByteArray("08")));
-    assertThat(berFrame.getContent(hexToByteArray("DFDFDFDFDFDFDF09")), is(hexToByteArray("09")));
+    assertThat(berFrame.getContent(hexToByteArray("5A")),               is(hexToByteArray("30")));
+    assertThat(berFrame.getContent(hexToByteArray("5E")),               is(hexToByteArray("31")));
+    assertThat(berFrame.getContent(hexToByteArray("5F2D")),             is(hexToByteArray("32")));
+    assertThat(berFrame.getContent(hexToByteArray("5FDF03")),           is(hexToByteArray("33")));
+    assertThat(berFrame.getContent(hexToByteArray("DFDFDF04")),         is(hexToByteArray("34")));
+    assertThat(berFrame.getContent(hexToByteArray("DFDFDFDF06")),       is(hexToByteArray("36")));
+    assertThat(berFrame.getContent(hexToByteArray("DFDFDFDFDF07")),     is(hexToByteArray("37")));
+    assertThat(berFrame.getContent(hexToByteArray("DFDFDFDFDFDF08")),   is(hexToByteArray("38")));
+    assertThat(berFrame.getContent(hexToByteArray("DFDFDFDFDFDFDF09")), is(hexToByteArray("39")));
   }
 
   @Test
@@ -146,8 +147,8 @@ public class BerFrameTest {
     final byte tag = 0x5E;
 
     assertEquals(2, berFrame.getAllContents(tag).size());
-    assertArrayEquals(hexToByteArray("01"), berFrame.getAllContents(tag).get(0));
-    assertArrayEquals(hexToByteArray("07"), berFrame.getAllContents(tag).get(1));
+    assertArrayEquals(hexToByteArray("31"), berFrame.getAllContents(tag).get(0));
+    assertArrayEquals(hexToByteArray("37"), berFrame.getAllContents(tag).get(1));
   }
 
   @Test
@@ -156,8 +157,8 @@ public class BerFrameTest {
     final int tag = 0xDFDFDF04;
 
     assertEquals(2, berFrame.getAllContents(tag).size());
-    assertArrayEquals(hexToByteArray("04"), berFrame.getAllContents(tag).get(0));
-    assertArrayEquals(hexToByteArray("06"), berFrame.getAllContents(tag).get(1));
+    assertArrayEquals(hexToByteArray("34"), berFrame.getAllContents(tag).get(0));
+    assertArrayEquals(hexToByteArray("36"), berFrame.getAllContents(tag).get(1));
   }
 
   @Test
@@ -166,8 +167,8 @@ public class BerFrameTest {
     final long tag = 0xDFDFDFDFDFDFDF09L;
 
     assertEquals(2, berFrame.getAllContents(tag).size());
-    assertArrayEquals(hexToByteArray("09"), berFrame.getAllContents(tag).get(0));
-    assertArrayEquals(hexToByteArray("11"), berFrame.getAllContents(tag).get(1));
+    assertArrayEquals(hexToByteArray("39"), berFrame.getAllContents(tag).get(0));
+    assertArrayEquals(hexToByteArray("41"), berFrame.getAllContents(tag).get(1));
   }
 
   @Test
@@ -186,8 +187,8 @@ public class BerFrameTest {
     final byte[] tag = hexToByteArray("DFDFDFDFDFDFDF09");
 
     assertEquals(2, berFrame.getAllContents(tag).size());
-    assertArrayEquals(hexToByteArray("09"), berFrame.getAllContents(tag).get(0));
-    assertArrayEquals(hexToByteArray("11"), berFrame.getAllContents(tag).get(1));
+    assertArrayEquals(hexToByteArray("39"), berFrame.getAllContents(tag).get(0));
+    assertArrayEquals(hexToByteArray("41"), berFrame.getAllContents(tag).get(1));
   }
 
   @Test
@@ -215,5 +216,184 @@ public class BerFrameTest {
     } catch (NoSuchElementException ex) {
       // do nothing
     }
+  }
+
+  @Test
+  public void testGetContentAsAsciiStringEmpty() {
+    BerFrame berFrame = berDecoder.decode(BER);
+    String result = berFrame.getContentAsAsciiString();
+
+    assertNull(result);
+  }
+
+  @Theory
+  public void shouldGetContentAsAsciiStringByByte(final byte[] buffer) {
+    BerFrame berFrame = berDecoder.decode(buffer);
+
+    assertThat(berFrame.getContentAsAsciiString((byte) 0x5A), is("0"));
+    assertThat(berFrame.getContentAsAsciiString((byte) 0x5E), is("1"));
+  }
+
+  @Theory
+  public void shouldGetContentAsAsciiStringByInt(final byte[] buffer) {
+    BerFrame berFrame = berDecoder.decode(buffer);
+
+    assertThat(berFrame.getContentAsAsciiString(0x5A),       is("0"));
+    assertThat(berFrame.getContentAsAsciiString(0x5E),       is("1"));
+    assertThat(berFrame.getContentAsAsciiString(0x5F2D),     is("2"));
+    assertThat(berFrame.getContentAsAsciiString(0x5FDF03),   is("3"));
+    assertThat(berFrame.getContentAsAsciiString(0xDFDFDF04), is("4"));
+  }
+
+  @Theory
+  public void shouldGetContentAsAsciiStringByLong(final byte[] buffer) {
+    BerFrame berFrame = berDecoder.decode(buffer);
+
+    assertThat(berFrame.getContentAsAsciiString(0x5AL),               is("0"));
+    assertThat(berFrame.getContentAsAsciiString(0x5EL),               is("1"));
+    assertThat(berFrame.getContentAsAsciiString(0x5F2DL),             is("2"));
+    assertThat(berFrame.getContentAsAsciiString(0x5FDF03L),           is("3"));
+    assertThat(berFrame.getContentAsAsciiString(0xDFDFDF04L),         is("4"));
+    assertThat(berFrame.getContentAsAsciiString(0xDFDFDFDF06L),       is("6"));
+    assertThat(berFrame.getContentAsAsciiString(0xDFDFDFDFDF07L),     is("7"));
+    assertThat(berFrame.getContentAsAsciiString(0xDFDFDFDFDFDF08L),   is("8"));
+    assertThat(berFrame.getContentAsAsciiString(0xDFDFDFDFDFDFDF09L), is("9"));
+  }
+
+  @Theory
+  public void shouldGetContentAsAsciiStringByByteArray(final byte[] buffer) {
+    BerFrame berFrame = berDecoder.decode(buffer);
+
+    assertThat(berFrame.getContentAsAsciiString(hexToByteArray("5A")),               is("0"));
+    assertThat(berFrame.getContentAsAsciiString(hexToByteArray("5E")),               is("1"));
+    assertThat(berFrame.getContentAsAsciiString(hexToByteArray("5F2D")),             is("2"));
+    assertThat(berFrame.getContentAsAsciiString(hexToByteArray("5FDF03")),           is("3"));
+    assertThat(berFrame.getContentAsAsciiString(hexToByteArray("DFDFDF04")),         is("4"));
+    assertThat(berFrame.getContentAsAsciiString(hexToByteArray("DFDFDFDF06")),       is("6"));
+    assertThat(berFrame.getContentAsAsciiString(hexToByteArray("DFDFDFDFDF07")),     is("7"));
+    assertThat(berFrame.getContentAsAsciiString(hexToByteArray("DFDFDFDFDFDF08")),   is("8"));
+    assertThat(berFrame.getContentAsAsciiString(hexToByteArray("DFDFDFDFDFDFDF09")), is("9"));
+  }
+
+  @Test
+  public void testGetContentAsHexStringEmpty() {
+    BerFrame berFrame = berDecoder.decode(BER);
+    String result = berFrame.getContentAsHexString();
+
+    assertNull(result);
+  }
+
+  @Theory
+  public void shouldGetContentAsHexStringByByte(final byte[] buffer) {
+    BerFrame berFrame = berDecoder.decode(buffer);
+
+    assertThat(berFrame.getContentAsHexString((byte) 0x5A), is("30"));
+    assertThat(berFrame.getContentAsHexString((byte) 0x5E), is("31"));
+  }
+
+  @Theory
+  public void shouldGetContentAsHexStringByInt(final byte[] buffer) {
+    BerFrame berFrame = berDecoder.decode(buffer);
+
+    assertThat(berFrame.getContentAsHexString(0x5A),       is("30"));
+    assertThat(berFrame.getContentAsHexString(0x5E),       is("31"));
+    assertThat(berFrame.getContentAsHexString(0x5F2D),     is("32"));
+    assertThat(berFrame.getContentAsHexString(0x5FDF03),   is("33"));
+    assertThat(berFrame.getContentAsHexString(0xDFDFDF04), is("34"));
+  }
+
+  @Theory
+  public void shouldGetContentAsHexStringByLong(final byte[] buffer) {
+    BerFrame berFrame = berDecoder.decode(buffer);
+
+    assertThat(berFrame.getContentAsHexString(0x5AL),               is("30"));
+    assertThat(berFrame.getContentAsHexString(0x5EL),               is("31"));
+    assertThat(berFrame.getContentAsHexString(0x5F2DL),             is("32"));
+    assertThat(berFrame.getContentAsHexString(0x5FDF03L),           is("33"));
+    assertThat(berFrame.getContentAsHexString(0xDFDFDF04L),         is("34"));
+    assertThat(berFrame.getContentAsHexString(0xDFDFDFDF06L),       is("36"));
+    assertThat(berFrame.getContentAsHexString(0xDFDFDFDFDF07L),     is("37"));
+    assertThat(berFrame.getContentAsHexString(0xDFDFDFDFDFDF08L),   is("38"));
+    assertThat(berFrame.getContentAsHexString(0xDFDFDFDFDFDFDF09L), is("39"));
+  }
+
+  @Theory
+  public void shouldGetContentAsHexStringByByteArray(final byte[] buffer) {
+    BerFrame berFrame = berDecoder.decode(buffer);
+
+    assertThat(berFrame.getContentAsHexString(hexToByteArray("5A")),               is("30"));
+    assertThat(berFrame.getContentAsHexString(hexToByteArray("5E")),               is("31"));
+    assertThat(berFrame.getContentAsHexString(hexToByteArray("5F2D")),             is("32"));
+    assertThat(berFrame.getContentAsHexString(hexToByteArray("5FDF03")),           is("33"));
+    assertThat(berFrame.getContentAsHexString(hexToByteArray("DFDFDF04")),         is("34"));
+    assertThat(berFrame.getContentAsHexString(hexToByteArray("DFDFDFDF06")),       is("36"));
+    assertThat(berFrame.getContentAsHexString(hexToByteArray("DFDFDFDFDF07")),     is("37"));
+    assertThat(berFrame.getContentAsHexString(hexToByteArray("DFDFDFDFDFDF08")),   is("38"));
+    assertThat(berFrame.getContentAsHexString(hexToByteArray("DFDFDFDFDFDFDF09")), is("39"));
+  }
+
+  @Test
+  public void testGetTag() {
+    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+
+    BerFrame tag7F = berFrame.getTag(0x7F);
+    assertNull(tag7F);
+
+    BerFrame tag6F = berFrame.getTag(0x6F);
+    assertNotNull(tag6F);
+
+    BerFrame tagA5 = berFrame.getTag(0xA5);
+    assertNotNull(tagA5);
+    
+    BerFrame tag5A = berFrame.getTag(0x5A);
+    assertNotNull(tag5A);
+  }
+
+  @Test
+  public void testGetTagByByte() {
+    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+
+    BerFrame tag6F = berFrame.getTag((byte) 0x6F);
+    assertNotNull(tag6F);
+    assertNotNull(tag6F.getContentAsHexString(hexToByteArray("6F")));
+    assertNull(tag6F.getContentAsHexString(hexToByteArray("5E")));
+    assertThat(tag6F.getContentAsHexString(hexToByteArray("A5")), is("8801025F2D02656E"));
+    assertThat(tag6F.getContentAsHexString(hexToByteArray("5F2D")), is("656E"));
+  }
+
+  @Test
+  public void testGetTagByInt() {
+    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+
+    BerFrame tag6F = berFrame.getTag(0x6F);
+    assertNotNull(tag6F);
+    assertNotNull(tag6F.getContentAsHexString(hexToByteArray("6F")));
+    assertNull(tag6F.getContentAsHexString(hexToByteArray("5E")));
+    assertThat(tag6F.getContentAsHexString(hexToByteArray("A5")), is("8801025F2D02656E"));
+    assertThat(tag6F.getContentAsHexString(hexToByteArray("5F2D")), is("656E"));
+  }
+
+  @Test
+  public void testGetTagByLong() {
+    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+
+    BerFrame tag6F = berFrame.getTag(0x6FL);
+    assertNotNull(tag6F);
+    assertNotNull(tag6F.getContentAsHexString(hexToByteArray("6F")));
+    assertNull(tag6F.getContentAsHexString(hexToByteArray("5E")));
+    assertThat(tag6F.getContentAsHexString(hexToByteArray("A5")), is("8801025F2D02656E"));
+    assertThat(tag6F.getContentAsHexString(hexToByteArray("5F2D")), is("656E"));
+  }
+
+  @Test
+  public void testGetTagByByteArray() {
+    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+
+    BerFrame tag6F = berFrame.getTag(new byte[] {0x6F});
+    assertNotNull(tag6F);
+    assertNotNull(tag6F.getContentAsHexString(hexToByteArray("6F")));
+    assertNull(tag6F.getContentAsHexString(hexToByteArray("5E")));
+    assertThat(tag6F.getContentAsHexString(hexToByteArray("A5")), is("8801025F2D02656E"));
+    assertThat(tag6F.getContentAsHexString(hexToByteArray("5F2D")), is("656E"));
   }
 }

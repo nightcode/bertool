@@ -16,9 +16,12 @@
 
 package org.nightcode.tools.ber;
 
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 final class BerUtil {
+
+  static final Charset ASCII = Charset.forName("US-ASCII");
 
   static final char[] UPPER_HEX_DIGITS = "0123456789ABCDEF".toCharArray();
 

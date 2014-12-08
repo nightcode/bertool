@@ -17,6 +17,7 @@
 package org.nightcode.tools.ber;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -176,12 +177,172 @@ public final class BerFrame {
   }
 
   /**
+   * Returns the ASCII coded contents octets of a BER tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the ASCII coded contents octets
+   */
+  public @Nullable String getContentAsAsciiString(final byte identifier) {
+    return getContentAsAsciiString(new byte[] {identifier});
+  }
+
+  /**
+   * Returns the ASCII coded contents octets of a BER tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the ASCII coded contents octets
+   */
+  public @Nullable String getContentAsAsciiString(final int identifier) {
+    return getContentAsAsciiString(BerUtil.identifierToByteArray(identifier));
+  }
+
+  /**
+   * Returns the ASCII coded contents octets of a BER tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the ASCII coded contents octets
+   */
+  public @Nullable String getContentAsAsciiString(final long identifier) {
+    return getContentAsAsciiString(BerUtil.identifierToByteArray(identifier));
+  }
+
+  /**
+   * Returns the ASCII coded contents octets of a BER tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the ASCII coded contents octets
+   */
+  public @Nullable String getContentAsAsciiString(byte... identifier) {
+    byte[] content = getContent(identifier, tlvs);
+    if (content == null) {
+      return null;
+    }
+    return new String(content, BerUtil.ASCII);
+  }
+
+  /**
+   * Returns the hex coded contents octets of a BER tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the hex coded contents octets
+   */
+  public @Nullable String getContentAsHexString(final byte identifier) {
+    return getContentAsHexString(new byte[] {identifier});
+  }
+
+  /**
+   * Returns the hex coded contents octets of a BER tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the hex coded contents octets
+   */
+  public @Nullable String getContentAsHexString(final int identifier) {
+    return getContentAsHexString(BerUtil.identifierToByteArray(identifier));
+  }
+
+  /**
+   * Returns the hex coded contents octets of a BER tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the hex coded contents octets
+   */
+  public @Nullable String getContentAsHexString(final long identifier) {
+    return getContentAsHexString(BerUtil.identifierToByteArray(identifier));
+  }
+
+  /**
+   * Returns the hex coded contents octets of a BER tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the hex coded contents octets
+   */
+  public @Nullable String getContentAsHexString(byte... identifier) {
+    byte[] content = getContent(identifier, tlvs);
+    if (content == null) {
+      return null;
+    }
+    return BerUtil.byteArrayToHex(content);
+  }
+
+  /**
    * Returns the Iterator of BER tag identifiers of first level.
    *
    * @return the Iterator of BER tag identifiers of first level
    */
   public Iterator<byte[]> getIdentifiers() {
     return new BerTlvIterator(this);
+  }
+
+  /**
+   * Returns the {@code BerFrame} of a Ber tag, or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the {@code BerFrame}
+   */
+  public @Nullable BerFrame getTag(final byte identifier) {
+    return getTag(new byte[] {identifier}, tlvs);
+  }
+
+  /**
+   * Returns the {@code BerFrame} of a Ber tag, or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the {@code BerFrame}
+   */
+  public @Nullable BerFrame getTag(final int identifier) {
+    return getTag(BerUtil.identifierToByteArray(identifier), tlvs);
+  }
+
+  /**
+   * Returns the {@code BerFrame} of a Ber tag, or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the {@code BerFrame}
+   */
+  public @Nullable BerFrame getTag(final long identifier) {
+    return getTag(BerUtil.identifierToByteArray(identifier), tlvs);
+  }
+
+  /**
+   * Returns the {@code BerFrame} of a Ber tag, or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier, the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the {@code BerFrame}
+   */
+  public @Nullable BerFrame getTag(byte... identifier) {
+    return getTag(identifier, tlvs);
   }
 
   BerBuffer berBuffer() {
@@ -198,6 +359,32 @@ public final class BerFrame {
 
   int offset() {
     return offset;
+  }
+
+  private boolean contains(byte[] target, final int position, final int length) {
+    if (target.length != length) {
+      return false;
+    }
+    for (int i = 0; i < length; i++) {
+      if (target[i] != buffer.getByte(position + i)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private List<byte[]> getAllContents(byte[] identifier, List<BerTlv> tlvs) {
+    List<byte[]> result = new ArrayList<>();
+    for (BerTlv tlv : tlvs) {
+      if (contains(identifier, tlv.identifierPosition(), tlv.identifierLength())) {
+        byte[] content = new byte[tlv.contentLength()];
+        buffer.getBytes(tlv.contentPosition(), content);
+        result.add(content);
+      } else if (tlv.isConstructed()) {
+        result.addAll(getAllContents(identifier, tlv.children()));
+      }
+    }
+    return result;
   }
 
   private @Nullable byte[] getContent(byte[] identifier, List<BerTlv> tlvs) {
@@ -217,29 +404,19 @@ public final class BerFrame {
     return null;
   }
 
-  private List<byte[]> getAllContents(byte[] identifier, List<BerTlv> tlvs) {
-    List<byte[]> result = new ArrayList<>();
+  private @Nullable BerFrame getTag(byte[] identifier, List<BerTlv> tlvs) {
+    BerFrame result = null;
     for (BerTlv tlv : tlvs) {
       if (contains(identifier, tlv.identifierPosition(), tlv.identifierLength())) {
-        byte[] content = new byte[tlv.contentLength()];
-        buffer.getBytes(tlv.contentPosition(), content);
-        result.add(content);
+        result = new BerFrame(buffer, tlv.identifierPosition()
+            , tlv.contentPosition() + tlv.contentLength(), Collections.singletonList(tlv));
       } else if (tlv.isConstructed()) {
-        result.addAll(getAllContents(identifier, tlv.children()));
+        result = getTag(identifier, tlv.children());
+      }
+      if (result != null) {
+        return result;
       }
     }
-    return result;
-  }
-
-  private boolean contains(byte[] target, final int position, final int length) {
-    if (target.length != length) {
-      return false;
-    }
-    for (int i = 0; i < length; i++) {
-      if (target[i] != buffer.getByte(position + i)) {
-        return false;
-      }
-    }
-    return true;
+    return null;
   }
 }
