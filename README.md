@@ -95,7 +95,8 @@ with EmvBerFormatter
   BerDecoder berDecoder = new BerDecoder();
   BerFrame berFrame = berDecoder.decode(byteArray);
 
-  BerPrinter printer = new StreamBerPrinter(System.out, EmvBerFormatter.newInstanceWithSpaces());
+  BerPrinter printer = new StreamBerPrinter(System.out
+      , EmvBerFormatter.newInstanceWithSpaces());
   printer.print(berFrame);
 ```
 
@@ -137,7 +138,7 @@ Download [the latest jar][1] via Maven:
 <dependency>
   <groupId>org.nightcode</groupId>
   <artifactId>bertool</artifactId>
-  <version>0.3</version>
+  <version>0.4</version>
 </dependency>
 ```
 
