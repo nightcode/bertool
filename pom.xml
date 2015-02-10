@@ -191,15 +191,6 @@
               <goal>report</goal>
             </goals>
           </execution>
-          <execution>
-            <id>default-check</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <configuration>
-              <rules />
-            </configuration>
-          </execution>
         </executions>
       </plugin>
       <plugin>

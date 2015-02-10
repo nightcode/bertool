@@ -220,4 +220,25 @@ public class BerBuilderTest {
 
     assertArrayEquals(expected, buffer);
   }
+
+  @Test
+  public void testAdd128Bytes() {
+    java.util.Random random = new java.util.Random();
+
+    final byte[] content128 = new byte[0x80];
+    random.nextBytes(content128);
+
+    ByteBuffer expected = ByteBuffer.allocate(3 + 2 + 0x80);
+    expected.put(hexToByteArray("DFAE028180"));
+    expected.put(content128);
+
+    BerBuilder builder = BerBuilder.newInstance();
+    builder.add(0xDFAE02, content128);
+
+    ByteBuffer buffer = ByteBuffer.allocate(builder.length());
+    BerEncoder berEncoder = new BerEncoder();
+    berEncoder.encode(builder, buffer);
+
+    assertArrayEquals(get(expected, 0, expected.capacity()), get(buffer, 0, builder.length()));
+  }
 }
