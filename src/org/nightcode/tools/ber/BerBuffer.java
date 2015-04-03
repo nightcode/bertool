@@ -21,6 +21,9 @@ import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.meta.When;
+
 import sun.misc.Unsafe;
 
 final class BerBuffer {
@@ -76,6 +79,7 @@ final class BerBuffer {
     return capacity;
   }
 
+  @CheckReturnValue(when = When.NEVER)
   public int checkLimit(final int limit) {
     if (limit > capacity) {
       throw new IndexOutOfBoundsException(String.format("limit is beyond capacity (l=%d; c=%d)"
@@ -160,6 +164,7 @@ final class BerBuffer {
     return count;
   }
 
+  @CheckReturnValue(when = When.NEVER)
   int checkIndex(final int index) {
     if (index >= capacity) {
       throw new IndexOutOfBoundsException(String.format("index is beyond bound (i=%d; b=%d)"

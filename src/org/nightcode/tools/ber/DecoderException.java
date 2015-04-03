@@ -49,6 +49,8 @@ public class DecoderException extends RuntimeException {
    * @return the undecoded part of the frame
    */
   public byte[] getUndecoded() {
-    return undecoded;
+    byte[] copy = new byte[undecoded.length];
+    System.arraycopy(undecoded, 0, copy, 0, undecoded.length);
+    return copy;
   }
 }
