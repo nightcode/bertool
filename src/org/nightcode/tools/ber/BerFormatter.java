@@ -22,29 +22,30 @@ import java.io.OutputStream;
 /**
  * Formats TLV.
  */
-public interface BerFormatter {
+public abstract class BerFormatter {
 
-  byte CARRIAGE_RETURN = 0x0A;
-  byte LEFT_BRACKET = 0x5B;
-  byte RIGHT_BRACKET = 0x5D;
-  byte SPACE = 0x20;
+  static final byte CARRIAGE_RETURN = 0x0A;
+  static final byte LEFT_BRACKET = 0x5B;
+  static final byte RIGHT_BRACKET = 0x5D;
+  static final byte SPACE = 0x20;
 
-  byte[] LIGHT_VERTICAL = new byte[] {(byte) 0xE2, (byte) 0x94, (byte) 0x82};
+  static final byte[] LIGHT_VERTICAL = new byte[] {(byte) 0xE2, (byte) 0x94, (byte) 0x82};
 
-  byte[] LINE_FEED = new byte[] {CARRIAGE_RETURN, SPACE};
+  static final byte[] LINE_FEED = new byte[] {CARRIAGE_RETURN, SPACE};
 
   // "   "
-  byte[] LEAF_NEXT_PREFIX = new byte[] {SPACE, SPACE, SPACE};
+  static final byte[] LEAF_NEXT_PREFIX = new byte[] {SPACE, SPACE, SPACE};
 
   // "│  "
-  byte[] NODE_NEXT_PREFIX = new byte[] {(byte) 0xE2, (byte) 0x94, (byte) 0x82, SPACE, SPACE};
+  static final byte[] NODE_NEXT_PREFIX
+      = new byte[] {(byte) 0xE2, (byte) 0x94, (byte) 0x82, SPACE, SPACE};
 
   // "└─"
-  byte[] LEAF_PREFIX
+  static final byte[] LEAF_PREFIX
       = new byte[] {(byte) 0xE2, (byte) 0x94, (byte) 0x94, (byte) 0xE2, (byte) 0x94, (byte) 0x80};
 
   // "├─"
-  byte[] NODE_PREFIX
+  static final byte[] NODE_PREFIX
       = new byte[] {(byte) 0xE2, (byte) 0x94, (byte) 0x9C, (byte) 0xE2, (byte) 0x94, (byte) 0x80};
 
   /**
@@ -58,15 +59,15 @@ public interface BerFormatter {
    * @param node is TLV the last one on level
    * @throws IOException if an I/O error occurs
    */
-  void format(OutputStream stream, BerBuffer buffer, BerTlv tlv, byte[] prefix, int prefixLength,
-      boolean node) throws IOException;
+  abstract void format(OutputStream stream, BerBuffer buffer, BerTlv tlv, byte[] prefix,
+      int prefixLength, boolean node) throws IOException;
 
   /**
    * Returns line feed.
    *
    * @return line feed
    */
-  byte[] lineFeed();
+  abstract byte[] lineFeed();
 
   /**
    * Returns prefix for next TLV.
@@ -74,5 +75,5 @@ public interface BerFormatter {
    * @param node is TLV the last one on level
    * @return prefix for next TLV
    */
-  byte[] nextPrefix(boolean node);
+  abstract byte[] nextPrefix(boolean node);
 }

@@ -16,13 +16,13 @@
 
 package org.nightcode.tools.ber;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +34,7 @@ public final class EmvBerFormatter extends AbstractBerFormatter {
   /**
    * @throws IOException if an I/O error occurs
    */
-   public static EmvBerFormatter newInstance() throws IOException {
+  public static EmvBerFormatter newInstance() throws IOException {
     return new EmvBerFormatter(false);
   }
 
@@ -49,17 +49,32 @@ public final class EmvBerFormatter extends AbstractBerFormatter {
 
   private EmvBerFormatter(boolean printWithSpaces) throws IOException {
     super(printWithSpaces);
-    String  resourceName = System.getProperty("emv.tags");
-    try (InputStream in = (resourceName != null)
-        ? new FileInputStream(resourceName)
-        : EmvBerFormatter.class.getResourceAsStream("/emv.tags")) {
-      LineNumberReader lnr = new LineNumberReader(new BufferedReader(new InputStreamReader(in)));
-      while (lnr.readLine() != null) {
-        String tag = normalize(lnr.readLine());
-        if (tag != null) {
-          String name = normalize(lnr.readLine());
-          tags.put(tag, name);
+    final String resourceName = System.getProperty("emv.tags");
+    InputStream in = null;
+    try {
+      if (resourceName != null) {
+        in = new FileInputStream(resourceName);
+      } else {
+        in = EmvBerFormatter.class.getResourceAsStream("/emv.tags");
+      }
+      LineNumberReader lnr = null;
+      try {
+        lnr = new LineNumberReader(new InputStreamReader(in, StandardCharsets.UTF_8.displayName()));
+        while (lnr.readLine() != null) {
+          String tag = normalize(lnr.readLine());
+          if (tag != null) {
+            String name = normalize(lnr.readLine());
+            tags.put(tag, name);
+          }
         }
+      } finally {
+        if (lnr != null) {
+          lnr.close();
+        }
+      }
+    } finally {
+      if (in != null) {
+        in.close();
       }
     }
   }

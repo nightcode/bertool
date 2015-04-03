@@ -22,7 +22,7 @@ import java.io.OutputStream;
 /**
  * Base class for BerFormatter implementations.
  */
-public abstract class AbstractBerFormatter implements BerFormatter {
+public abstract class AbstractBerFormatter extends BerFormatter {
 
   protected final boolean printWithSpaces;
 
@@ -34,11 +34,11 @@ public abstract class AbstractBerFormatter implements BerFormatter {
     this.printWithSpaces = printWithSpaces;
   }
 
-  @Override public byte[] lineFeed() {
+  @Override byte[] lineFeed() {
     return LINE_FEED;
   }
 
-  @Override public byte[] nextPrefix(boolean node) {
+  @Override byte[] nextPrefix(boolean node) {
     return node ? NODE_NEXT_PREFIX : LEAF_NEXT_PREFIX;
   }
 
