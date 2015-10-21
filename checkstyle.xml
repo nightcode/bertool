@@ -38,7 +38,6 @@
     <module name="IllegalInstantiation" />
     <module name="InnerAssignment" />
     <module name="MissingSwitchDefault" />
-    <module name="RedundantThrows" />
     <module name="SimplifyBooleanExpression" />
     <module name="SimplifyBooleanReturn" />
 
@@ -90,7 +89,9 @@
     <module name="EmptyForIteratorPad" />
     <module name="MethodParamPad" />
     <module name="NoWhitespaceAfter" />
-    <module name="NoWhitespaceBefore" />
+    <module name="NoWhitespaceBefore">
+      <property name="allowLineBreaks" value="true"/>
+    </module>
     <module name="OperatorWrap" />
     <module name="ParenPad" />
     <module name="TypecastParenPad" />
