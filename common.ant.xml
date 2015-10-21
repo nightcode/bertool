@@ -242,8 +242,7 @@
     </jacoco:report>
   </target>
 
-  <target name="checkstyle" description="Checks source code style">
-    <mkdir dir="${build.dir}" />
+  <target name="checkstyle" depends="build" description="Checks source code style">
     <checkstyle config="${checkstyle.config}" classpath="${build.dir}/classes">
       <fileset dir="${src.dir}" includes="**/*.java" />
       <formatter type="plain" />
@@ -252,7 +251,6 @@
   </target>
 
   <target name="build" depends="compile, manifest" description="Build and package this module.">
-    <mkdir dir="${build.dir}" />
     <nightcode.jar />
   </target>
 

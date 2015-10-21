@@ -1,6 +1,7 @@
 # BerTool 
 
 [![Build Status](https://travis-ci.org/nightcode/bertool.svg?branch=master)](https://travis-ci.org/nightcode/bertool) [![Coverage Status](https://coveralls.io/repos/nightcode/bertool/badge.png?branch=master)](https://coveralls.io/r/nightcode/bertool?branch=master)
+[![Maven Central](https://img.shields.io/maven-central/v/org.nightcode/bertool.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3Aorg.nightcode%20bertool)
 
 Basic Encoding Rules tool.
 BerTool was primarily created to decode EMV records encoded in tag-length-value or BER TLV format (TLV is also known as type-length value).
