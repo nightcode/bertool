@@ -65,8 +65,7 @@ public abstract class AbstractBerFormatter extends BerFormatter {
     int size = offset + length;
     buffer.checkLimit(size);
     for (int i = offset; i < size; i++) {
-      stream.write((byte) BerUtil.UPPER_HEX_DIGITS[(buffer.getByte(i) & 0xF0) >> 4]);
-      stream.write((byte) BerUtil.UPPER_HEX_DIGITS[buffer.getByte(i) & 0x0F]);
+      writeHex(stream, buffer, i);
     }
   }
 
@@ -74,15 +73,18 @@ public abstract class AbstractBerFormatter extends BerFormatter {
       throws IOException {
     int size = offset + length;
     buffer.checkLimit(size);
-    stream.write((byte) BerUtil.UPPER_HEX_DIGITS[(buffer.getByte(offset) & 0xF0) >> 4]);
-    stream.write((byte) BerUtil.UPPER_HEX_DIGITS[buffer.getByte(offset) & 0x0F]);
+    writeHex(stream, buffer, offset);
     for (int i = offset + 1; i < size; i++) {
       stream.write(SPACE);
       if ((i - offset) % 8 == 0) {
         stream.write(SPACE);
       }
-      stream.write((byte) BerUtil.UPPER_HEX_DIGITS[(buffer.getByte(i) & 0xF0) >> 4]);
-      stream.write((byte) BerUtil.UPPER_HEX_DIGITS[buffer.getByte(i) & 0x0F]);
+      writeHex(stream, buffer, i);
     }
+  }
+
+  private void writeHex(OutputStream out, BerBuffer buffer, int position) throws IOException {
+    out.write((byte) BerUtil.UPPER_HEX_DIGITS[(buffer.getByte(position) & 0xF0) >> 4]);
+    out.write((byte) BerUtil.UPPER_HEX_DIGITS[buffer.getByte(position) & 0x0F]);
   }
 }

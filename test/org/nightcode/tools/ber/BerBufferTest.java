@@ -40,6 +40,7 @@ public class BerBufferTest {
   private static final int INDEX = 7;
   private static final byte BYTE_VALUE = 5;
   private static final byte[] BYTE_ARRAY_VALUE = "BER Tool".getBytes();
+  private static final int INT_VALUE = 256;
 
   @Rule
   public final ExpectedException exceptionRule = ExpectedException.none();
@@ -178,8 +179,16 @@ public class BerBufferTest {
 
     assertThat(buff, is(BYTE_ARRAY_VALUE));
   }
-  
-  
+
+  @Theory
+  public void shouldPutIntToBuffer(final BerBuffer berBuffer) {
+    final ByteBuffer duplicateBuffer = berBuffer.duplicateByteBuffer();
+
+    berBuffer.putInt(INDEX, INT_VALUE);
+
+    assertThat(Integer.valueOf(duplicateBuffer.getInt(INDEX)), is(Integer.valueOf(INT_VALUE)));
+  }
+
   private void getBytes(final ByteBuffer buffer, final byte[] dstBuffer) {
     buffer.position(INDEX);
     buffer.get(dstBuffer);

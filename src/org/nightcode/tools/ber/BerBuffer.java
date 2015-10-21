@@ -18,6 +18,7 @@ package org.nightcode.tools.ber;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
@@ -29,6 +30,7 @@ import sun.misc.Unsafe;
 final class BerBuffer {
 
   private static final Unsafe UNSAFE;
+  private static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
 
   static {
     try {
@@ -162,6 +164,14 @@ final class BerBuffer {
         , array, addressOffset + index, count);
     srcBuffer.position(srcBuffer.position() + count);
     return count;
+  }
+
+  public void putInt(final int index, final int value) {
+    int ordered = value;
+    if (NATIVE_BYTE_ORDER == ByteOrder.LITTLE_ENDIAN) {
+      ordered = Integer.reverseBytes(value);
+    }
+    UNSAFE.putInt(array, addressOffset + index, ordered);
   }
 
   @CheckReturnValue(when = When.NEVER)

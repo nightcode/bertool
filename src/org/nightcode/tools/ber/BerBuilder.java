@@ -52,10 +52,7 @@ public final class BerBuilder {
         buffer.putByte(offset + 3, (byte) (contentLength >>>  0));
       } else {
         buffer.putByte(offset, (byte) 0x84);
-        buffer.putByte(offset + 1, (byte) (contentLength >>> 24));
-        buffer.putByte(offset + 2, (byte) (contentLength >>> 16));
-        buffer.putByte(offset + 3, (byte) (contentLength >>>  8));
-        buffer.putByte(offset + 4, (byte) (contentLength >>>  0));
+        buffer.putInt(offset + 1, contentLength);
       }
     }
 
