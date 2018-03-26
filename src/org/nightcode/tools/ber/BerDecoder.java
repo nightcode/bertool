@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The NightCode Open Source Project
+ * Copyright (C) 2018 The NightCode Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -62,7 +62,7 @@ public class BerDecoder {
    * @exception DecoderException
    */
   public BerFrame decode(final ByteBuffer srcBuffer, final int offset, final int length) {
-    BerBuffer berBuffer = new BerBuffer(srcBuffer);
+    BerBuffer berBuffer = BerBufferUtil.create(srcBuffer);
     return decode(berBuffer, offset, length);
   }
 

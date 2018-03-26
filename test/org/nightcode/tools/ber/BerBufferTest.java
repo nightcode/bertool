@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The NightCode Open Source Project
+ * Copyright (C) 2018 The NightCode Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,6 +18,7 @@ package org.nightcode.tools.ber;
 
 import java.nio.ByteBuffer;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.theories.DataPoint;
@@ -27,11 +28,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Theories.class)
 public class BerBufferTest {
@@ -46,33 +42,28 @@ public class BerBufferTest {
   public final ExpectedException exceptionRule = ExpectedException.none();
 
   @DataPoint
-  public static final BerBuffer BYTE_ARRAY_BACKED = new BerBuffer(new byte[BUFFER_CAPACITY]);
+  public static final BerBuffer UNSAFE_BYTE_ARRAY_BACKED
+      = new UnsafeBerBuffer(new byte[BUFFER_CAPACITY]);
 
   @DataPoint
-  public static final BerBuffer HEAP_BYTE_BUFFER
-      = new BerBuffer(ByteBuffer.allocate(BUFFER_CAPACITY));
+  public static final BerBuffer UNSAFE_HEAP_BYTE_BUFFER
+      = new UnsafeBerBuffer(ByteBuffer.allocate(BUFFER_CAPACITY));
+
+  @DataPoint
+  public static final BerBuffer UNSAFE_DIRECT_BYTE_BUFFER
+      = new UnsafeBerBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY));
+
+  @DataPoint
+  public static final BerBuffer HEAP_BYTE_ARRAY = new HeapBerBuffer(new byte[BUFFER_CAPACITY]);
 
   @DataPoint
   public static final BerBuffer DIRECT_BYTE_BUFFER
-      = new BerBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY));
-  
-  @Test
-  public void testHasArray() {
-    assertTrue(BYTE_ARRAY_BACKED.hasArray());
-    assertTrue(HEAP_BYTE_BUFFER.hasArray());
-    assertFalse(DIRECT_BYTE_BUFFER.hasArray());
-  }
+      = new DirectBerBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY));
 
-  @Test
-  public void testArray() {
-    assertNotNull(BYTE_ARRAY_BACKED.array());
-    assertNotNull(HEAP_BYTE_BUFFER.array());
-    assertNull(DIRECT_BYTE_BUFFER.array());
-  }
 
   @Theory
   public void shouldGetCapacity(final BerBuffer buffer) {
-    assertThat(Integer.valueOf(buffer.capacity()), is(Integer.valueOf(BUFFER_CAPACITY)));
+    Assert.assertThat(Integer.valueOf(buffer.capacity()), is(Integer.valueOf(BUFFER_CAPACITY)));
   }
 
   @Theory
@@ -87,11 +78,22 @@ public class BerBufferTest {
   }
 
   @Theory
+  public void shouldThrowExceptionForIndexAtCapacity(final BerBuffer berBuffer) {
+    exceptionRule.expect(IndexOutOfBoundsException.class);
+    berBuffer.checkIndex(BUFFER_CAPACITY);
+  }
+
+  @Theory
+  public void shouldNotThrowExceptionForIndexLessCapacity(final BerBuffer berBuffer) {
+    berBuffer.checkIndex(BUFFER_CAPACITY - 1);
+  }
+
+  @Theory
   public void shouldGetByteFromBuffer(final BerBuffer berBuffer) {
     final ByteBuffer duplicateBuffer = berBuffer.duplicateByteBuffer();
     duplicateBuffer.put(INDEX, BYTE_VALUE);
 
-    assertThat(Byte.valueOf(berBuffer.getByte(INDEX)), is(Byte.valueOf((BYTE_VALUE))));
+    Assert.assertThat(Byte.valueOf(berBuffer.getByte(INDEX)), is(Byte.valueOf((BYTE_VALUE))));
   }
 
   @Theory
@@ -102,7 +104,7 @@ public class BerBufferTest {
     final byte[] actualBuffer = new byte[BYTE_ARRAY_VALUE.length];
     berBuffer.getBytes(INDEX, actualBuffer);
 
-    assertThat(actualBuffer, is(BYTE_ARRAY_VALUE));
+    Assert.assertThat(actualBuffer, is(BYTE_ARRAY_VALUE));
   }
 
   @Theory
@@ -113,7 +115,7 @@ public class BerBufferTest {
     final ByteBuffer dstBuffer = ByteBuffer.allocate(BYTE_ARRAY_VALUE.length);
     berBuffer.getBytes(INDEX, dstBuffer, BYTE_ARRAY_VALUE.length);
 
-    assertThat(dstBuffer.array(), is(BYTE_ARRAY_VALUE));
+    Assert.assertThat(dstBuffer.array(), is(BYTE_ARRAY_VALUE));
   }
 
   @Theory
@@ -127,8 +129,8 @@ public class BerBufferTest {
     final byte[] result = new byte[BYTE_ARRAY_VALUE.length];
     dstBuffer.flip();
     dstBuffer.get(result);
-    
-    assertThat(result, is(BYTE_ARRAY_VALUE));
+
+    Assert.assertThat(result, is(BYTE_ARRAY_VALUE));
   }
 
   @Theory 
@@ -137,7 +139,7 @@ public class BerBufferTest {
 
     berBuffer.putByte(INDEX, BYTE_VALUE);
 
-    assertThat(Byte.valueOf(duplicateBuffer.get(INDEX)), is(Byte.valueOf(BYTE_VALUE)));
+    Assert.assertThat(Byte.valueOf(duplicateBuffer.get(INDEX)), is(Byte.valueOf(BYTE_VALUE)));
   }
 
   @Theory
@@ -149,7 +151,7 @@ public class BerBufferTest {
     final byte[] buffer = new byte[BYTE_ARRAY_VALUE.length];
     getBytes(duplicateBuffer, buffer);
 
-    assertThat(buffer, is(BYTE_ARRAY_VALUE));
+    Assert.assertThat(buffer, is(BYTE_ARRAY_VALUE));
   }
 
   @Theory
@@ -162,7 +164,7 @@ public class BerBufferTest {
     final byte[] buff = new byte[BYTE_ARRAY_VALUE.length];
     getBytes(duplicateBuffer, buff);
 
-    assertThat(buff, is(BYTE_ARRAY_VALUE));
+    Assert.assertThat(buff, is(BYTE_ARRAY_VALUE));
   }
 
   @Theory
@@ -177,7 +179,7 @@ public class BerBufferTest {
     final byte[] buff = new byte[BYTE_ARRAY_VALUE.length];
     getBytes(duplicateBuffer, buff);
 
-    assertThat(buff, is(BYTE_ARRAY_VALUE));
+    Assert.assertThat(buff, is(BYTE_ARRAY_VALUE));
   }
 
   @Theory
@@ -186,7 +188,14 @@ public class BerBufferTest {
 
     berBuffer.putInt(INDEX, INT_VALUE);
 
-    assertThat(Integer.valueOf(duplicateBuffer.getInt(INDEX)), is(Integer.valueOf(INT_VALUE)));
+    Assert.assertThat(Integer.valueOf(duplicateBuffer.getInt(INDEX)), is(Integer.valueOf(INT_VALUE)));
+  }
+
+  @Test
+  public void testIntTobByteArray() {
+    byte[] expected = new byte[] {0, 0, 1, 0};
+    byte[] actual = HeapBerBuffer.intTobByteArray(256);
+    Assert.assertArrayEquals(expected, actual);
   }
 
   private void getBytes(final ByteBuffer buffer, final byte[] dstBuffer) {

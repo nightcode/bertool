@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The NightCode Open Source Project
+ * Copyright (C) 2018 The NightCode Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -52,7 +52,7 @@ public class BerEncoder {
    * @param offset in the supplied dstBuffer
    */
   public void encode(BerBuilder builder, ByteBuffer dstBuffer, int offset) {
-    final BerBuffer berBuffer = new BerBuffer(dstBuffer);
+    final BerBuffer berBuffer = BerBufferUtil.create(dstBuffer);
     berBuffer.checkLimit(offset + builder.length());
     builder.writeTo(berBuffer, offset);
   }

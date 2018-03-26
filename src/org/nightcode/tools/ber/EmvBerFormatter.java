@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The NightCode Open Source Project
+ * Copyright (C) 2018 The NightCode Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -57,19 +57,14 @@ public final class EmvBerFormatter extends AbstractBerFormatter {
       } else {
         in = EmvBerFormatter.class.getResourceAsStream("/emv.tags");
       }
-      LineNumberReader lnr = null;
-      try {
-        lnr = new LineNumberReader(new InputStreamReader(in, StandardCharsets.UTF_8.displayName()));
+      try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(in
+          , StandardCharsets.UTF_8.displayName()))) {
         while (lnr.readLine() != null) {
           String tag = normalize(lnr.readLine());
           if (tag != null) {
             String name = normalize(lnr.readLine());
             tags.put(tag, name);
           }
-        }
-      } finally {
-        if (lnr != null) {
-          lnr.close();
         }
       }
     } finally {
