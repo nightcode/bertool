@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The NightCode Open Source Project
+ * Copyright (C) 2019 The NightCode Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -395,5 +395,15 @@ public class BerFrameTest {
     assertNull(tag6F.getContentAsHexString(hexToByteArray("5E")));
     assertThat(tag6F.getContentAsHexString(hexToByteArray("A5")), is("8801025F2D02656E"));
     assertThat(tag6F.getContentAsHexString(hexToByteArray("5F2D")), is("656E"));
+  }
+
+  @Theory
+  public void testToByteArray(final byte[] buffer) {
+    BerFrame berFrame = berDecoder.decode(buffer);
+
+    assertThat(berFrame.toByteArray(), is(buffer));
+    assertThat(berFrame.getTag(0x5A).toByteArray(),     is(hexToByteArray("5A0130")));
+    assertThat(berFrame.getTag(0x5E).toByteArray(),     is(hexToByteArray("5E0131")));
+    assertThat(berFrame.getTag(0x5FDF03).toByteArray(), is(hexToByteArray("5FDF030133")));
   }
 }

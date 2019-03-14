@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 The NightCode Open Source Project
+ * Copyright (C) 2019 The NightCode Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -343,6 +343,18 @@ public final class BerFrame {
    */
   public @Nullable BerFrame getTag(byte... identifier) {
     return getTag(identifier, tlvs);
+  }
+
+  /**
+   * Returns the content of the BerFrame as a byte buffer.
+   *
+   * @return the content of the BerFrame as a byte buffer
+   */
+  public byte[] toByteArray() {
+    int length = limit - offset;
+    byte[] bytes = new byte[length];
+    buffer.getBytes(offset, bytes);
+    return bytes;
   }
 
   BerBuffer berBuffer() {
