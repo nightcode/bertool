@@ -35,7 +35,7 @@ code
   builder.add(0x6F, builder6F);
   builder.add(0x9F36, new byte[] {0x00, 0x60});
 
-  ByteBuffer buffer = ByteBuffer.allocate(1024);
+  ByteBuffer buffer = ByteBuffer.allocate(builder.length());
   BerEncoder berEncoder = new BerEncoder();
   berEncoder.encode(builder, buffer);
 ```
