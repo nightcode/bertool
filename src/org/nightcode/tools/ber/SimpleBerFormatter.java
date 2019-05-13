@@ -19,7 +19,10 @@ package org.nightcode.tools.ber;
 import java.io.IOException;
 import java.io.OutputStream;
 
-class DefaultBerFormatter extends AbstractBerFormatter {
+/**
+ * BerFormatter which acts as the DefaultBerFormatter but writes to stream content of each tag.
+ */
+public class SimpleBerFormatter extends AbstractBerFormatter {
 
   @Override public void format(OutputStream stream, BerBuffer buffer, BerTlv tlv, byte[] prefix,
       int prefixLength, boolean node) throws IOException {
@@ -28,7 +31,7 @@ class DefaultBerFormatter extends AbstractBerFormatter {
     stream.write(LEFT_BRACKET);
     writeToStream(stream, buffer, tlv.identifierPosition(), tlv.identifierLength());
     stream.write(RIGHT_BRACKET);
-    if (tlv.contentLength() > 0 && !tlv.isConstructed()) {
+    if (tlv.contentLength() > 0) {
       stream.write(SPACE);
       writeToStream(stream, buffer, tlv.contentPosition(), tlv.contentLength());
     }

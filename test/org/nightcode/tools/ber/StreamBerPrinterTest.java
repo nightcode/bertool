@@ -72,7 +72,7 @@ public class StreamBerPrinterTest {
   public void testPrint() throws IOException {
     BerFrame berFrame = berDecoder.decode(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    BerPrinter printer = new StreamBerPrinter(baos);
+    BerPrinter printer = new StreamBerPrinter(baos, new SimpleBerFormatter());
     printer.print(berFrame);
 
     assertEquals(expected, baos.toString());
@@ -87,7 +87,7 @@ public class StreamBerPrinterTest {
     buffer.put(BER);
     BerFrame berFrame = berDecoder.decode(buffer, offset, BER.length);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    BerPrinter printer = new StreamBerPrinter(baos);
+    BerPrinter printer = new StreamBerPrinter(baos, new SimpleBerFormatter());
     printer.print(berFrame);
 
     assertEquals(expected, baos.toString());
@@ -98,7 +98,7 @@ public class StreamBerPrinterTest {
       throws IOException, NoSuchFieldException, IllegalAccessException {
     BerFrame berFrame = berDecoder.decode(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    BerPrinter printer = new StreamBerPrinter(baos);
+    BerPrinter printer = new StreamBerPrinter(baos, new SimpleBerFormatter());
 
     Field internalBuffer = printer.getClass().getDeclaredField("tmpBuffer");
     boolean accessible = internalBuffer.isAccessible();
@@ -113,7 +113,8 @@ public class StreamBerPrinterTest {
   @Theory
   public void shouldPrint(BerFormatter formatter) throws IOException {
     BerFrame berFrame = berDecoder.decode(BER);
-    BerPrinter printer = new StreamBerPrinter(System.out, formatter);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    BerPrinter printer = new StreamBerPrinter(baos, formatter);
     printer.print(berFrame);
   }
 }
