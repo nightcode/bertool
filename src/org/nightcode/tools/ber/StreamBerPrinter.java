@@ -55,6 +55,7 @@ public class StreamBerPrinter implements BerPrinter {
   @Override public void print(BerFrame berFrame) throws IOException {
     BerBuffer buffer = berFrame.berBuffer();
     printLevel(buffer, berFrame.getTlvs(), formatter.lineFeed(), formatter.lineFeed().length);
+    stream.flush();
   }
 
   private void printLevel(BerBuffer berBuffer, List<BerTlv> tlvs, byte[] prefix, int prefixLength)
