@@ -88,7 +88,7 @@ public final class EmvBerFormatter extends AbstractBerFormatter {
     final String tag = BerUtil.byteArrayToHex(identifier);
     if (tags.containsKey(tag)) {
       stream.write(SPACE);
-      stream.write(tags.get(tag).getBytes("UTF-8"));
+      stream.write(tags.get(tag).getBytes(StandardCharsets.UTF_8));
     }
 
     final int contentLength = tlv.contentLength();
