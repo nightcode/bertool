@@ -33,7 +33,7 @@ public class DefaultBerFormatterTest {
      + "00000201 1400ff20 00").replaceAll(" ", ""));
 
   private final String expected =
-      "\n ├─[6F]\n"
+        " ├─[6F]\n"
       + " │  ├─[84] 315041592E5359532E4444463031\n"
       + " │  └─[A5]\n"
       + " │     ├─[88] 02\n"

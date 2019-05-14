@@ -31,7 +31,9 @@ public abstract class BerFormatter {
 
   static final byte[] LIGHT_VERTICAL = new byte[] {(byte) 0xE2, (byte) 0x94, (byte) 0x82};
 
-  static final byte[] LINE_FEED = new byte[] {CARRIAGE_RETURN, SPACE};
+  static final byte[] LINE_FEED = new byte[] {CARRIAGE_RETURN};
+
+  static final byte[] LINE_PREFIX = new byte[] {SPACE};
 
   // "   "
   static final byte[] LEAF_NEXT_PREFIX = new byte[] {SPACE, SPACE, SPACE};
@@ -68,6 +70,13 @@ public abstract class BerFormatter {
    * @return line feed
    */
   abstract byte[] lineFeed();
+
+  /**
+   * Returns line feed.
+   *
+   * @return line feed
+   */
+  abstract byte[] linePrefix();
 
   /**
    * Returns prefix for next TLV.

@@ -39,8 +39,7 @@ public class StreamBerPrinterTest {
      + "00000201 1400ff20 00").replaceAll(" ", ""));
 
   private final String expected =
-      "\n"
-    + " ├─[6F] 840E315041592E5359532E4444463031A5088801025F2D02656E\n"
+      " ├─[6F] 840E315041592E5359532E4444463031A5088801025F2D02656E\n"
     + " │  ├─[84] 315041592E5359532E4444463031\n"
     + " │  └─[A5] 8801025F2D02656E\n"
     + " │     ├─[88] 02\n"
@@ -51,7 +50,6 @@ public class StreamBerPrinterTest {
     + " │  ├─[9F26] C2C12B098F3DA6E3\n"
     + " │  └─[9F10] 0111258013423A02CFEC00000002011400FF\n"
     + " └─[20]";
-
 
   
   @DataPoint

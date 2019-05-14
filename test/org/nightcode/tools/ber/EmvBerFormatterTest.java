@@ -37,7 +37,7 @@ public class EmvBerFormatterTest {
      + "00000201 1400ff20 00").replaceAll(" ", ""));
 
   private final String expected =
-      "\n ├─[6F] File Control Information (FCI) Template\n"
+        " ├─[6F] File Control Information (FCI) Template\n"
       + " │  │ 840E315041592E5359532E4444463031A5088801025F2D02656E\n"
       + " │  ├─[84] Dedicated File (DF) Name\n"
       + " │  │   315041592E5359532E4444463031\n"
@@ -60,7 +60,7 @@ public class EmvBerFormatterTest {
       + " └─[20]";
 
   private final String expectedWithSpaces =
-      "\n ├─[6F] File Control Information (FCI) Template\n"
+        " ├─[6F] File Control Information (FCI) Template\n"
       + " │  │ 84 0E 31 50 41 59 2E 53  59 53 2E 44 44 46 30 31\n"
       + " │  │ A5 08 88 01 02 5F 2D 02  65 6E\n"
       + " │  ├─[84] Dedicated File (DF) Name\n"

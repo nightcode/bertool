@@ -97,9 +97,11 @@ public final class EmvBerFormatter extends AbstractBerFormatter {
         final int contentPosition = tlv.contentPosition();
         final int limit = contentPosition + contentLength;
         for (int i = contentPosition; i < limit; i += 16) {
+          stream.write(lineFeed());
           printContent(stream, buffer, tlv, prefix, prefixLength, node, i, Math.min(16, limit - i));
         }
       } else {
+        stream.write(lineFeed());
         printContent(stream, buffer, tlv, prefix, prefixLength, node, tlv.contentPosition()
             , contentLength);
       }

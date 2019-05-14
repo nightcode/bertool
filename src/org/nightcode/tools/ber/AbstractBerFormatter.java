@@ -38,6 +38,10 @@ public abstract class AbstractBerFormatter extends BerFormatter {
     return LINE_FEED;
   }
 
+  @Override byte[] linePrefix() {
+    return LINE_PREFIX;
+  }
+
   @Override byte[] nextPrefix(boolean node) {
     return node ? NODE_NEXT_PREFIX : LEAF_NEXT_PREFIX;
   }

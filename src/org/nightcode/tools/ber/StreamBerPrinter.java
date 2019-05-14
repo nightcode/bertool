@@ -54,14 +54,24 @@ public class StreamBerPrinter implements BerPrinter {
 
   @Override public void print(BerFrame berFrame) throws IOException {
     BerBuffer buffer = berFrame.berBuffer();
-    printLevel(buffer, berFrame.getTlvs(), formatter.lineFeed(), formatter.lineFeed().length);
+    printImpl(buffer, berFrame.getTlvs(), formatter.linePrefix(), formatter.linePrefix().length);
     stream.flush();
   }
 
-  private void printLevel(BerBuffer berBuffer, List<BerTlv> tlvs, byte[] prefix, int prefixLength)
+  private void printImpl(BerBuffer berBuffer, List<BerTlv> tlvs, byte[] prefix, int prefixLength)
       throws IOException {
     Iterator<BerTlv> i = tlvs.iterator();
+    if (i.hasNext()) {
+      BerTlv tlv = i.next();
+      printTlv(berBuffer, tlv, prefix, prefixLength, i.hasNext());
+    }
+    printLevel(berBuffer, i, prefix, prefixLength);
+  }
+
+  private void printLevel(BerBuffer berBuffer, Iterator<BerTlv> i, byte[] prefix, int prefixLength)
+      throws IOException {
     while (i.hasNext()) {
+      stream.write(formatter.lineFeed());
       BerTlv tlv = i.next();
       printTlv(berBuffer, tlv, prefix, prefixLength, i.hasNext());
     }
@@ -77,7 +87,7 @@ public class StreamBerPrinter implements BerPrinter {
       }
       System.arraycopy(prefix, 0, tmpBuffer, 0, prefixLength);
       System.arraycopy(addPrefix, 0, tmpBuffer, prefixLength, addPrefix.length);
-      printLevel(berBuffer, tlv.children(), tmpBuffer, prefixLength + addPrefix.length);
+      printLevel(berBuffer, tlv.children().iterator(), tmpBuffer, prefixLength + addPrefix.length);
     }
   }
 }
