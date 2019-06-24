@@ -408,8 +408,27 @@ public class BerFrameTest {
 
     tag6F = berFrame.getTagAsByteArray(new byte[] {0x6F});
     assertTag6F(berDecoder.decode(tag6F));
-  } 
+  }
 
+  @Test
+  public void testGetTagAsByteArrayNullCheck() {
+    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+
+    byte[] tag6F;
+
+    tag6F = berFrame.getTagAsByteArray((byte) 0x7F);
+    assertNull(tag6F);
+
+    tag6F = berFrame.getTagAsByteArray(0x7F);
+    assertNull(tag6F);
+
+    tag6F = berFrame.getTagAsByteArray(0x7F);
+    assertNull(tag6F);
+
+    tag6F = berFrame.getTagAsByteArray(new byte[] {0x7F});
+    assertNull(tag6F);
+  }
+  
   private void assertTag6F(BerFrame tag6F) {
     assertNotNull(tag6F);
     assertNotNull(tag6F.getContentAsHexString(hexToByteArray("6F")));
