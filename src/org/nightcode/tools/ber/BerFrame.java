@@ -1,17 +1,17 @@
 /*
  * Copyright (C) 2019 The NightCode Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.nightcode.tools.ber;
@@ -343,6 +343,78 @@ public final class BerFrame {
    */
   public @Nullable BerFrame getTag(byte... identifier) {
     return getTag(identifier, tlvs);
+  }
+
+  /**
+   * Returns the byte array representation of a Ber tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier,
+   * the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the byte array
+   */
+  public @Nullable byte[] getTagAsByteArray(final byte identifier) {
+    BerFrame tag = getTag(new byte[] {identifier}, tlvs);
+    if (tag == null) {
+      return null;
+    }
+    return tag.toByteArray();
+  }
+
+  /**
+   * Returns the byte array representation of a Ber tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier,
+   * the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the byte array
+   */
+  public @Nullable byte[] getTagAsByteArray(final int identifier) {
+    BerFrame tag = getTag(BerUtil.identifierToByteArray(identifier), tlvs);
+    if (tag == null) {
+      return null;
+    }
+    return tag.toByteArray();
+  }
+
+  /**
+   * Returns the byte array representation of a Ber tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier,
+   * the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the byte array
+   */
+  public @Nullable byte[] getTagAsByteArray(final long identifier) {
+    BerFrame tag = getTag(BerUtil.identifierToByteArray(identifier), tlvs);
+    if (tag == null) {
+      return null;
+    }
+    return tag.toByteArray();
+  }
+
+  /**
+   * Returns the byte array representation of a Ber tag,
+   * or {@code null} if the BER tag does not exists.
+   * If there are multiple BER tags with the same identifier,
+   * the value returned is equal to
+   * the first value in the list returned by getAllContents.
+   *
+   * @param identifier the BER tag
+   * @return the byte array
+   */
+  public @Nullable byte[] getTagAsByteArray(byte... identifier) {
+    BerFrame tag = getTag(identifier, tlvs);
+    if (tag == null) {
+      return null;
+    }
+    return tag.toByteArray();
   }
 
   /**

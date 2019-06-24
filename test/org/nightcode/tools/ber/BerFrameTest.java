@@ -1,17 +1,17 @@
 /*
  * Copyright (C) 2019 The NightCode Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.nightcode.tools.ber;
@@ -354,11 +354,7 @@ public class BerFrameTest {
     BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
 
     BerFrame tag6F = berFrame.getTag((byte) 0x6F);
-    assertNotNull(tag6F);
-    assertNotNull(tag6F.getContentAsHexString(hexToByteArray("6F")));
-    assertNull(tag6F.getContentAsHexString(hexToByteArray("5E")));
-    assertThat(tag6F.getContentAsHexString(hexToByteArray("A5")), is("8801025F2D02656E"));
-    assertThat(tag6F.getContentAsHexString(hexToByteArray("5F2D")), is("656E"));
+    assertTag6F(tag6F);
   }
 
   @Test
@@ -366,11 +362,7 @@ public class BerFrameTest {
     BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
 
     BerFrame tag6F = berFrame.getTag(0x6F);
-    assertNotNull(tag6F);
-    assertNotNull(tag6F.getContentAsHexString(hexToByteArray("6F")));
-    assertNull(tag6F.getContentAsHexString(hexToByteArray("5E")));
-    assertThat(tag6F.getContentAsHexString(hexToByteArray("A5")), is("8801025F2D02656E"));
-    assertThat(tag6F.getContentAsHexString(hexToByteArray("5F2D")), is("656E"));
+    assertTag6F(tag6F);
   }
 
   @Test
@@ -378,11 +370,7 @@ public class BerFrameTest {
     BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
 
     BerFrame tag6F = berFrame.getTag(0x6FL);
-    assertNotNull(tag6F);
-    assertNotNull(tag6F.getContentAsHexString(hexToByteArray("6F")));
-    assertNull(tag6F.getContentAsHexString(hexToByteArray("5E")));
-    assertThat(tag6F.getContentAsHexString(hexToByteArray("A5")), is("8801025F2D02656E"));
-    assertThat(tag6F.getContentAsHexString(hexToByteArray("5F2D")), is("656E"));
+    assertTag6F(tag6F);
   }
 
   @Test
@@ -390,11 +378,7 @@ public class BerFrameTest {
     BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
 
     BerFrame tag6F = berFrame.getTag(new byte[] {0x6F});
-    assertNotNull(tag6F);
-    assertNotNull(tag6F.getContentAsHexString(hexToByteArray("6F")));
-    assertNull(tag6F.getContentAsHexString(hexToByteArray("5E")));
-    assertThat(tag6F.getContentAsHexString(hexToByteArray("A5")), is("8801025F2D02656E"));
-    assertThat(tag6F.getContentAsHexString(hexToByteArray("5F2D")), is("656E"));
+    assertTag6F(tag6F);
   }
 
   @Theory
@@ -405,5 +389,32 @@ public class BerFrameTest {
     assertThat(berFrame.getTag(0x5A).toByteArray(),     is(hexToByteArray("5A0130")));
     assertThat(berFrame.getTag(0x5E).toByteArray(),     is(hexToByteArray("5E0131")));
     assertThat(berFrame.getTag(0x5FDF03).toByteArray(), is(hexToByteArray("5FDF030133")));
+  }
+
+  @Test
+  public void testGetTagAsByteArray() {
+    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+
+    byte[] tag6F;
+    
+    tag6F = berFrame.getTagAsByteArray((byte) 0x6F);
+    assertTag6F(berDecoder.decode(tag6F));
+    
+    tag6F = berFrame.getTagAsByteArray(0x6F);
+    assertTag6F(berDecoder.decode(tag6F));
+
+    tag6F = berFrame.getTagAsByteArray(0x6FL);
+    assertTag6F(berDecoder.decode(tag6F));
+
+    tag6F = berFrame.getTagAsByteArray(new byte[] {0x6F});
+    assertTag6F(berDecoder.decode(tag6F));
+  } 
+
+  private void assertTag6F(BerFrame tag6F) {
+    assertNotNull(tag6F);
+    assertNotNull(tag6F.getContentAsHexString(hexToByteArray("6F")));
+    assertNull(tag6F.getContentAsHexString(hexToByteArray("5E")));
+    assertThat(tag6F.getContentAsHexString(hexToByteArray("A5")), is("8801025F2D02656E"));
+    assertThat(tag6F.getContentAsHexString(hexToByteArray("5F2D")), is("656E"));
   }
 }
