@@ -16,7 +16,10 @@
 
 package org.nightcode.tools.ber;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -34,7 +37,7 @@ public class BerBuilderTest {
   }
 
   @Test
-  public void testAdd() {
+  public void testAdd() throws IOException {
     final byte[] expected = hexToByteArray("5E01015F2D01025FDF030103DFDFDF0401045F2D0105");
 
     BerBuilder builder = BerBuilder.newInstance();
@@ -45,10 +48,14 @@ public class BerBuilderTest {
     builder.add(hexToByteArray("5F2D"),                             hexToByteArray("05"));
 
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
-    BerEncoder berEncoder = new BerEncoder();
-    berEncoder.encode(builder, buffer);
+    builder.writeTo(buffer);
 
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    builder.writeTo(out);
+
+    assertArrayEquals(expected, out.toByteArray());
   }
 
   @Test
@@ -63,8 +70,7 @@ public class BerBuilderTest {
     builder.add(0x5F2D,     hexToByteArray("05"));
 
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
-    BerEncoder berEncoder = new BerEncoder();
-    berEncoder.encode(builder, buffer);
+    builder.writeTo(buffer);
 
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
   }
@@ -86,8 +92,7 @@ public class BerBuilderTest {
     builder.add(0xDFDFDFDFDFDFDF09L, hexToByteArray("09"));
 
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
-    BerEncoder berEncoder = new BerEncoder();
-    berEncoder.encode(builder, buffer);
+    builder.writeTo(buffer);
 
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
   }
@@ -109,16 +114,14 @@ public class BerBuilderTest {
     builder.add(0x5FDFDFDF2DL,                                      inner);
 
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
-    BerEncoder berEncoder = new BerEncoder();
-    berEncoder.encode(builder, buffer);
+    builder.writeTo(buffer);
 
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
   }
 
   @Test
   public void testAddAsciiString() {
-    final byte[] expected
-        = hexToByteArray("5E02656E5F2D02656E5FDF0302656E5FDFDF0402656E5F2D02656E5FDFDFDF2D02656E");
+    final byte[] expected = hexToByteArray("5E02656E5F2D02656E5FDF0302656E5FDFDF0402656E5F2D02656E5FDFDFDF2D02656E");
 
     BerBuilder builder = BerBuilder.newInstance();
     builder.addAsciiString((byte) 0x5E,                                        "en");
@@ -129,16 +132,14 @@ public class BerBuilderTest {
     builder.addAsciiString(0x5FDFDFDF2DL,                                      "en");
 
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
-    BerEncoder berEncoder = new BerEncoder();
-    berEncoder.encode(builder, buffer);
+    builder.writeTo(buffer);
 
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
   }
 
   @Test
   public void testAddHexString() {
-    final byte[] expected
-        = hexToByteArray("5E01015F2D01025FDF0301035FDFDF0401045F2D01055FDFDFDF2D0106");
+    final byte[] expected = hexToByteArray("5E01015F2D01025FDF0301035FDFDF0401045F2D01055FDFDFDF2D0106");
 
     BerBuilder builder = BerBuilder.newInstance();
     builder.addHexString((byte) 0x5E,                                        "01");
@@ -149,14 +150,13 @@ public class BerBuilderTest {
     builder.addHexString(0x5FDFDFDF2DL,                                      "06");
 
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
-    BerEncoder berEncoder = new BerEncoder();
-    berEncoder.encode(builder, buffer);
+    builder.writeTo(buffer);
 
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
   }
 
   @Test
-  public void calculateNumberOfLengthOctets() {
+  public void calculateNumberOfLengthOctets() throws IOException {
     java.util.Random random = new java.util.Random();
     
     final byte[] content1 = new byte[0x7F];
@@ -193,19 +193,21 @@ public class BerBuilderTest {
     builder.add(0x55, content5);
     
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
-    BerEncoder berEncoder = new BerEncoder();
-    berEncoder.encode(builder, buffer);
+    builder.writeTo(buffer);
 
     assertArrayEquals(get(expected, 0, expected.capacity()), get(buffer, 0, builder.length()));
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    builder.writeTo(out);
+
+    assertArrayEquals(get(expected, 0, expected.capacity()), out.toByteArray());
   }
 
   @Test
   public void testAddBerFrame() {
-    final byte[] expected
-        = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
+    final byte[] expected = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
     
-    BerFrame berFrame = new BerDecoder()
-        .decode(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"));
+    BerFrame berFrame = BerFrame.parseFrom(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"));
 
     BerBuilder builder6F = BerBuilder.newInstance();
     builder6F.add(berFrame);
@@ -215,8 +217,7 @@ public class BerBuilderTest {
     builder.add(0x9F36, new byte[] {0x00, 0x60});
 
     byte[] buffer = new byte[builder.length()];
-    BerEncoder berEncoder = new BerEncoder();
-    berEncoder.encode(builder, buffer);
+    builder.writeTo(buffer);
 
     assertArrayEquals(expected, buffer);
   }
@@ -236,9 +237,140 @@ public class BerBuilderTest {
     builder.add(0xDFAE02, content128);
 
     ByteBuffer buffer = ByteBuffer.allocate(builder.length());
-    BerEncoder berEncoder = new BerEncoder();
-    berEncoder.encode(builder, buffer);
+    builder.writeTo(buffer);
 
     assertArrayEquals(get(expected, 0, expected.capacity()), get(buffer, 0, builder.length()));
+  }
+
+  @Test
+  public void testEncodePrimitive() throws IOException {
+    final byte[] expected = hexToByteArray("9F2608C2C12B098F3DA6E3");
+    final byte[] content = hexToByteArray("C2C12B098F3DA6E3");
+
+    BerBuilder builder = BerBuilder.newInstance();
+    builder.add(0x9F26, content);
+
+    ByteBuffer buffer = ByteBuffer.allocate(1024);
+    builder.writeTo(buffer);
+
+    assertArrayEquals(expected, get(buffer, 0, builder.length()));
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    builder.writeTo(out);
+
+    assertArrayEquals(expected, out.toByteArray());
+  }
+
+  @Test
+  public void testEncodeConstructed() throws IOException {
+    final byte[] expected = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
+
+    BerBuilder builderA5 = BerBuilder.newInstance();
+    builderA5.add(0x88, new byte[] {0x02});
+    builderA5.addAsciiString(0x5F2D, "en");
+
+    BerBuilder builder6F = BerBuilder.newInstance();
+    builder6F.addHexString(0x84, "315041592E5359532E4444463031");
+    builder6F.add(0xA5, builderA5);
+
+    BerBuilder builder = BerBuilder.newInstance();
+    builder.add(0x6F, builder6F);
+    builder.add(0x9F36, new byte[] {0x00, 0x60});
+
+    ByteBuffer buffer = ByteBuffer.allocate(1024);
+    builder.writeTo(buffer);
+
+    assertArrayEquals(expected, get(buffer, 0, builder.length()));
+
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    builder.writeTo(out);
+
+    assertArrayEquals(expected, out.toByteArray());
+  }
+
+  @Test
+  public void testEncodeConstructedByteArray() throws IOException {
+    final byte[] expected = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
+
+    BerBuilder builderA5 = BerBuilder.newInstance();
+    builderA5.add(0x88, new byte[] {0x02});
+    builderA5.addAsciiString(0x5F2D, "en");
+
+    BerBuilder builder6F = BerBuilder.newInstance();
+    builder6F.addHexString(0x84, "315041592E5359532E4444463031");
+    builder6F.add(0xA5, builderA5);
+
+    BerBuilder builder = BerBuilder.newInstance();
+    builder.add(0x6F, builder6F);
+    builder.add(0x9F36, new byte[] {0x00, 0x60});
+
+    byte[] buffer = new byte[builder.length()];
+    builder.writeTo(buffer);
+
+    assertArrayEquals(expected, buffer);
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    builder.writeTo(out);
+
+    assertArrayEquals(expected, out.toByteArray());
+  }
+
+  @Test
+  public void testEncodeConstructedWithOffset() throws IOException {
+    final byte[] expected = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
+
+    BerBuilder builderA5 = BerBuilder.newInstance();
+    builderA5.add(0x88, hexToByteArray("02"));
+    builderA5.addAsciiString(0x5F2D, "en");
+
+    BerBuilder builder6F = BerBuilder.newInstance();
+    builder6F.addHexString(0x84, "315041592E5359532E4444463031");
+    builder6F.add(0xA5, builderA5);
+
+    BerBuilder builder = BerBuilder.newInstance();
+    builder.add(0x6F, builder6F);
+    builder.add(0x9F36, hexToByteArray("0060"));
+
+    final int offset = 10;
+    final ByteBuffer buffer = ByteBuffer.allocate(expected.length + offset);
+    buffer.put((byte) 0xE1);
+    buffer.position(offset);
+    builder.writeTo(buffer, offset);
+
+    assertArrayEquals(expected, get(buffer, offset, builder.length()));
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    builder.writeTo(out);
+
+    assertArrayEquals(expected, out.toByteArray());
+  }
+
+  @Test
+  public void testEncodeDefiniteLongForm() throws IOException {
+    final byte[] identifier = hexToByteArray("84");
+    Random random = new Random();
+    final byte[] content = new byte[435];
+    random.nextBytes(content);
+
+    final byte[] expected = new byte[content.length + 4];
+    expected[0] = (byte) 0x84;
+    expected[1] = (byte) 0x82;
+    expected[2] = (byte) 0x01;
+    expected[3] = (byte) 0xB3;
+    System.arraycopy(content, 0, expected, 4, content.length);
+
+    BerBuilder builder = BerBuilder.newInstance();
+    builder.add(identifier, content);
+
+    ByteBuffer buffer = ByteBuffer.allocate(1024);
+    builder.writeTo(buffer);
+
+    assertArrayEquals(expected, get(buffer, 0, builder.length()));
+
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    builder.writeTo(out);
+
+    assertArrayEquals(expected, out.toByteArray());
   }
 }

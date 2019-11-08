@@ -58,8 +58,7 @@ public class StreamBerPrinter implements BerPrinter {
     stream.flush();
   }
 
-  private void printImpl(BerBuffer berBuffer, List<BerTlv> tlvs, byte[] prefix, int prefixLength)
-      throws IOException {
+  private void printImpl(BerBuffer berBuffer, List<BerTlv> tlvs, byte[] prefix, int prefixLength) throws IOException {
     Iterator<BerTlv> i = tlvs.iterator();
     if (i.hasNext()) {
       BerTlv tlv = i.next();
@@ -68,8 +67,7 @@ public class StreamBerPrinter implements BerPrinter {
     printLevel(berBuffer, i, prefix, prefixLength);
   }
 
-  private void printLevel(BerBuffer berBuffer, Iterator<BerTlv> i, byte[] prefix, int prefixLength)
-      throws IOException {
+  private void printLevel(BerBuffer berBuffer, Iterator<BerTlv> i, byte[] prefix, int prefixLength) throws IOException {
     while (i.hasNext()) {
       stream.write(formatter.lineFeed());
       BerTlv tlv = i.next();
@@ -77,8 +75,8 @@ public class StreamBerPrinter implements BerPrinter {
     }
   }
 
-  private void printTlv(BerBuffer berBuffer, BerTlv tlv, byte[] prefix, int prefixLength,
-      boolean node) throws IOException {
+  private void printTlv(BerBuffer berBuffer, BerTlv tlv, byte[] prefix, int prefixLength, boolean node)
+      throws IOException {
     formatter.format(stream, berBuffer, tlv, prefix, prefixLength, node);
     if (tlv.isConstructed()) {
       byte[] addPrefix = formatter.nextPrefix(node);

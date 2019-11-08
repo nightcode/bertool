@@ -64,16 +64,24 @@ public class StreamBerPrinterTest {
     EMV_FORMATTER = EmvBerFormatter.newInstance();
   }
 
-  private final BerDecoder berDecoder = new BerDecoder();
-
   @Test
   public void testPrint() throws IOException {
-    BerFrame berFrame = berDecoder.decode(BER);
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerPrinter printer = new StreamBerPrinter(baos, new SimpleBerFormatter());
     printer.print(berFrame);
 
     assertEquals(expected, baos.toString());
+  }
+
+  @Test
+  public void testPrintEmpty() throws IOException {
+    BerFrame berFrame = BerFrame.parseFrom(BerUtil.hexToByteArray(""));
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    BerPrinter printer = new StreamBerPrinter(baos, new SimpleBerFormatter());
+    printer.print(berFrame);
+
+    assertEquals("", baos.toString());
   }
 
   @Test
@@ -83,7 +91,7 @@ public class StreamBerPrinterTest {
     buffer.put((byte) 0xE1);
     buffer.position(offset);
     buffer.put(BER);
-    BerFrame berFrame = berDecoder.decode(buffer, offset, BER.length);
+    BerFrame berFrame = BerFrame.parseFrom(buffer, offset, BER.length);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerPrinter printer = new StreamBerPrinter(baos, new SimpleBerFormatter());
     printer.print(berFrame);
@@ -92,9 +100,8 @@ public class StreamBerPrinterTest {
   }
 
   @Test
-  public void testPrintExtendInternalBuffer()
-      throws IOException, NoSuchFieldException, IllegalAccessException {
-    BerFrame berFrame = berDecoder.decode(BER);
+  public void testPrintExtendInternalBuffer() throws IOException, NoSuchFieldException, IllegalAccessException {
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerPrinter printer = new StreamBerPrinter(baos, new SimpleBerFormatter());
 
@@ -110,7 +117,7 @@ public class StreamBerPrinterTest {
 
   @Theory
   public void shouldPrint(BerFormatter formatter) throws IOException {
-    BerFrame berFrame = berDecoder.decode(BER);
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerPrinter printer = new StreamBerPrinter(baos, formatter);
     printer.print(berFrame);

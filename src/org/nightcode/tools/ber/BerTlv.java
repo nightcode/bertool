@@ -43,27 +43,27 @@ class BerTlv {
     }
   }
 
-  public List<BerTlv> children() {
+  List<BerTlv> children() {
     return children;
   }
 
-  public int contentLength() {
+  int contentLength() {
     return contentLength;
   }
 
-  public int contentPosition() {
+  int contentPosition() {
     return contentPosition;
   }
 
-  public int identifierLength() {
+  int identifierLength() {
     return identifierLength;
   }
 
-  public int identifierPosition() {
+  int identifierPosition() {
     return identifierPosition;
   }
 
-  public boolean isConstructed() {
+  boolean isConstructed() {
     return constructed;
   }
 }

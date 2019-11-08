@@ -16,57 +16,20 @@
 
 package org.nightcode.tools.ber;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The BerDecoder performs decoding BER packet.
+ * The BerParser performs decoding BER packet.
  */
-public class BerDecoder {
+final class BerParser {
 
   private static final int MASK_CONSTRUCTED = 0x20;
 
   private static final int MASK_INDEFINITE_FORM = 0x80;
   private static final int MASK_DEFINITE_LONG_FORM = 0x80;
 
-  /**
-   * Decode the BER data which contains in the supplied bytes array.
-   *
-   * @param src which contains the BER data
-   * @exception DecoderException
-   */
-  public BerFrame decode(final byte[] src) {
-    ByteBuffer buffer = ByteBuffer.wrap(src);
-    return decode(buffer, 0, src.length);
-  }
-
-  /**
-   * Decode the BER data which contains in the supplied {@link ByteBuffer}.
-   *
-   * @param srcBuffer which contains the BER data
-   * @exception DecoderException
-   */
-  public BerFrame decode(final ByteBuffer srcBuffer) {
-    return decode(srcBuffer, 0, srcBuffer.limit());
-  }
-
-  /**
-   * Decode the BER data which contains in the supplied {@link ByteBuffer}
-   * with specified offset and length.
-   *
-   * @param srcBuffer which contains the BER data
-   * @param offset in the supplied srcBuffer
-   * @param length of the BER data in bytes
-   * @exception java.lang.IndexOutOfBoundsException
-   * @exception DecoderException
-   */
-  public BerFrame decode(final ByteBuffer srcBuffer, final int offset, final int length) {
-    BerBuffer berBuffer = BerBufferUtil.create(srcBuffer);
-    return decode(berBuffer, offset, length);
-  }
-
-  private BerFrame decode(final BerBuffer berBuffer, final int offset, final int length) {
+  static BerFrame parseFrom(final BerBuffer berBuffer, final int offset, final int length) {
     final int limit = berBuffer.checkLimit(offset + length);
     List<BerTlv> root = new ArrayList<>();
     try {
@@ -86,15 +49,14 @@ public class BerDecoder {
     return new BerFrame(berBuffer, offset, limit, root);
   }
 
-  private void getLevel(final BerBuffer src, final List<BerTlv> level, final int position,
-      final int limit) {
+  private static void getLevel(final BerBuffer src, final List<BerTlv> level, final int position, final int limit) {
     int index = position;
     while (index < limit) {
       index = getBerTlv(src, index, level, limit);
     }
   }
 
-  private int getBerTlv(final BerBuffer src, final int identPosition, final List<BerTlv> level,
+  private static int getBerTlv(final BerBuffer src, final int identPosition, final List<BerTlv> level,
       final int limit) {
     int index = identPosition;
     src.checkIndex(index);
@@ -132,8 +94,7 @@ public class BerDecoder {
     }
     if (contentPos + contentLength > limit) {
         throw new IndexOutOfBoundsException(String
-            .format("content bound is beyond content limit (b=%d; l=%d)"
-                , contentPos + contentLength, limit));
+            .format("content bound is beyond content limit (b=%d; l=%d)", contentPos + contentLength, limit));
     }
     BerTlv tlv = new BerTlv(identPosition, identLength, constructed, contentPos, contentLength);
     level.add(tlv);
@@ -141,5 +102,9 @@ public class BerDecoder {
       getLevel(src, tlv.children(), contentPos, contentPos + contentLength);
     }
     return index + contentLength;
+  }
+
+  private BerParser() {
+    // do nothing
   }
 }

@@ -56,8 +56,6 @@ public class BerFrameTest {
       + "02656F5E 0137"
   ).replaceAll(" ", ""));
 
-  private final BerDecoder berDecoder = new BerDecoder();
-
   @Test
   public void testLimit() {
     final int offset = 10;
@@ -65,8 +63,7 @@ public class BerFrameTest {
     buffer.put((byte) 0xE1);
     buffer.position(offset);
     buffer.put(BER);
-    final BerDecoder berDecoder = new BerDecoder();
-    BerFrame berFrame = berDecoder.decode(buffer, offset, BER.length);
+    BerFrame berFrame = BerFrame.parseFrom(buffer, offset, BER.length);
 
     assertEquals(buffer.capacity(), berFrame.limit());
   }
@@ -78,15 +75,14 @@ public class BerFrameTest {
     buffer.put((byte) 0xE1);
     buffer.position(offset);
     buffer.put(BER);
-    final BerDecoder berDecoder = new BerDecoder();
-    BerFrame berFrame = berDecoder.decode(buffer, offset, BER.length);
+    BerFrame berFrame = BerFrame.parseFrom(buffer, offset, BER.length);
 
     assertEquals(offset, berFrame.offset());
   }
 
   @Test
   public void testGetContentEmpty() {
-    BerFrame berFrame = berDecoder.decode(BER);
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     byte[] result = berFrame.getContent();
 
     assertNull(result);
@@ -94,7 +90,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentByByte(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContent((byte) 0x5A), is(hexToByteArray("30")));
     assertThat(berFrame.getContent((byte) 0x5E), is(hexToByteArray("31")));
@@ -102,7 +98,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentByInt(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContent(0x5A),       is(hexToByteArray("30")));
     assertThat(berFrame.getContent(0x5E),       is(hexToByteArray("31")));
@@ -113,7 +109,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentByLong(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContent(0x5AL),               is(hexToByteArray("30")));
     assertThat(berFrame.getContent(0x5EL),               is(hexToByteArray("31")));
@@ -128,7 +124,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentByByteArray(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContent(hexToByteArray("5A")),               is(hexToByteArray("30")));
     assertThat(berFrame.getContent(hexToByteArray("5E")),               is(hexToByteArray("31")));
@@ -143,7 +139,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetAllContentsByte() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
     final byte tag = 0x5E;
 
     assertEquals(2, berFrame.getAllContents(tag).size());
@@ -153,7 +149,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetAllContentsInt() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
     final int tag = 0xDFDFDF04;
 
     assertEquals(2, berFrame.getAllContents(tag).size());
@@ -163,7 +159,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetAllContentsLong() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
     final long tag = 0xDFDFDFDFDFDFDF09L;
 
     assertEquals(2, berFrame.getAllContents(tag).size());
@@ -173,7 +169,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetAllContentsConstructed() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
     final int tag = 0xA5;
 
     assertEquals(2, berFrame.getAllContents(tag).size());
@@ -183,7 +179,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetAllContentsByteArray() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
     final byte[] tag = hexToByteArray("DFDFDFDFDFDFDF09");
 
     assertEquals(2, berFrame.getAllContents(tag).size());
@@ -193,7 +189,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetAllContentsEmpty() {
-    BerFrame berFrame = berDecoder.decode(BER);
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     List<byte[]> result = berFrame.getAllContents();
 
     assertTrue(result.isEmpty());
@@ -201,8 +197,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetIdentifiers() {
-    BerFrame berFrame
-        = berDecoder.decode(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"));
+    BerFrame berFrame = BerFrame.parseFrom(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"));
 
     Iterator<byte[]> i = berFrame.getIdentifiers();
     assertTrue(i.hasNext());
@@ -220,7 +215,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetContentAsAsciiStringEmpty() {
-    BerFrame berFrame = berDecoder.decode(BER);
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     String result = berFrame.getContentAsAsciiString();
 
     assertNull(result);
@@ -228,7 +223,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentAsAsciiStringByByte(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContentAsAsciiString((byte) 0x5A), is("0"));
     assertThat(berFrame.getContentAsAsciiString((byte) 0x5E), is("1"));
@@ -236,7 +231,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentAsAsciiStringByInt(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContentAsAsciiString(0x5A),       is("0"));
     assertThat(berFrame.getContentAsAsciiString(0x5E),       is("1"));
@@ -247,7 +242,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentAsAsciiStringByLong(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContentAsAsciiString(0x5AL),               is("0"));
     assertThat(berFrame.getContentAsAsciiString(0x5EL),               is("1"));
@@ -262,7 +257,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentAsAsciiStringByByteArray(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContentAsAsciiString(hexToByteArray("5A")),               is("0"));
     assertThat(berFrame.getContentAsAsciiString(hexToByteArray("5E")),               is("1"));
@@ -277,7 +272,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetContentAsHexStringEmpty() {
-    BerFrame berFrame = berDecoder.decode(BER);
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     String result = berFrame.getContentAsHexString();
 
     assertNull(result);
@@ -285,7 +280,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentAsHexStringByByte(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContentAsHexString((byte) 0x5A), is("30"));
     assertThat(berFrame.getContentAsHexString((byte) 0x5E), is("31"));
@@ -293,7 +288,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentAsHexStringByInt(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContentAsHexString(0x5A),       is("30"));
     assertThat(berFrame.getContentAsHexString(0x5E),       is("31"));
@@ -304,7 +299,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentAsHexStringByLong(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContentAsHexString(0x5AL),               is("30"));
     assertThat(berFrame.getContentAsHexString(0x5EL),               is("31"));
@@ -319,7 +314,7 @@ public class BerFrameTest {
 
   @Theory
   public void shouldGetContentAsHexStringByByteArray(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.getContentAsHexString(hexToByteArray("5A")),               is("30"));
     assertThat(berFrame.getContentAsHexString(hexToByteArray("5E")),               is("31"));
@@ -334,7 +329,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetTag() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
 
     BerFrame tag7F = berFrame.getTag(0x7F);
     assertNull(tag7F);
@@ -351,7 +346,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetTagByByte() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
 
     BerFrame tag6F = berFrame.getTag((byte) 0x6F);
     assertTag6F(tag6F);
@@ -359,7 +354,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetTagByInt() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
 
     BerFrame tag6F = berFrame.getTag(0x6F);
     assertTag6F(tag6F);
@@ -367,7 +362,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetTagByLong() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
 
     BerFrame tag6F = berFrame.getTag(0x6FL);
     assertTag6F(tag6F);
@@ -375,7 +370,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetTagByByteArray() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
 
     BerFrame tag6F = berFrame.getTag(new byte[] {0x6F});
     assertTag6F(tag6F);
@@ -383,7 +378,7 @@ public class BerFrameTest {
 
   @Theory
   public void testToByteArray(final byte[] buffer) {
-    BerFrame berFrame = berDecoder.decode(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer);
 
     assertThat(berFrame.toByteArray(), is(buffer));
     assertThat(berFrame.getTag(0x5A).toByteArray(),     is(hexToByteArray("5A0130")));
@@ -393,26 +388,26 @@ public class BerFrameTest {
 
   @Test
   public void testGetTagAsByteArray() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
 
     byte[] tag6F;
     
     tag6F = berFrame.getTagAsByteArray((byte) 0x6F);
-    assertTag6F(berDecoder.decode(tag6F));
+    assertTag6F(BerFrame.parseFrom(tag6F));
     
     tag6F = berFrame.getTagAsByteArray(0x6F);
-    assertTag6F(berDecoder.decode(tag6F));
+    assertTag6F(BerFrame.parseFrom(tag6F));
 
     tag6F = berFrame.getTagAsByteArray(0x6FL);
-    assertTag6F(berDecoder.decode(tag6F));
+    assertTag6F(BerFrame.parseFrom(tag6F));
 
     tag6F = berFrame.getTagAsByteArray(new byte[] {0x6F});
-    assertTag6F(berDecoder.decode(tag6F));
+    assertTag6F(BerFrame.parseFrom(tag6F));
   }
 
   @Test
   public void testGetTagAsByteArrayNullCheck() {
-    BerFrame berFrame = berDecoder.decode(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
 
     byte[] tag6F;
 
@@ -422,7 +417,7 @@ public class BerFrameTest {
     tag6F = berFrame.getTagAsByteArray(0x7F);
     assertNull(tag6F);
 
-    tag6F = berFrame.getTagAsByteArray(0x7F);
+    tag6F = berFrame.getTagAsByteArray(0x7FL);
     assertNull(tag6F);
 
     tag6F = berFrame.getTagAsByteArray(new byte[] {0x7F});

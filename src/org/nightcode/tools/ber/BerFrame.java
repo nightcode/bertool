@@ -16,6 +16,7 @@
 
 package org.nightcode.tools.ber;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -64,6 +65,42 @@ public final class BerFrame {
       }
       return false;
     }
+  }
+
+  /**
+   * Decode the BER data which contains in the supplied bytes array.
+   *
+   * @param src which contains the BER data
+   * @exception DecoderException
+   */
+  public static BerFrame parseFrom(final byte[] src) {
+    ByteBuffer buffer = ByteBuffer.wrap(src);
+    return parseFrom(buffer, 0, src.length);
+  }
+
+  /**
+   * Decode the BER data which contains in the supplied {@link ByteBuffer}.
+   *
+   * @param srcBuffer which contains the BER data
+   * @exception DecoderException
+   */
+  public static BerFrame parseFrom(final ByteBuffer srcBuffer) {
+    return parseFrom(srcBuffer, 0, srcBuffer.limit());
+  }
+
+  /**
+   * Decode the BER data which contains in the supplied {@link ByteBuffer}
+   * with specified offset and length.
+   *
+   * @param srcBuffer which contains the BER data
+   * @param offset in the supplied srcBuffer
+   * @param length of the BER data in bytes
+   * @exception java.lang.IndexOutOfBoundsException
+   * @exception DecoderException
+   */
+  public static BerFrame parseFrom(final ByteBuffer srcBuffer, final int offset, final int length) {
+    BerBuffer berBuffer = BerBufferUtil.create(srcBuffer);
+    return BerParser.parseFrom(berBuffer, offset, length);
   }
 
   private final BerBuffer buffer;

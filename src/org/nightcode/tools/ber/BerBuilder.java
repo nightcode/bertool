@@ -16,6 +16,9 @@
 
 package org.nightcode.tools.ber;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +37,30 @@ public final class BerBuilder {
   }
 
   private static abstract class BerTlvContainer {
+
+    void putLengthOctets(final OutputStream out, final int contentLength) throws IOException {
+      if (contentLength < 0x80) {
+        out.write((byte) (contentLength & 0x7F));
+      } else if (contentLength < 0x100) {
+        out.write((byte) 0x81);
+        out.write((byte) contentLength);
+      } else if (contentLength < 0x10000) {
+        out.write((byte) 0x82);
+        out.write((byte) (contentLength >>> 8));
+        out.write((byte) (contentLength >>> 0));
+      } else if (contentLength < 0x1000000) {
+        out.write((byte) 0x83);
+        out.write((byte) (contentLength >>> 16));
+        out.write((byte) (contentLength >>>  8));
+        out.write((byte) (contentLength >>>  0));
+      } else {
+        out.write((byte) 0x84);
+        out.write((byte) (contentLength >>> 24));
+        out.write((byte) (contentLength >>> 16));
+        out.write((byte) (contentLength >>>  8));
+        out.write((byte) (contentLength >>>  0));
+      }
+    }
 
     void putLengthOctets(final BerBuffer buffer, final int offset, final int contentLength) {
       if (contentLength < 0x80) {
@@ -57,6 +84,8 @@ public final class BerBuilder {
     }
 
     abstract int writeTo(BerBuffer buffer, int offset);
+
+    abstract void writeTo(OutputStream out) throws IOException;
   }
 
   private static final class BerTlvContainerByteArray extends BerTlvContainer {
@@ -64,8 +93,7 @@ public final class BerBuilder {
     private final int numberOfLengthOctets;
     private final byte[] content;
 
-    private BerTlvContainerByteArray(final byte[] identifier, final int numberOfLengthOctets,
-        final byte[] content) {
+    private BerTlvContainerByteArray(final byte[] identifier, final int numberOfLengthOctets, final byte[] content) {
       BerUtil.checkIdentifier(identifier);
       this.identifier = identifier;
       this.numberOfLengthOctets = numberOfLengthOctets;
@@ -80,15 +108,20 @@ public final class BerBuilder {
       buffer.putBytes(index, content);
       return index + content.length;
     }
+
+    @Override void writeTo(OutputStream out) throws IOException {
+      out.write(identifier);
+      putLengthOctets(out, content.length);
+      out.write(content);
+    }
   }
 
-  private static final  class BerTlvContainerBuilder extends BerTlvContainer {
+  private static final class BerTlvContainerBuilder extends BerTlvContainer {
     private final byte[] identifier;
     private final int numberOfLengthOctets;
     private final BerBuilder builder;
 
-    private BerTlvContainerBuilder(final byte[] identifier, final int numberOfLengthOctets,
-        final BerBuilder builder) {
+    private BerTlvContainerBuilder(final byte[] identifier, final int numberOfLengthOctets, final BerBuilder builder) {
       BerUtil.checkIdentifier(identifier);
       this.identifier = identifier;
       this.numberOfLengthOctets = numberOfLengthOctets;
@@ -102,6 +135,12 @@ public final class BerBuilder {
       index += numberOfLengthOctets;
       builder.writeTo(buffer, index);
       return index + builder.length;
+    }
+
+    @Override void writeTo(OutputStream out) throws IOException {
+      out.write(identifier);
+      putLengthOctets(out, builder.length);
+      builder.writeTo(out);
     }
   }
 
@@ -171,8 +210,7 @@ public final class BerBuilder {
    * @param b4 the BER tag value fourth byte (right-most)
    * @param content the contents octets
    */
-  public BerBuilder add(final byte b1, final byte b2, final byte b3, final byte b4,
-      final byte[] content) {
+  public BerBuilder add(final byte b1, final byte b2, final byte b3, final byte b4, final byte[] content) {
     return add(new byte[] {b1, b2, b3, b4}, content);
   }
 
@@ -206,8 +244,7 @@ public final class BerBuilder {
    */
   public BerBuilder add(final byte[] identifier, final byte[] content) {
     final int numberOfLengthOctets = calculateNumberOfLengthOctets(content.length);
-    BerTlvContainer container
-        = new BerTlvContainerByteArray(identifier, numberOfLengthOctets, content);
+    BerTlvContainer container = new BerTlvContainerByteArray(identifier, numberOfLengthOctets, content);
     containers.add(container);
     length += (identifier.length + numberOfLengthOctets + content.length);
     return this;
@@ -255,8 +292,7 @@ public final class BerBuilder {
    * @param b4 the BER tag value fourth byte (right-most)
    * @param builder the contents octets
    */
-  public BerBuilder add(final byte b1, final byte b2, final byte b3, final byte b4,
-      final BerBuilder builder) {
+  public BerBuilder add(final byte b1, final byte b2, final byte b3, final byte b4, final BerBuilder builder) {
     return add(new byte[] {b1, b2, b3, b4}, builder);
   }
 
@@ -290,8 +326,7 @@ public final class BerBuilder {
    */
   public BerBuilder add(final byte[] identifier, final BerBuilder builder) {
     final int numberOfLengthOctets = calculateNumberOfLengthOctets(builder.length);
-    BerTlvContainer container
-        = new BerTlvContainerBuilder(identifier, numberOfLengthOctets, builder);
+    BerTlvContainer container = new BerTlvContainerBuilder(identifier, numberOfLengthOctets, builder);
     containers.add(container);
     length += (identifier.length + numberOfLengthOctets + builder.length);
     return this;
@@ -339,8 +374,7 @@ public final class BerBuilder {
    * @param b4 the BER tag value fourth byte (right-most)
    * @param src the contents octets
    */
-   public BerBuilder addAsciiString(final byte b1, final byte b2, final byte b3, final byte b4,
-      final String src) {
+   public BerBuilder addAsciiString(final byte b1, final byte b2, final byte b3, final byte b4, final String src) {
     return addAsciiString(new byte[] {b1, b2, b3, b4}, src);
   }
 
@@ -418,8 +452,7 @@ public final class BerBuilder {
    * @param b4 the BER tag value fourth byte (right-most)
    * @param src the contents octets
    */
-  public BerBuilder addHexString(final byte b1, final byte b2, final byte b3, final byte b4,
-      final String src) {
+  public BerBuilder addHexString(final byte b1, final byte b2, final byte b3, final byte b4, final String src) {
     return addHexString(new byte[] {b1, b2, b3, b4}, src);
   }
 
@@ -465,16 +498,45 @@ public final class BerBuilder {
   }
 
   /**
-   * Encodes and puts collected data to the supplied buffer.
+   * Encode the BER data which contains in the builder.
    *
-   * @param buffer the destination of encoded content
-   * @param offset in the supplied buffer
+   * @param dst the destination of encoded content
    */
-  public void writeTo(final BerBuffer buffer, final int offset) {
-    buffer.checkLimit(offset + length);
-    int index = offset;
+  public void writeTo(byte[] dst) {
+    final ByteBuffer byteBuffer = ByteBuffer.wrap(dst);
+    writeTo(byteBuffer);
+  }
+
+  /**
+   * Encode the BER data which contains in the builder.
+   *
+   * @param dstBuffer the destination of encoded content
+   */
+  public void writeTo(ByteBuffer dstBuffer) {
+    writeTo(dstBuffer, 0);
+  }
+
+  /**
+   * Encode the BER data which contains in the builder.
+   *
+   * @param dstBuffer the destination of encoded content
+   * @param offset in the supplied dstBuffer
+   */
+  public void writeTo(ByteBuffer dstBuffer, int offset) {
+    final BerBuffer berBuffer = BerBufferUtil.create(dstBuffer);
+    berBuffer.checkLimit(offset + length);
+    writeTo(berBuffer, offset);
+  }
+
+  /**
+   * Encode the BER data which contains in the builder.
+   *
+   * @param out the destination of encoded content
+   * @throws IOException if an I/O error occurs
+   */
+  public void writeTo(OutputStream out) throws IOException {
     for (BerTlvContainer container : containers) {
-      index = container.writeTo(buffer, index);
+      container.writeTo(out);
     }
   }
 
@@ -492,5 +554,13 @@ public final class BerBuilder {
       numberOfLengthOctets = 5;
     }
     return numberOfLengthOctets;
+  }
+
+  private void writeTo(final BerBuffer buffer, final int offset) {
+    buffer.checkLimit(offset + length);
+    int index = offset;
+    for (BerTlvContainer container : containers) {
+      index = container.writeTo(buffer, index);
+    }
   }
 }

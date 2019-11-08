@@ -45,13 +45,20 @@ public class DefaultBerFormatterTest {
       + " │  └─[9F10] 0111258013423A02CFEC00000002011400FF\n"
       + " └─[20]";
 
-  private final BerDecoder berDecoder = new BerDecoder();
-
   @Test
   public void testPrint() throws Exception {
-    BerFrame berFrame = berDecoder.decode(BER);
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerPrinter printer = new StreamBerPrinter(baos, new DefaultBerFormatter());
+    printer.print(berFrame);
+    assertEquals(expected, baos.toString());
+  }
+
+  @Test
+  public void testPrintDefault() throws Exception {
+    BerFrame berFrame = BerFrame.parseFrom(BER);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    BerPrinter printer = new StreamBerPrinter(baos);
     printer.print(berFrame);
     assertEquals(expected, baos.toString());
   }

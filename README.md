@@ -23,21 +23,21 @@ How to encode
 code
 
 ```java
-  BerBuilder builderA5 = BerBuilder.newInstance();
-  builderA5.add(0x88, new byte[] {0x02});
-  builderA5.addAsciiString(0x5F2D, "en");
+  BerBuilder builder = BerBuilder.newInstance()
+        .add(0x6F, BerBuilder.newInstance()
+            .addHexString(0x84, "315041592E5359532E4444463031")
+            .add(0xA5, BerBuilder.newInstance()
+                .add(0x88, new byte[] {0x02})
+                .addAsciiString(0x5F2D, "en")))
+        .add(0x9F36, new byte[] {0x00, 0x60});
 
-  BerBuilder builder6F = BerBuilder.newInstance();
-  builder6F.addHexString(0x84, "315041592E5359532E4444463031");
-  builder6F.add(0xA5, builderA5);
+  // write to OutputStream
+  OutputStream out = new ByteArrayOutputStream();
+  builder.writeTo(out);
 
-  BerBuilder builder = BerBuilder.newInstance();
-  builder.add(0x6F, builder6F);
-  builder.add(0x9F36, new byte[] {0x00, 0x60});
-
+  // or to ByteBuffer
   ByteBuffer buffer = ByteBuffer.allocate(builder.length());
-  BerEncoder berEncoder = new BerEncoder();
-  berEncoder.encode(builder, buffer);
+  builder.writeTo(buffer);
 ```
 
 How to decode 
@@ -47,8 +47,7 @@ How to decode
   byte[] byteArray = BerUtil.hexToByteArray("6F1A840E315041592E5359532E444446"
     + "3031A5088801025F2D02656E9f36020060");
 
-  BerDecoder berDecoder = new BerDecoder();
-  BerFrame berFrame = berDecoder.decode(byteArray);
+  BerFrame berFrame = BerFrame.parseFrom(byteArray);
 
   byte[] tag84 = berFrame.getContent(0x84)
   byte[] tag5F2D = berFrame.getContent(0x5F2D);
@@ -64,8 +63,7 @@ with DefaultBerFormatter
     + "3031A5088801025F2D02656E77299f2701009f360200609f2608c2c12b098f3d"
     + "a6e39f10120111258013423a02cfec00000002011400ff9000"); 
 
-  BerDecoder berDecoder = new BerDecoder();
-  BerFrame berFrame = berDecoder.decode(byteArray);
+  BerFrame berFrame = BerFrame.parseFrom(byteArray);
 
   BerPrinter printer = new StreamBerPrinter(System.out);
   printer.print(berFrame);
@@ -94,8 +92,7 @@ with EmvBerFormatter
     + "3031A5088801025F2D02656E77299f2701009f360200609f2608c2c12b098f3d"
     + "a6e39f10120111258013423a02cfec00000002011400ff9000"); 
 
-  BerDecoder berDecoder = new BerDecoder();
-  BerFrame berFrame = berDecoder.decode(byteArray);
+  BerFrame berFrame = BerFrame.parseFrom(byteArray);
 
   BerPrinter printer = new StreamBerPrinter(System.out
       , EmvBerFormatter.newInstanceWithSpaces());
@@ -140,7 +137,7 @@ Download [the latest jar][1] via Maven:
 <dependency>
   <groupId>org.nightcode</groupId>
   <artifactId>bertool</artifactId>
-  <version>0.4.1</version>
+  <version>0.5</version>
 </dependency>
 ```
 

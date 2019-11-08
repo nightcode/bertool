@@ -86,14 +86,12 @@ public class EmvBerFormatterTest {
       + " │      00 FF\n"
       + " └─[20]";
 
-  private final BerDecoder berDecoder = new BerDecoder();
-
   @Rule
   public final ExpectedException exceptionRule = ExpectedException.none();
 
   @Test
   public void testPrint() throws Exception {
-    BerFrame berFrame = berDecoder.decode(BER);
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerPrinter printer = new StreamBerPrinter(baos, EmvBerFormatter.newInstance());
     printer.print(berFrame);
@@ -102,7 +100,7 @@ public class EmvBerFormatterTest {
 
   @Test
   public void testPrintWithSpaces() throws Exception {
-    BerFrame berFrame = berDecoder.decode(BER);
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerPrinter printer = new StreamBerPrinter(baos, EmvBerFormatter.newInstanceWithSpaces());
     printer.print(berFrame);
@@ -111,7 +109,7 @@ public class EmvBerFormatterTest {
 
   @Test
   public void testPrintTagsFromFile() throws Exception {
-    BerFrame berFrame = berDecoder.decode(BER);
+    BerFrame berFrame = BerFrame.parseFrom(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerFormatter berFormatter;
     try {
