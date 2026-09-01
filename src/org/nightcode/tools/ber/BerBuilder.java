@@ -114,6 +114,24 @@ public final class BerBuilder {
     }
   }
 
+  private static final class BerTlvContainerByteArrayRaw extends BerTlvContainer {
+    private final byte[] rawTlv;
+
+    private BerTlvContainerByteArrayRaw(final byte[] rawTlv) {
+      BerUtil.checkRawTlv(rawTlv);
+      this.rawTlv = rawTlv;
+    }
+
+    @Override int writeTo(BerBuffer buffer, int offset) {
+      buffer.putBytes(offset, rawTlv);
+      return offset + rawTlv.length;
+    }
+
+    @Override void writeTo(OutputStream out) throws IOException {
+      out.write(rawTlv);
+    }
+  }
+
   private static final class BerTlvContainerBuilder extends BerTlvContainer {
     private final byte[] identifier;
     private final int numberOfLengthOctets;
@@ -484,6 +502,18 @@ public final class BerBuilder {
    */
   public BerBuilder addHexString(final byte[] identifier, final String src) {
     return add(identifier, BerUtil.hexToByteArray(src));
+  }
+
+  /**
+   * Adds a raw TLV for encoding.
+   *
+   * @param rawTlv the raw TLV
+   */
+  public BerBuilder addRawTlv(final byte[] rawTlv) {
+    BerTlvContainer container = new BerTlvContainerByteArrayRaw(rawTlv);
+    containers.add(container);
+    length += rawTlv.length;
+    return this;
   }
 
   /**

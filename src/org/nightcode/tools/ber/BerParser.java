@@ -37,7 +37,7 @@ final class BerParser {
       if (root.isEmpty()) {
         undecodedLength = length;
       } else {
-        BerTlv last = root.get(root.size() - 1);
+        BerTlv last = root.getLast();
         undecodedLength = limit - last.contentPosition() - last.contentLength();
       }
       byte[] undecoded = new byte[undecodedLength];
@@ -54,8 +54,7 @@ final class BerParser {
     }
   }
 
-  private static int getBerTlv(final BerBuffer src, final int identPosition, final List<BerTlv> level,
-      final int limit) {
+  private static int getBerTlv(final BerBuffer src, final int identPosition, final List<BerTlv> level, final int limit) {
     int index = identPosition;
     src.checkIndex(index);
     byte firstIdentifier = src.getByte(index++);
@@ -91,8 +90,7 @@ final class BerParser {
       contentLength = firstLength;
     }
     if (contentPos + contentLength > limit) {
-        throw new IndexOutOfBoundsException(String
-            .format("content bound is beyond content limit (b=%d; l=%d)", contentPos + contentLength, limit));
+      throw new IndexOutOfBoundsException(String.format("content bound is beyond content limit (b=%d; l=%d)", contentPos + contentLength, limit));
     }
     BerTlv tlv = new BerTlv(identPosition, identLength, constructed, contentPos, contentLength);
     level.add(tlv);

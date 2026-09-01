@@ -15,13 +15,16 @@
 package org.nightcode.tools.ber;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 final class BerUtil {
 
-  static final Charset ASCII = Charset.forName("US-ASCII");
+  static final Charset ASCII = StandardCharsets.US_ASCII;
 
   static final char[] UPPER_HEX_DIGITS = "0123456789ABCDEF".toCharArray();
+
+  private static final int MASK_DEFINITE_LONG_FORM = 0x80;
 
   static String byteArrayToHex(byte[] bytes) {
     int capacity = bytes.length << 1;
@@ -134,9 +137,65 @@ final class BerUtil {
   }
 
   static void checkIdentifier(byte[] identifier) {
-    if (((identifier[0] & 0x1F) != 0x1F) && identifier.length > 1) {
-      throw new IllegalStateException("Wrong identifier leading octet value: 0x"
-          + Integer.toHexString(identifier[0] & 0xFF));
+    if (identifier == null || identifier.length == 0) {
+      throw new IllegalStateException("identifier must be at least 1 byte length");
+    }
+    if (identifier[0] == 0) {
+      throw new IllegalStateException("wrong identifier leading octet value: 0x00");
+    }
+    if (((identifier[0] & 0x1F) != 0x1F)) {
+      if (identifier.length == 1) {
+        return;
+      }
+      throw new IllegalStateException("wrong identifier leading octet value: 0x" + Integer.toHexString(identifier[0] & 0xFF));
+    }
+    int index = 1;
+    while (index < identifier.length && (identifier[index] & 0x80) == 0x80) {
+      index++;
+    }
+    index++;
+    if (index > identifier.length) {
+      throw new IllegalArgumentException("raw TLV has wrong identifier");
+    }
+  }
+
+  static void checkRawTlv(byte[] rawTlv) {
+    if (rawTlv == null || rawTlv.length < 2) {
+      throw new IllegalArgumentException("raw TLV must be at least 2 bytes length");
+    }
+
+    int index = 1;
+    if ((rawTlv[0] & 0x1F) == 0x1F) {
+      while (index < rawTlv.length && (rawTlv[index] & 0x80) == 0x80) {
+        index++;
+      }
+      index++;
+      if (index > rawTlv.length) {
+        throw new IllegalArgumentException("raw TLV has wrong identifier");
+      }
+    }
+
+    if (index >= rawTlv.length) {
+      throw new IllegalArgumentException("raw TLV has no length octets");
+    }
+    int firstLength = rawTlv[index++] & 0xFF;
+    int contentLength = 0;
+    if ((firstLength & MASK_DEFINITE_LONG_FORM) == MASK_DEFINITE_LONG_FORM) {
+      int numberOfSubsequentOctets = firstLength & 0x7F;
+      if (numberOfSubsequentOctets == 0 || numberOfSubsequentOctets > 4 || index + numberOfSubsequentOctets > rawTlv.length) {
+        throw new IllegalArgumentException("raw TLV has malformed long-form length octets");
+      }
+      for (int i = 0; i < numberOfSubsequentOctets; i++) {
+        contentLength = (contentLength << 8) + (rawTlv[index++] & 0xFF);
+      }
+      if (contentLength < 0) {
+        throw new IllegalArgumentException("raw TLV declares a negative length");
+      }
+    } else {
+      contentLength = firstLength;
+    }
+    if (index + contentLength != rawTlv.length) {
+      throw new IllegalArgumentException(String.format("raw TLV length mismatch (expected=%d;supplied=%d)", contentLength, rawTlv.length - index));
     }
   }
 

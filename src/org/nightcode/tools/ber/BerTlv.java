@@ -27,8 +27,7 @@ class BerTlv {
   private final int contentLength;
   private final List<BerTlv> children;
 
-  BerTlv(final int identifierPosition, final int identifierLength, final boolean constructed,
-      final int contentPosition, final int contentLength) {
+  BerTlv(final int identifierPosition, final int identifierLength, final boolean constructed, final int contentPosition, final int contentLength) {
     this.identifierPosition = identifierPosition;
     this.identifierLength = identifierLength;
     this.constructed = constructed;

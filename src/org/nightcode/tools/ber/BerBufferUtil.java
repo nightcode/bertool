@@ -31,7 +31,10 @@ enum BerBufferUtil {
   static BerBuffer create(ByteBuffer src) {
     if (USE_HEAP) {
       if (src.hasArray()) {
-        return new HeapBerBuffer(src.array());
+        if (src.isReadOnly()) {
+          throw new IllegalArgumentException("read only buffer");
+        }
+        return new HeapBerBuffer(src.array(), src.arrayOffset() + src.position(), src.remaining());
       }
       return new DirectBerBuffer(src);
     }

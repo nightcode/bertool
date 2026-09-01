@@ -28,11 +28,20 @@ final class HeapBerBuffer implements BerBuffer {
   }
 
   private final byte[] array;
-  private final int capacity;
+  private final int    arrayOffset;
+  private final int    capacity;
 
   HeapBerBuffer(byte[] src) {
-    array = src;
-    capacity = array.length;
+    this(src, 0, src.length);
+  }
+
+  HeapBerBuffer(byte[] src, int offset, int length) {
+    if (offset < 0 || length < 0 || offset + length > src.length) {
+      throw new IndexOutOfBoundsException(String.format("illegal arguments array (offset=%d; capacity=%d; length=%d)", offset, length, src.length));
+    }
+    array       = src;
+    arrayOffset = offset;
+    capacity    = length;
   }
 
   @Override public int capacity() {
@@ -54,11 +63,11 @@ final class HeapBerBuffer implements BerBuffer {
   }
 
   @Override public ByteBuffer duplicateByteBuffer() {
-    return ByteBuffer.wrap(array);
+    return ByteBuffer.wrap(array, arrayOffset, capacity).slice();
   }
 
   @Override public byte getByte(final int index) {
-    return array[index];
+    return array[arrayOffset + index];
   }
 
   @Override public int getBytes(final int index, final byte[] dst) {
@@ -67,19 +76,19 @@ final class HeapBerBuffer implements BerBuffer {
 
   @Override public int getBytes(final int index, final byte[] dst, final int offset, final int length) {
     final int count = Math.min(length, capacity - index);
-    System.arraycopy(array, index, dst, offset, count);
+    System.arraycopy(array, arrayOffset + index, dst, offset, count);
     return count;
   }
 
   @Override public int getBytes(final int index, final ByteBuffer dstBuffer, final int length) {
     int count = Math.min(dstBuffer.remaining(), capacity - index);
     count = Math.min(count, length);
-    dstBuffer.put(array, index, count);
+    dstBuffer.put(array, arrayOffset + index, count);
     return count;
   }
 
   @Override public void putByte(final int index, final byte value) {
-    array[index] = value;
+    array[arrayOffset + index] = value;
   }
 
   @Override public int putBytes(final int index, final byte[] src) {
@@ -88,19 +97,19 @@ final class HeapBerBuffer implements BerBuffer {
 
   @Override public int putBytes(final int index, final byte[] src, final int offset, final int length) {
     final int count = Math.min(length, capacity - index);
-    System.arraycopy(src, offset, array, index, count);
+    System.arraycopy(src, arrayOffset + offset, array, index, count);
     return count;
   }
 
   @Override public int putBytes(final int index, final ByteBuffer srcBuffer, final int length) {
     int count = Math.min(srcBuffer.remaining(), capacity - index);
     count = Math.min(count, length);
-    srcBuffer.get(array, index, count);
+    srcBuffer.get(array, arrayOffset + index, count);
     return count;
   }
 
   @Override public void putInt(final int index, final int value) {
     byte[] src = intTobByteArray(value);
-    System.arraycopy(src, 0, array, index, 4);
+    System.arraycopy(src, 0, array, arrayOffset + index, 4);
   }
 }

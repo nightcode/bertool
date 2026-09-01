@@ -53,7 +53,10 @@ public final class EmvBerFormatter extends AbstractBerFormatter {
       if (resourceName != null) {
         in = new FileInputStream(resourceName);
       } else {
-        in = EmvBerFormatter.class.getResourceAsStream("/emv.tags");
+        in = EmvBerFormatter.class.getResourceAsStream("emv.tags");
+      }
+      if (in == null) {
+        throw new IOException("unable to find EMV tag dictionary");
       }
       try (LineNumberReader lnr = new LineNumberReader(new InputStreamReader(in
           , StandardCharsets.UTF_8.displayName()))) {
