@@ -32,16 +32,14 @@ final class DirectBerBuffer implements BerBuffer {
 
   @Override public int checkIndex(final int index) {
     if (index >= capacity) {
-      throw new IndexOutOfBoundsException(String.format("index is beyond bound (i=%d; b=%d)"
-          , index, capacity - 1));
+      throw new IndexOutOfBoundsException(String.format("index is beyond bound (i=%d; b=%d)", index, capacity - 1));
     }
     return index;
   }
 
   @Override public int checkLimit(final int limit) {
     if (limit > capacity) {
-      throw new IndexOutOfBoundsException(String.format("limit is beyond capacity (l=%d; c=%d)"
-          , limit, capacity));
+      throw new IndexOutOfBoundsException(String.format("limit is beyond capacity (l=%d; c=%d)", limit, capacity));
     }
     return limit;
   }
@@ -58,8 +56,7 @@ final class DirectBerBuffer implements BerBuffer {
     return getBytes(index, dst, 0, dst.length);
   }
 
-  @Override public int getBytes(final int index, final byte[] dst, final int offset,
-      final int length) {
+  @Override public int getBytes(final int index, final byte[] dst, final int offset, final int length) {
     final int count = Math.min(length, capacity - index);
     buffer.position(index);
     buffer.get(dst, offset, count);
@@ -83,8 +80,7 @@ final class DirectBerBuffer implements BerBuffer {
     return putBytes(index, src, 0, src.length);
   }
 
-  @Override public int putBytes(final int index, final byte[] src, final int offset,
-      final int length) {
+  @Override public int putBytes(final int index, final byte[] src, final int offset, final int length) {
     final int count = Math.min(length, capacity - index);
     buffer.position(index);
     buffer.put(src, offset, count);
