@@ -35,9 +35,9 @@ public class BerBufferTest {
 
   static Stream<BerBuffer> berBuffers() {
     return Stream.of(
-        new UnsafeBerBuffer(new byte[BUFFER_CAPACITY])
-        , new UnsafeBerBuffer(ByteBuffer.allocate(BUFFER_CAPACITY))
-        , new UnsafeBerBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY))
+        new MemorySegmentBerBuffer(new byte[BUFFER_CAPACITY])
+        , new MemorySegmentBerBuffer(ByteBuffer.allocate(BUFFER_CAPACITY))
+        , new MemorySegmentBerBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY))
         , new HeapBerBuffer(new byte[BUFFER_CAPACITY])
         , new DirectBerBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY)));
   }

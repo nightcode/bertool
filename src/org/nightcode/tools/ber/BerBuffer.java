@@ -20,27 +20,27 @@ interface BerBuffer {
 
   int capacity();
 
-  int checkIndex(final int index);
+  int checkIndex(int index);
 
-  int checkLimit(final int limit);
+  int checkLimit(int limit);
 
   ByteBuffer duplicateByteBuffer();
 
-  byte getByte(final int index);
+  byte getByte(int index);
 
-  int getBytes(final int index, final byte[] dst);
+  int getBytes(int index, byte[] dst);
 
-  int getBytes(final int index, final byte[] dst, final int offset, final int length);
+  int getBytes(int index, byte[] dst, int offset, int length);
 
-  int getBytes(final int index, final ByteBuffer dstBuffer, final int length);
+  int getBytes(int index, ByteBuffer dstBuffer, int length);
 
-  void putByte(final int index, final byte value);
+  void putByte(int index, byte value);
 
-  int putBytes(final int index, final byte[] src);
+  int putBytes(int index, byte[] src);
 
-  int putBytes(final int index, final byte[] src, final int offset, final int length);
+  int putBytes(int index, byte[] src, int offset, int length);
 
-  int putBytes(final int index, final ByteBuffer srcBuffer, final int length);
+  int putBytes(int index, ByteBuffer srcBuffer, int length);
 
-  void putInt(final int index, final int value);
+  void putInt(int index, int value);
 }

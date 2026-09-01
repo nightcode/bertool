@@ -14,25 +14,29 @@
 
 package org.nightcode.tools.ber;
 
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
-final class HeapBerBuffer implements BerBuffer {
+final class MemorySegmentBerBuffer implements BerBuffer {
 
-  static byte[] intTobByteArray(final int src) {
-    byte[] buffer = new byte[4];
-    buffer[0] = (byte) (src >>> 24);
-    buffer[1] = (byte) (src >>> 16);
-    buffer[2] = (byte) (src >>>  8);
-    buffer[3] = (byte) (src >>>  0);
-    return buffer;
+  private static final ValueLayout.OfInt INT_BIG_ENDIAN = ValueLayout.JAVA_INT_UNALIGNED.withOrder(ByteOrder.BIG_ENDIAN);
+
+  private final ByteBuffer    buffer;
+  private final MemorySegment segment;
+  private final int           capacity;
+
+  MemorySegmentBerBuffer(byte[] src) {
+    buffer   = null;
+    segment  = MemorySegment.ofArray(src);
+    capacity = src.length;
   }
 
-  private final byte[] array;
-  private final int capacity;
-
-  HeapBerBuffer(byte[] src) {
-    array = src;
-    capacity = array.length;
+  MemorySegmentBerBuffer(ByteBuffer src) {
+    buffer   = src;
+    segment  = MemorySegment.ofBuffer(src.duplicate().clear());
+    capacity = src.capacity();
   }
 
   @Override public int capacity() {
@@ -54,11 +58,11 @@ final class HeapBerBuffer implements BerBuffer {
   }
 
   @Override public ByteBuffer duplicateByteBuffer() {
-    return ByteBuffer.wrap(array);
+    return (buffer != null) ? buffer.duplicate() : segment.asByteBuffer();
   }
 
   @Override public byte getByte(final int index) {
-    return array[index];
+    return segment.get(ValueLayout.JAVA_BYTE, index);
   }
 
   @Override public int getBytes(final int index, final byte[] dst) {
@@ -67,19 +71,21 @@ final class HeapBerBuffer implements BerBuffer {
 
   @Override public int getBytes(final int index, final byte[] dst, final int offset, final int length) {
     final int count = Math.min(length, capacity - index);
-    System.arraycopy(array, index, dst, offset, count);
+    MemorySegment.copy(segment, ValueLayout.JAVA_BYTE, index, dst, offset, count);
     return count;
   }
 
   @Override public int getBytes(final int index, final ByteBuffer dstBuffer, final int length) {
     int count = Math.min(dstBuffer.remaining(), capacity - index);
     count = Math.min(count, length);
-    dstBuffer.put(array, index, count);
+
+    MemorySegment.copy(segment, index, MemorySegment.ofBuffer(dstBuffer), 0, count);
+    dstBuffer.position(dstBuffer.position() + count);
     return count;
   }
 
   @Override public void putByte(final int index, final byte value) {
-    array[index] = value;
+    segment.set(ValueLayout.JAVA_BYTE, index, value);
   }
 
   @Override public int putBytes(final int index, final byte[] src) {
@@ -88,19 +94,20 @@ final class HeapBerBuffer implements BerBuffer {
 
   @Override public int putBytes(final int index, final byte[] src, final int offset, final int length) {
     final int count = Math.min(length, capacity - index);
-    System.arraycopy(src, offset, array, index, count);
+    MemorySegment.copy(src, offset, segment, ValueLayout.JAVA_BYTE, index, count);
     return count;
   }
 
   @Override public int putBytes(final int index, final ByteBuffer srcBuffer, final int length) {
     int count = Math.min(srcBuffer.remaining(), capacity - index);
     count = Math.min(count, length);
-    srcBuffer.get(array, index, count);
+
+    MemorySegment.copy(MemorySegment.ofBuffer(srcBuffer), 0, segment, index, count);
+    srcBuffer.position(srcBuffer.position() + count);
     return count;
   }
 
   @Override public void putInt(final int index, final int value) {
-    byte[] src = intTobByteArray(value);
-    System.arraycopy(src, 0, array, index, 4);
+    segment.set(INT_BIG_ENDIAN, index, value);
   }
 }

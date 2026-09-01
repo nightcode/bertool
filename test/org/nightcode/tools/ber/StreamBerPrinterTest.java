@@ -89,11 +89,9 @@ public class StreamBerPrinterTest {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerPrinter printer = new StreamBerPrinter(baos, new SimpleBerFormatter());
 
-    Field internalBuffer = printer.getClass().getDeclaredField("tmpBuffer");
-    boolean accessible = internalBuffer.isAccessible();
+    Field internalBuffer = StreamBerPrinter.class.getDeclaredField("tmpBuffer");
     internalBuffer.setAccessible(true);
     internalBuffer.set(printer, new byte[8]);
-    internalBuffer.setAccessible(accessible);
 
     printer.print(berFrame);
     assertEquals(expected, baos.toString());

@@ -14,61 +14,28 @@
 
 package org.nightcode.tools.ber;
 
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import sun.misc.Unsafe;
+enum BerBufferUtil {
+  ;
 
-final class BerBufferUtil {
-
-  private static final Logger LOGGER = Logger.getLogger(BerBufferUtil.class.getName());
-
-  private static final boolean HAS_UNSAFE;
-
-  static {
-    final boolean noUnsafe = getBoolean("org.nightcode.tools.ber.noUnsafe", false);
-    LOGGER.log(Level.FINE, String.format("-Dorg.nightcode.tools.ber.noUnsafe: %s", noUnsafe));
-
-    boolean hasUnsafe;
-    if (noUnsafe) {
-      hasUnsafe = false;
-    } else {
-      try {
-        final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-        unsafeField.setAccessible(true);
-        Unsafe unsafe = (Unsafe) unsafeField.get(null);
-        unsafe.getClass().getDeclaredMethod("getByte", Object.class, long.class);
-        unsafe.getClass().getDeclaredMethod("putByte", Object.class, long.class, byte.class);
-        unsafe.getClass().getDeclaredMethod("putInt", Object.class, long.class, int.class);
-        unsafe.getClass().getDeclaredMethod("copyMemory"
-            , Object.class, long.class, Object.class, long.class, long.class);
-        hasUnsafe = Boolean.TRUE;
-      } catch (Exception ex) {
-        hasUnsafe = Boolean.FALSE;
-      }
-      LOGGER.log(Level.FINER, String.format("sun.misc.Unsafe available: %s", hasUnsafe));
-    }
-
-    HAS_UNSAFE = hasUnsafe;
-  }
+  private static final boolean USE_HEAP = getBoolean("org.nightcode.tools.ber.UseHeap", false);
 
   static BerBuffer create(byte[] src) {
-    if (HAS_UNSAFE) {
-      return new UnsafeBerBuffer(src);
+    if (USE_HEAP) {
+      return new HeapBerBuffer(src);
     }
-    return new HeapBerBuffer(src);
+    return new MemorySegmentBerBuffer(src);
   }
 
   static BerBuffer create(ByteBuffer src) {
-    if (HAS_UNSAFE) {
-      return new UnsafeBerBuffer(src);
+    if (USE_HEAP) {
+      if (src.hasArray()) {
+        return new HeapBerBuffer(src.array());
+      }
+      return new DirectBerBuffer(src);
     }
-    if (src.hasArray()) {
-      return new HeapBerBuffer(src.array());
-    }
-    return new DirectBerBuffer(src);
+    return new MemorySegmentBerBuffer(src);
   }
 
   static boolean getBoolean(String key, boolean def) {
@@ -86,9 +53,5 @@ final class BerBufferUtil {
     }
 
     return def;
-  }
-
-  private BerBufferUtil() {
-    // do nothing
   }
 }

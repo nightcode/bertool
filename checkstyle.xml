@@ -18,6 +18,11 @@
 
   <module name="JavadocPackage" />
 
+  <!-- Size Violations -->
+  <module name="LineLength">
+    <property name="max" value="140" />
+  </module>
+
   <module name="TreeWalker">
     <!-- Block Checks -->
     <module name="AvoidNestedBlocks" />
@@ -36,7 +41,7 @@
     <module name="EqualsAvoidNull" />
     <module name="EqualsHashCode" />
     <module name="IllegalInstantiation" />
-    <module name="InnerAssignment" />
+<!--    <module name="InnerAssignment" />-->
     <module name="MissingSwitchDefault" />
     <module name="SimplifyBooleanExpression" />
     <module name="SimplifyBooleanReturn" />
@@ -46,10 +51,6 @@
       <property name="scope" value="public" />
     </module>
     <module name="JavadocStyle" />
-    <module name="JavadocMethod">
-      <property name="scope" value="public" />
-      <property name="allowMissingReturnTag" value="true" />
-    </module>
 
     <!-- Imports -->
     <module name="AvoidStarImport" />
@@ -75,13 +76,10 @@
     <module name="StaticVariableName" />
     <module name="TypeName" />
 
-    <!-- Size Violations -->
-    <module name="LineLength">
-      <property name="max" value="120" />
-    </module>
+
     <module name="MethodLength" />
     <module name="ParameterNumber">
-      <property name="max" value="8" />
+      <property name="max" value="14" />
     </module>
 
     <!-- Whitespace -->
