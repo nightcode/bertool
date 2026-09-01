@@ -21,8 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
  * Main BER tags container.
  */
@@ -166,9 +164,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the contents octets
+   * @return the contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable byte[] getContent(final byte identifier) {
+  public byte[] getContent(final byte identifier) {
     return getContent(new byte[] {identifier}, tlvs);
   }
 
@@ -178,9 +176,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the contents octets
+   * @return the contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable byte[] getContent(final int identifier) {
+  public byte[] getContent(final int identifier) {
     return getContent(BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
@@ -190,9 +188,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the contents octets
+   * @return the contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable byte[] getContent(final long identifier) {
+  public byte[] getContent(final long identifier) {
     return getContent(BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
@@ -202,9 +200,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the contents octets
+   * @return the contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable byte[] getContent(byte... identifier) {
+  public byte[] getContent(byte... identifier) {
     if (identifier.length == 0) {
       return null;
     }
@@ -218,9 +216,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the ASCII coded contents octets
+   * @return the ASCII coded contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable String getContentAsAsciiString(final byte identifier) {
+  public String getContentAsAsciiString(final byte identifier) {
     return getContentAsAsciiString(new byte[] {identifier});
   }
 
@@ -231,9 +229,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the ASCII coded contents octets
+   * @return the ASCII coded contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable String getContentAsAsciiString(final int identifier) {
+  public String getContentAsAsciiString(final int identifier) {
     return getContentAsAsciiString(BerUtil.identifierToByteArray(identifier));
   }
 
@@ -244,9 +242,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the ASCII coded contents octets
+   * @return the ASCII coded contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable String getContentAsAsciiString(final long identifier) {
+  public String getContentAsAsciiString(final long identifier) {
     return getContentAsAsciiString(BerUtil.identifierToByteArray(identifier));
   }
 
@@ -257,9 +255,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the ASCII coded contents octets
+   * @return the ASCII coded contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable String getContentAsAsciiString(byte... identifier) {
+  public String getContentAsAsciiString(byte... identifier) {
     byte[] content = getContent(identifier, tlvs);
     if (content == null) {
       return null;
@@ -274,9 +272,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the hex coded contents octets
+   * @return the hex coded contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable String getContentAsHexString(final byte identifier) {
+  public String getContentAsHexString(final byte identifier) {
     return getContentAsHexString(new byte[] {identifier});
   }
 
@@ -287,9 +285,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the hex coded contents octets
+   * @return the hex coded contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable String getContentAsHexString(final int identifier) {
+  public String getContentAsHexString(final int identifier) {
     return getContentAsHexString(BerUtil.identifierToByteArray(identifier));
   }
 
@@ -300,9 +298,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the hex coded contents octets
+   * @return the hex coded contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable String getContentAsHexString(final long identifier) {
+  public String getContentAsHexString(final long identifier) {
     return getContentAsHexString(BerUtil.identifierToByteArray(identifier));
   }
 
@@ -313,9 +311,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the hex coded contents octets
+   * @return the hex coded contents octets, or {@code null} if the BER tag does not exist
    */
-  public @Nullable String getContentAsHexString(byte... identifier) {
+  public String getContentAsHexString(byte... identifier) {
     byte[] content = getContent(identifier, tlvs);
     if (content == null) {
       return null;
@@ -338,9 +336,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the {@code BerFrame}
+   * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
-  public @Nullable BerFrame getTag(final byte identifier) {
+  public BerFrame getTag(final byte identifier) {
     return getTag(new byte[] {identifier}, tlvs);
   }
 
@@ -350,9 +348,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the {@code BerFrame}
+   * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
-  public @Nullable BerFrame getTag(final int identifier) {
+  public BerFrame getTag(final int identifier) {
     return getTag(BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
@@ -362,9 +360,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the {@code BerFrame}
+   * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
-  public @Nullable BerFrame getTag(final long identifier) {
+  public BerFrame getTag(final long identifier) {
     return getTag(BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
@@ -374,9 +372,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the {@code BerFrame}
+   * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
-  public @Nullable BerFrame getTag(byte... identifier) {
+  public BerFrame getTag(byte... identifier) {
     return getTag(identifier, tlvs);
   }
 
@@ -388,9 +386,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the byte array
+   * @return the byte array, or {@code null} if the BER tag does not exist
    */
-  public @Nullable byte[] getTagAsByteArray(final byte identifier) {
+  public byte[] getTagAsByteArray(final byte identifier) {
     BerFrame tag = getTag(new byte[] {identifier}, tlvs);
     if (tag == null) {
       return null;
@@ -406,9 +404,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the byte array
+   * @return the byte array, or {@code null} if the BER tag does not exist
    */
-  public @Nullable byte[] getTagAsByteArray(final int identifier) {
+  public byte[] getTagAsByteArray(final int identifier) {
     BerFrame tag = getTag(BerUtil.identifierToByteArray(identifier), tlvs);
     if (tag == null) {
       return null;
@@ -424,9 +422,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the byte array
+   * @return the byte array, or {@code null} if the BER tag does not exist
    */
-  public @Nullable byte[] getTagAsByteArray(final long identifier) {
+  public byte[] getTagAsByteArray(final long identifier) {
     BerFrame tag = getTag(BerUtil.identifierToByteArray(identifier), tlvs);
     if (tag == null) {
       return null;
@@ -442,9 +440,9 @@ public final class BerFrame {
    * the first value in the list returned by getAllContents.
    *
    * @param identifier the BER tag
-   * @return the byte array
+   * @return the byte array, or {@code null} if the BER tag does not exist
    */
-  public @Nullable byte[] getTagAsByteArray(byte... identifier) {
+  public byte[] getTagAsByteArray(byte... identifier) {
     BerFrame tag = getTag(identifier, tlvs);
     if (tag == null) {
       return null;
@@ -506,7 +504,7 @@ public final class BerFrame {
     return result;
   }
 
-  private @Nullable byte[] getContent(byte[] identifier, List<BerTlv> tlvs) {
+  private byte[] getContent(byte[] identifier, List<BerTlv> tlvs) {
     byte[] result = null;
     for (BerTlv tlv : tlvs) {
       if (contains(identifier, tlv.identifierPosition(), tlv.identifierLength())) {
@@ -523,7 +521,7 @@ public final class BerFrame {
     return null;
   }
 
-  private @Nullable BerFrame getTag(byte[] identifier, List<BerTlv> tlvs) {
+  private BerFrame getTag(byte[] identifier, List<BerTlv> tlvs) {
     BerFrame result = null;
     for (BerTlv tlv : tlvs) {
       if (contains(identifier, tlv.identifierPosition(), tlv.identifierLength())) {

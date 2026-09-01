@@ -15,13 +15,9 @@
 package org.nightcode.tools.ber;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,20 +27,52 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BerBufferUtilTest {
 
-  private static final int BUFFER_CAPACITY = 1024 * 4;
+  private static final class InternalClassLoader extends ClassLoader {
+    private static final String PACKAGE = "org.nightcode.tools.ber.";
 
-  @Test void testCreate() throws IOException {
-    System.setProperty("org.nightcode.tools.ber.UseHeap", "true");
-
-    Enumeration<URL> en   = Thread.currentThread().getContextClassLoader().getResources("");
-    List<URL>        urls = new ArrayList<>();
-    while (en.hasMoreElements()) {
-      urls.add(en.nextElement());
+    private InternalClassLoader() {
+      super(ClassLoader.getPlatformClassLoader());
     }
 
-    try (URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), ClassLoader.getSystemClassLoader().getParent())) {
-      Class<?> clazz       = classLoader.loadClass(BerBufferUtil.class.getName());
-      Method   methodArray = clazz.getDeclaredMethod("create", byte[].class);
+    @Override protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+      synchronized (getClassLoadingLock(name)) {
+        if (!name.startsWith(PACKAGE)) {
+          return super.loadClass(name, resolve);
+        }
+        Class<?> clazz = findLoadedClass(name);
+        if (clazz == null) {
+          clazz = define(name);
+        }
+        if (resolve) {
+          resolveClass(clazz);
+        }
+        return clazz;
+      }
+    }
+
+    private Class<?> define(String name) throws ClassNotFoundException {
+      String path = '/' + name.replace('.', '/') + ".class";
+      try (InputStream stream = BerBufferUtilTest.class.getResourceAsStream(path)) {
+        if (stream == null) {
+          throw new ClassNotFoundException(name);
+        }
+        byte[] content = stream.readAllBytes();
+        return defineClass(name, content, 0, content.length);
+      } catch (IOException ex) {
+        throw new ClassNotFoundException(name, ex);
+      }
+    }
+  }
+
+  private static final int BUFFER_CAPACITY = 1024 * 4;
+
+  @Test void testCreate() {
+    System.setProperty("org.nightcode.tools.ber.UseHeap", "true");
+
+    try {
+      ClassLoader classLoader = new InternalClassLoader();
+      Class<?>    clazz       = classLoader.loadClass(BerBufferUtil.class.getName());
+      Method      methodArray = clazz.getDeclaredMethod("create", byte[].class);
       methodArray.setAccessible(true);
 
       Method methodByteBuffer = clazz.getDeclaredMethod("create", ByteBuffer.class);
@@ -64,18 +92,13 @@ public class BerBufferUtilTest {
     }
   }
 
-  @Test void testCreateMemorySegment() throws IOException {
+  @Test void testCreateMemorySegment() {
     System.setProperty("org.nightcode.tools.ber.UseHeap", "false");
 
-    Enumeration<URL> en   = Thread.currentThread().getContextClassLoader().getResources("");
-    List<URL>        urls = new ArrayList<>();
-    while (en.hasMoreElements()) {
-      urls.add(en.nextElement());
-    }
-
-    try (URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), ClassLoader.getSystemClassLoader().getParent())) {
-      Class<?> clazz       = classLoader.loadClass(BerBufferUtil.class.getName());
-      Method   methodArray = clazz.getDeclaredMethod("create", byte[].class);
+    try {
+      ClassLoader classLoader = new InternalClassLoader();
+      Class<?>    clazz       = classLoader.loadClass(BerBufferUtil.class.getName());
+      Method      methodArray = clazz.getDeclaredMethod("create", byte[].class);
       methodArray.setAccessible(true);
 
       Method methodByteBuffer = clazz.getDeclaredMethod("create", ByteBuffer.class);
