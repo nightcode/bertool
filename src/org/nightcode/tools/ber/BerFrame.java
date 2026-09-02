@@ -16,7 +16,6 @@ package org.nightcode.tools.ber;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -63,25 +62,34 @@ public final class BerFrame {
     }
   }
 
+  private static final int DEF_MAX_DEPTH = Integer.getInteger("org.nightcode.tools.ber.MaxDepth", 8);
+
   /**
    * Decode the BER data which contains in the supplied bytes array.
    *
    * @param src which contains the BER data
-   * @exception DecoderException
    */
   public static BerFrame parseFrom(final byte[] src) {
     ByteBuffer buffer = ByteBuffer.wrap(src);
     return parseFrom(buffer, 0, src.length);
   }
 
+  public static BerFrame parseFrom(final byte[] src, int maxDepth) {
+    ByteBuffer buffer = ByteBuffer.wrap(src);
+    return parseFrom(buffer, 0, src.length, maxDepth);
+  }
+
   /**
    * Decode the BER data which contains in the supplied {@link ByteBuffer}.
    *
    * @param srcBuffer which contains the BER data
-   * @exception DecoderException
    */
   public static BerFrame parseFrom(final ByteBuffer srcBuffer) {
     return parseFrom(srcBuffer, 0, srcBuffer.limit());
+  }
+
+  public static BerFrame parseFrom(final ByteBuffer srcBuffer, int maxDepth) {
+    return parseFrom(srcBuffer, 0, srcBuffer.limit(), maxDepth);
   }
 
   /**
@@ -91,24 +99,37 @@ public final class BerFrame {
    * @param srcBuffer which contains the BER data
    * @param offset in the supplied srcBuffer
    * @param length of the BER data in bytes
-   * @exception java.lang.IndexOutOfBoundsException
-   * @exception DecoderException
    */
   public static BerFrame parseFrom(final ByteBuffer srcBuffer, final int offset, final int length) {
-    BerBuffer berBuffer = BerBufferUtil.create(srcBuffer);
-    return BerParser.parseFrom(berBuffer, offset, length);
+    return parseFrom(srcBuffer, offset, length, DEF_MAX_DEPTH);
   }
 
-  private final BerBuffer buffer;
-  private final int offset;
-  private final int limit;
-  private final List<BerTlv> tlvs;
+  public static BerFrame parseFrom(final ByteBuffer srcBuffer, final int offset, final int length, int maxDepth) {
+    if (maxDepth > DEF_MAX_DEPTH) {
+      throw new IllegalArgumentException("maxDepth must be less or equal to " + DEF_MAX_DEPTH);
+    }
+    BerBuffer berBuffer = BerBufferUtil.create(srcBuffer);
+    return BerParser.parseFrom(berBuffer, offset, length, maxDepth);
+  }
 
-  BerFrame(final BerBuffer buffer, final int offset, final int limit, final List<BerTlv> tlvs) {
-    this.buffer = buffer;
-    this.offset = offset;
-    this.limit = limit;
-    this.tlvs = tlvs;
+  private final BerBuffer       buffer;
+  private final int             offset;
+  private final int             limit;
+  private final List<BerTlv>    tlvs;
+  private final List<Undecoded> undecoded;
+  private final SearchStrategy  search;
+
+  BerFrame(final BerBuffer buffer, final int offset, final int limit, final List<BerTlv> tlvs, final List<Undecoded> undecoded) {
+    this(buffer, offset, limit, tlvs, undecoded, SearchStrategy.def());
+  }
+
+  BerFrame(final BerBuffer buffer, final int offset, final int limit, final List<BerTlv> tlvs, final List<Undecoded> undecoded, SearchStrategy search) {
+    this.buffer    = buffer;
+    this.offset    = offset;
+    this.limit     = limit;
+    this.tlvs      = tlvs;
+    this.undecoded = undecoded;
+    this.search    = search;
   }
 
   /**
@@ -119,7 +140,7 @@ public final class BerFrame {
    * @return the contents octets
    */
   public List<byte[]> getAllContents(final byte identifier) {
-    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
+    return search.getAllContents(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
   /**
@@ -130,7 +151,7 @@ public final class BerFrame {
    * @return the contents octets
    */
   public List<byte[]> getAllContents(final int identifier) {
-    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
+    return search.getAllContents(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
   /**
@@ -141,7 +162,7 @@ public final class BerFrame {
    * @return the contents octets
    */
   public List<byte[]> getAllContents(final long identifier) {
-    return getAllContents(BerUtil.identifierToByteArray(identifier), tlvs);
+    return search.getAllContents(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
   /**
@@ -155,7 +176,7 @@ public final class BerFrame {
     if (identifier.length == 0) {
       return new ArrayList<>();
     }
-    return getAllContents(identifier, tlvs);
+    return search.getAllContents(buffer, identifier, tlvs);
   }
 
   /**
@@ -167,7 +188,7 @@ public final class BerFrame {
    * @return the contents octets, or {@code null} if the BER tag does not exist
    */
   public byte[] getContent(final byte identifier) {
-    return getContent(new byte[] {identifier}, tlvs);
+    return search.getContent(buffer, new byte[] {identifier}, tlvs);
   }
 
   /**
@@ -179,7 +200,7 @@ public final class BerFrame {
    * @return the contents octets, or {@code null} if the BER tag does not exist
    */
   public byte[] getContent(final int identifier) {
-    return getContent(BerUtil.identifierToByteArray(identifier), tlvs);
+    return search.getContent(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
   /**
@@ -191,7 +212,7 @@ public final class BerFrame {
    * @return the contents octets, or {@code null} if the BER tag does not exist
    */
   public byte[] getContent(final long identifier) {
-    return getContent(BerUtil.identifierToByteArray(identifier), tlvs);
+    return search.getContent(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
   /**
@@ -206,7 +227,7 @@ public final class BerFrame {
     if (identifier.length == 0) {
       return null;
     }
-    return getContent(identifier, tlvs);
+    return search.getContent(buffer, identifier, tlvs);
   }
 
   /**
@@ -258,7 +279,7 @@ public final class BerFrame {
    * @return the ASCII coded contents octets, or {@code null} if the BER tag does not exist
    */
   public String getContentAsAsciiString(byte... identifier) {
-    byte[] content = getContent(identifier, tlvs);
+    byte[] content = search.getContent(buffer, identifier, tlvs);
     if (content == null) {
       return null;
     }
@@ -314,7 +335,7 @@ public final class BerFrame {
    * @return the hex coded contents octets, or {@code null} if the BER tag does not exist
    */
   public String getContentAsHexString(byte... identifier) {
-    byte[] content = getContent(identifier, tlvs);
+    byte[] content = search.getContent(buffer, identifier, tlvs);
     if (content == null) {
       return null;
     }
@@ -339,7 +360,7 @@ public final class BerFrame {
    * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
   public BerFrame getTag(final byte identifier) {
-    return getTag(new byte[] {identifier}, tlvs);
+    return search.getTag(buffer, new byte[] {identifier}, tlvs);
   }
 
   /**
@@ -351,7 +372,7 @@ public final class BerFrame {
    * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
   public BerFrame getTag(final int identifier) {
-    return getTag(BerUtil.identifierToByteArray(identifier), tlvs);
+    return search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
   /**
@@ -363,7 +384,7 @@ public final class BerFrame {
    * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
   public BerFrame getTag(final long identifier) {
-    return getTag(BerUtil.identifierToByteArray(identifier), tlvs);
+    return search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
   }
 
   /**
@@ -375,7 +396,7 @@ public final class BerFrame {
    * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
   public BerFrame getTag(byte... identifier) {
-    return getTag(identifier, tlvs);
+    return search.getTag(buffer, identifier, tlvs);
   }
 
   /**
@@ -389,7 +410,7 @@ public final class BerFrame {
    * @return the byte array, or {@code null} if the BER tag does not exist
    */
   public byte[] getTagAsByteArray(final byte identifier) {
-    BerFrame tag = getTag(new byte[] {identifier}, tlvs);
+    BerFrame tag = search.getTag(buffer, new byte[] {identifier}, tlvs);
     if (tag == null) {
       return null;
     }
@@ -407,7 +428,7 @@ public final class BerFrame {
    * @return the byte array, or {@code null} if the BER tag does not exist
    */
   public byte[] getTagAsByteArray(final int identifier) {
-    BerFrame tag = getTag(BerUtil.identifierToByteArray(identifier), tlvs);
+    BerFrame tag = search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
     if (tag == null) {
       return null;
     }
@@ -425,7 +446,7 @@ public final class BerFrame {
    * @return the byte array, or {@code null} if the BER tag does not exist
    */
   public byte[] getTagAsByteArray(final long identifier) {
-    BerFrame tag = getTag(BerUtil.identifierToByteArray(identifier), tlvs);
+    BerFrame tag = search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
     if (tag == null) {
       return null;
     }
@@ -443,11 +464,19 @@ public final class BerFrame {
    * @return the byte array, or {@code null} if the BER tag does not exist
    */
   public byte[] getTagAsByteArray(byte... identifier) {
-    BerFrame tag = getTag(identifier, tlvs);
+    BerFrame tag = search.getTag(buffer, identifier, tlvs);
     if (tag == null) {
       return null;
     }
     return tag.toByteArray();
+  }
+
+  public List<Undecoded> getUndecoded() {
+    return undecoded;
+  }
+
+  public int tlvCount() {
+    return tlvs.size();
   }
 
   /**
@@ -460,6 +489,14 @@ public final class BerFrame {
     byte[] bytes = new byte[length];
     buffer.getBytes(offset, bytes);
     return bytes;
+  }
+
+  public BerFrame deepSearch() {
+    return new BerFrame(buffer, offset, limit, tlvs, undecoded, DeepStrategy.instance());
+  }
+
+  public BerFrame levelSearch() {
+    return new BerFrame(buffer, offset, limit, tlvs, undecoded, LevelStrategy.instance());
   }
 
   BerBuffer berBuffer() {
@@ -476,64 +513,5 @@ public final class BerFrame {
 
   int offset() {
     return offset;
-  }
-
-  private boolean contains(byte[] target, final int position, final int length) {
-    if (target.length != length) {
-      return false;
-    }
-    for (int i = 0; i < length; i++) {
-      if (target[i] != buffer.getByte(position + i)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private List<byte[]> getAllContents(byte[] identifier, List<BerTlv> tlvs) {
-    List<byte[]> result = new ArrayList<>();
-    for (BerTlv tlv : tlvs) {
-      if (contains(identifier, tlv.identifierPosition(), tlv.identifierLength())) {
-        byte[] content = new byte[tlv.contentLength()];
-        buffer.getBytes(tlv.contentPosition(), content);
-        result.add(content);
-      } else if (tlv.isConstructed()) {
-        result.addAll(getAllContents(identifier, tlv.children()));
-      }
-    }
-    return result;
-  }
-
-  private byte[] getContent(byte[] identifier, List<BerTlv> tlvs) {
-    byte[] result = null;
-    for (BerTlv tlv : tlvs) {
-      if (contains(identifier, tlv.identifierPosition(), tlv.identifierLength())) {
-        byte[] content = new byte[tlv.contentLength()];
-        buffer.getBytes(tlv.contentPosition(), content);
-        result = content;
-      } else if (tlv.isConstructed()) {
-        result = getContent(identifier, tlv.children());
-      }
-      if (result != null) {
-        return result;
-      }
-    }
-    return null;
-  }
-
-  private BerFrame getTag(byte[] identifier, List<BerTlv> tlvs) {
-    BerFrame result = null;
-    for (BerTlv tlv : tlvs) {
-      if (contains(identifier, tlv.identifierPosition(), tlv.identifierLength())) {
-        result = new BerFrame(buffer, tlv.identifierPosition()
-            , tlv.contentPosition() + tlv.contentLength(), Collections.singletonList(tlv));
-      } else if (tlv.isConstructed()) {
-        result = getTag(identifier, tlv.children());
-      }
-      if (result != null) {
-        return result;
-      }
-    }
-    return null;
   }
 }

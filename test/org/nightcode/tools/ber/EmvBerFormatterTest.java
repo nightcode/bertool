@@ -16,10 +16,15 @@ package org.nightcode.tools.ber;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class EmvBerFormatterTest {
@@ -99,12 +104,18 @@ public class EmvBerFormatterTest {
     assertEquals(expectedWithSpaces, baos.toString());
   }
 
-  @Test void testPrintTagsFromFile() throws Exception {
+  @Test void testPrintTagsFromFile(@TempDir Path tempDir) throws Exception {
+    Path tagsFile = tempDir.resolve("emv.tags");
+    try (InputStream in = EmvBerFormatter.class.getResourceAsStream("emv.tags")) {
+      assertNotNull(in);
+      Files.copy(in, tagsFile);
+    }
+
     BerFrame berFrame = BerFrame.parseFrom(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerFormatter berFormatter;
     try {
-      System.setProperty("emv.tags", "resources/emv.tags");
+      System.setProperty("emv.tags", tagsFile.toString());
       berFormatter = EmvBerFormatter.newInstanceWithSpaces();
     } finally {
       System.clearProperty("emv.tags");

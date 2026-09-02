@@ -26,7 +26,7 @@ public class BerUtilTest {
 
   @Test void shouldThrowExceptionForIllegalIdentifier() {
     Throwable th = assertThrows(IllegalStateException.class, () -> BerUtil.checkIdentifier(new byte[] {0x1E, 0x01 }));
-    assertEquals("Wrong identifier leading octet value: 0x1e", th.getMessage());
+    assertEquals("wrong identifier leading octet value: 0x1e", th.getMessage());
   }
 
   @Test void shouldThrowExceptionForIllegalHexString() {

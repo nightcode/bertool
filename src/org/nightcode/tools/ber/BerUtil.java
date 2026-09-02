@@ -120,8 +120,9 @@ final class BerUtil {
     return buffer;
   }
 
-  static byte[] hexToByteArray(final String hex) {
+  static byte[] hexToByteArray(String hex) {
     Objects.requireNonNull(hex, "hexadecimal string");
+    hex = hex.replace(" ", "");
     final int length = hex.length();
     if ((length & 0x1) != 0) {
       throw new IllegalStateException(String
@@ -155,13 +156,13 @@ final class BerUtil {
     }
     index++;
     if (index > identifier.length) {
-      throw new IllegalArgumentException("raw TLV has wrong identifier");
+      throw new IllegalStateException("raw TLV has wrong identifier");
     }
   }
 
   static void checkRawTlv(byte[] rawTlv) {
     if (rawTlv == null || rawTlv.length < 2) {
-      throw new IllegalArgumentException("raw TLV must be at least 2 bytes length");
+      throw new IllegalStateException("raw TLV must be at least 2 bytes length");
     }
 
     int index = 1;
@@ -171,31 +172,31 @@ final class BerUtil {
       }
       index++;
       if (index > rawTlv.length) {
-        throw new IllegalArgumentException("raw TLV has wrong identifier");
+        throw new IllegalStateException("raw TLV has wrong identifier");
       }
     }
 
     if (index >= rawTlv.length) {
-      throw new IllegalArgumentException("raw TLV has no length octets");
+      throw new IllegalStateException("raw TLV has no length octets");
     }
     int firstLength = rawTlv[index++] & 0xFF;
     int contentLength = 0;
     if ((firstLength & MASK_DEFINITE_LONG_FORM) == MASK_DEFINITE_LONG_FORM) {
       int numberOfSubsequentOctets = firstLength & 0x7F;
       if (numberOfSubsequentOctets == 0 || numberOfSubsequentOctets > 4 || index + numberOfSubsequentOctets > rawTlv.length) {
-        throw new IllegalArgumentException("raw TLV has malformed long-form length octets");
+        throw new IllegalStateException("raw TLV has malformed long-form length octets");
       }
       for (int i = 0; i < numberOfSubsequentOctets; i++) {
         contentLength = (contentLength << 8) + (rawTlv[index++] & 0xFF);
       }
       if (contentLength < 0) {
-        throw new IllegalArgumentException("raw TLV declares a negative length");
+        throw new IllegalStateException("raw TLV declares a negative length");
       }
     } else {
       contentLength = firstLength;
     }
     if (index + contentLength != rawTlv.length) {
-      throw new IllegalArgumentException(String.format("raw TLV length mismatch (expected=%d;supplied=%d)", contentLength, rawTlv.length - index));
+      throw new IllegalStateException(String.format("raw TLV length mismatch (expected=%d;supplied=%d)", contentLength, rawTlv.length - index));
     }
   }
 

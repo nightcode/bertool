@@ -149,7 +149,7 @@ public class BerFrameTest {
   }
 
   @Test void testGetAllContentsLong() {
-    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP).deepSearch();
     final long tag = 0xDFDFDFDFDFDFDF09L;
 
     assertEquals(2, berFrame.getAllContents(tag).size());
@@ -158,7 +158,7 @@ public class BerFrameTest {
   }
 
   @Test void testGetAllContentsConstructed() {
-    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP).deepSearch();
     final int tag = 0xA5;
 
     assertEquals(2, berFrame.getAllContents(tag).size());
@@ -167,7 +167,7 @@ public class BerFrameTest {
   }
 
   @Test void testGetAllContentsByteArray() {
-    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP).deepSearch();
     final byte[] tag = hexToByteArray("DFDFDFDFDFDFDF09");
 
     assertEquals(2, berFrame.getAllContents(tag).size());
@@ -307,7 +307,7 @@ public class BerFrameTest {
   }
 
   @Test void testGetTag() {
-    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP).deepSearch();
 
     BerFrame tag7F = berFrame.getTag(0x7F);
     assertNull(tag7F);
@@ -323,21 +323,21 @@ public class BerFrameTest {
   }
 
   @Test void testGetTagByByte() {
-    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP).deepSearch();
 
     BerFrame tag6F = berFrame.getTag((byte) 0x6F);
     assertTag6F(tag6F);
   }
 
   @Test void testGetTagByInt() {
-    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP).deepSearch();
 
     BerFrame tag6F = berFrame.getTag(0x6F);
     assertTag6F(tag6F);
   }
 
   @Test void testGetTagByLong() {
-    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP).deepSearch();
 
     BerFrame tag6F = berFrame.getTag(0x6FL);
     assertTag6F(tag6F);
@@ -345,7 +345,7 @@ public class BerFrameTest {
 
   @Test
   public void testGetTagByByteArray() {
-    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP).deepSearch();
 
     BerFrame tag6F = berFrame.getTag(new byte[] {0x6F});
     assertTag6F(tag6F);
@@ -353,7 +353,7 @@ public class BerFrameTest {
 
   @ParameterizedTest @MethodSource("buffers")
   void testToByteArray(final byte[] buffer) {
-    BerFrame berFrame = BerFrame.parseFrom(buffer);
+    BerFrame berFrame = BerFrame.parseFrom(buffer).deepSearch();
 
     assertArrayEquals(buffer, berFrame.toByteArray());
     assertArrayEquals(hexToByteArray("5A0130"),     berFrame.getTag(0x5A).toByteArray());
@@ -362,25 +362,25 @@ public class BerFrameTest {
   }
 
   @Test void testGetTagAsByteArray() {
-    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP).deepSearch();
 
     byte[] tag6F;
     
     tag6F = berFrame.getTagAsByteArray((byte) 0x6F);
-    assertTag6F(BerFrame.parseFrom(tag6F));
+    assertTag6F(BerFrame.parseFrom(tag6F).deepSearch());
     
     tag6F = berFrame.getTagAsByteArray(0x6F);
-    assertTag6F(BerFrame.parseFrom(tag6F));
+    assertTag6F(BerFrame.parseFrom(tag6F).deepSearch());
 
     tag6F = berFrame.getTagAsByteArray(0x6FL);
-    assertTag6F(BerFrame.parseFrom(tag6F));
+    assertTag6F(BerFrame.parseFrom(tag6F).deepSearch());
 
     tag6F = berFrame.getTagAsByteArray(new byte[] {0x6F});
-    assertTag6F(BerFrame.parseFrom(tag6F));
+    assertTag6F(BerFrame.parseFrom(tag6F).deepSearch());
   }
 
   @Test void testGetTagAsByteArrayNullCheck() {
-    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP);
+    BerFrame berFrame = BerFrame.parseFrom(BER_WITH_DUP).deepSearch();
 
     byte[] tag6F;
 

@@ -157,6 +157,7 @@
           <failsOnError>true</failsOnError>
           <consoleOutput>true</consoleOutput>
           <linkXRef>false</linkXRef>
+          <excludes>**/module-info.java</excludes>
         </configuration>
         <executions>
           <execution>

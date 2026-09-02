@@ -20,19 +20,21 @@ import java.util.List;
 
 class BerTlv {
 
-  private final int identifierPosition;
-  private final int identifierLength;
-  private final boolean constructed;
-  private final int contentPosition;
-  private final int contentLength;
+  private final int          identifierPosition;
+  private final int          identifierLength;
+  private final boolean      constructed;
+  private final int          contentPosition;
+  private final int          contentLength;
+  private final int          depth;
   private final List<BerTlv> children;
 
-  BerTlv(final int identifierPosition, final int identifierLength, final boolean constructed, final int contentPosition, final int contentLength) {
+  BerTlv(int identifierPosition, int identifierLength, boolean constructed, int contentPosition, int contentLength, int depth) {
     this.identifierPosition = identifierPosition;
     this.identifierLength = identifierLength;
     this.constructed = constructed;
     this.contentPosition = contentPosition;
     this.contentLength = contentLength;
+    this.depth = depth;
     if (constructed) {
       this.children = new ArrayList<>();
     } else {
@@ -52,6 +54,10 @@ class BerTlv {
     return contentPosition;
   }
 
+  int depth() {
+    return depth;
+  }
+
   int identifierLength() {
     return identifierLength;
   }
@@ -62,5 +68,17 @@ class BerTlv {
 
   boolean isConstructed() {
     return constructed;
+  }
+
+  @Override public String toString() {
+    return "BerTlv{"
+           + "identifierPosition=" + identifierPosition
+           + ", identifierLength=" + identifierLength
+           + ", constructed=" + constructed
+           + ", contentPosition=" + contentPosition
+           + ", contentLength=" + contentLength
+           + ", depth=" + depth
+           + ", children=" + children
+           + '}';
   }
 }
