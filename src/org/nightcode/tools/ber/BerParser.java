@@ -28,8 +28,11 @@ final class BerParser {
   private static final int MASK_DEFINITE_LONG_FORM = 0x80;
 
   static BerFrame parseFrom(final BerBuffer berBuffer, final int offset, final int length, final int maxDepth) {
+    if (offset < 0) {
+      throw new IllegalArgumentException(String.format("offset must be non-negative (o=%d)", offset));
+    }
     if (maxDepth < 1) {
-      throw new IllegalArgumentException("maxDepth must be positive");
+      throw new IllegalArgumentException(String.format("maxDepth must be positive (d=%d)", maxDepth));
     }
     final int       limit     = berBuffer.checkLimit(offset + length);
     List<BerTlv>    root      = new ArrayList<>();
@@ -104,7 +107,7 @@ final class BerParser {
     }
     if (contentLength > limit - contentPos) {
       return undecoded(unparsable, identPosition, limit, depth
-          , String.format("content bound is beyond content limit (p=%d, b=%d; l=%d)", contentPos, contentPos + contentLength, limit));
+          , String.format("content bound is beyond content limit (p=%d, b=%d; l=%d)", contentPos, (long) contentPos + contentLength, limit));
     }
     BerTlv tlv = new BerTlv(identPosition, identLength, constructed, contentPos, contentLength, depth);
     level.add(tlv);
