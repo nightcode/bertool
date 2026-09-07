@@ -22,7 +22,7 @@ final class DirectBerBuffer implements BerBuffer {
   private final int capacity;
 
   DirectBerBuffer(ByteBuffer src) {
-    buffer = src;
+    buffer   = src.duplicate();
     capacity = src.capacity();
   }
 
