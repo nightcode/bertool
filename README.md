@@ -138,7 +138,7 @@ Download [the latest jar][1] via Maven:
 <dependency>
   <groupId>org.nightcode</groupId>
   <artifactId>bertool</artifactId>
-  <version>0.6</version>
+  <version>0.6.1</version>
 </dependency>
 ```
 
