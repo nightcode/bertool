@@ -17,8 +17,10 @@ package org.nightcode.tools.ber;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Queue;
 
 /**
  * Main BER tags container.
@@ -130,6 +132,40 @@ public final class BerFrame {
     this.tlvs      = tlvs;
     this.undecoded = undecoded;
     this.search    = search;
+  }
+
+  public void breadthFirstSearch(BerTlvVisitor visitor) {
+    int depth = 0;
+    Queue<BerTlv> queue = new LinkedList<>(tlvs);
+    while (!queue.isEmpty()) {
+      int levelSize = queue.size();
+      for (int i = 0; i < levelSize; i++) {
+        BerTlv tlv = queue.poll();
+        if (tlv.isConstructed() && !tlv.children().isEmpty()) {
+          visitor.onConstructed(ref(tlv, depth));
+          queue.addAll(tlv.children());
+        } else {
+          visitor.onLeaf(ref(tlv, depth));
+        }
+      }
+      depth++;
+    }
+  }
+
+  public void depthFirstSearch(BerTlvVisitor visitor) {
+    depthFirstSearch(visitor, 0, tlvs);
+  }
+
+  private void depthFirstSearch(BerTlvVisitor visitor, int depth, List<BerTlv> level) {
+    for (BerTlv tlv : level) {
+      BerTlvRef ref = ref(tlv, depth);
+      if (tlv.isConstructed() && !tlv.children().isEmpty()) {
+        visitor.onConstructed(ref);
+        depthFirstSearch(visitor, depth + 1, tlv.children());
+      } else {
+        visitor.onLeaf(ref);
+      }
+    }
   }
 
   /**
@@ -513,5 +549,12 @@ public final class BerFrame {
 
   int offset() {
     return offset;
+  }
+
+  private BerTlvRef ref(BerTlv tlv, int level) {
+    byte[] identifier = new byte[tlv.identifierLength()];
+    buffer.getBytes(tlv.identifierPosition(), identifier);
+    int rawLength = tlv.contentPosition() - tlv.identifierPosition() + tlv.contentLength();
+    return new BerTlvRef(identifier, tlv.identifierPosition(), rawLength, tlv.isConstructed(), level);
   }
 }
