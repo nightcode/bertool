@@ -16,6 +16,7 @@ package org.nightcode.tools.ber;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,11 +88,11 @@ public final class BerFrame {
    * @param srcBuffer which contains the BER data
    */
   public static BerFrame parseFrom(final ByteBuffer srcBuffer) {
-    return parseFrom(srcBuffer, 0, srcBuffer.limit());
+    return parseFrom(srcBuffer, 0, srcBuffer.remaining());
   }
 
   public static BerFrame parseFrom(final ByteBuffer srcBuffer, int maxDepth) {
-    return parseFrom(srcBuffer, 0, srcBuffer.limit(), maxDepth);
+    return parseFrom(srcBuffer, 0, srcBuffer.remaining(), maxDepth);
   }
 
   /**
@@ -130,8 +131,8 @@ public final class BerFrame {
     this.offset    = offset;
     this.limit     = limit;
     this.tlvs      = tlvs;
-    this.undecoded = undecoded;
     this.search    = search;
+    this.undecoded = Collections.unmodifiableList(undecoded);
   }
 
   public void breadthFirstSearch(BerTlvVisitor visitor) {
@@ -396,7 +397,7 @@ public final class BerFrame {
    * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
   public BerFrame getTag(final byte identifier) {
-    return search.getTag(buffer, new byte[] {identifier}, tlvs);
+    return search.getTag(buffer, new byte[] {identifier}, tlvs, undecoded);
   }
 
   /**
@@ -408,7 +409,7 @@ public final class BerFrame {
    * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
   public BerFrame getTag(final int identifier) {
-    return search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
+    return search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs, undecoded);
   }
 
   /**
@@ -420,7 +421,7 @@ public final class BerFrame {
    * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
   public BerFrame getTag(final long identifier) {
-    return search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
+    return search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs, undecoded);
   }
 
   /**
@@ -432,7 +433,7 @@ public final class BerFrame {
    * @return the {@code BerFrame}, or {@code null} if the BER tag does not exist
    */
   public BerFrame getTag(byte... identifier) {
-    return search.getTag(buffer, identifier, tlvs);
+    return search.getTag(buffer, identifier, tlvs, undecoded);
   }
 
   /**
@@ -446,7 +447,7 @@ public final class BerFrame {
    * @return the byte array, or {@code null} if the BER tag does not exist
    */
   public byte[] getTagAsByteArray(final byte identifier) {
-    BerFrame tag = search.getTag(buffer, new byte[] {identifier}, tlvs);
+    BerFrame tag = search.getTag(buffer, new byte[] {identifier}, tlvs, undecoded);
     if (tag == null) {
       return null;
     }
@@ -464,7 +465,7 @@ public final class BerFrame {
    * @return the byte array, or {@code null} if the BER tag does not exist
    */
   public byte[] getTagAsByteArray(final int identifier) {
-    BerFrame tag = search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
+    BerFrame tag = search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs, undecoded);
     if (tag == null) {
       return null;
     }
@@ -482,7 +483,7 @@ public final class BerFrame {
    * @return the byte array, or {@code null} if the BER tag does not exist
    */
   public byte[] getTagAsByteArray(final long identifier) {
-    BerFrame tag = search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
+    BerFrame tag = search.getTag(buffer, BerUtil.identifierToByteArray(identifier), tlvs, undecoded);
     if (tag == null) {
       return null;
     }
@@ -500,7 +501,7 @@ public final class BerFrame {
    * @return the byte array, or {@code null} if the BER tag does not exist
    */
   public byte[] getTagAsByteArray(byte... identifier) {
-    BerFrame tag = search.getTag(buffer, identifier, tlvs);
+    BerFrame tag = search.getTag(buffer, identifier, tlvs, undecoded);
     if (tag == null) {
       return null;
     }

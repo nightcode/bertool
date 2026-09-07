@@ -53,11 +53,13 @@ final class LevelStrategy implements SearchStrategy {
     return null;
   }
 
-  @Override public BerFrame getTag(BerBuffer buffer, byte[] identifier, List<BerTlv> tlvs) {
+  @Override public BerFrame getTag(BerBuffer buffer, byte[] identifier, List<BerTlv> tlvs, List<Undecoded> undecoded) {
     for (BerTlv tlv : tlvs) {
       if (contains(buffer, identifier, tlv.identifierPosition(), tlv.identifierLength())) {
-        return new BerFrame(buffer, tlv.identifierPosition(), tlv.contentPosition() + tlv.contentLength(), Collections.singletonList(tlv)
-            , Collections.emptyList(), this);
+        var offset          = tlv.identifierPosition();
+        var limit           = tlv.contentPosition() + tlv.contentLength();
+        var undecodedSubset = getUndecoded(offset, limit, undecoded);
+        return new BerFrame(buffer, offset, limit, Collections.singletonList(tlv), undecodedSubset, this);
       }
     }
     return null;

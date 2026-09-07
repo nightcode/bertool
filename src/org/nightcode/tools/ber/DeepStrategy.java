@@ -61,14 +61,16 @@ final class DeepStrategy implements SearchStrategy {
     return null;
   }
 
-  @Override public BerFrame getTag(BerBuffer buffer, byte[] identifier, List<BerTlv> tlvs) {
+  @Override public BerFrame getTag(BerBuffer buffer, byte[] identifier, List<BerTlv> tlvs, List<Undecoded> undecoded) {
     BerFrame result = null;
     for (BerTlv tlv : tlvs) {
       if (contains(buffer, identifier, tlv.identifierPosition(), tlv.identifierLength())) {
-        result = new BerFrame(buffer, tlv.identifierPosition(), tlv.contentPosition() + tlv.contentLength(), Collections.singletonList(tlv)
-            , Collections.emptyList(), this);
+        var offset          = tlv.identifierPosition();
+        var limit           = tlv.contentPosition() + tlv.contentLength();
+        var undecodedSubset = getUndecoded(offset, limit, undecoded);
+        result = new BerFrame(buffer, offset, limit, Collections.singletonList(tlv), undecodedSubset, this);
       } else if (tlv.isConstructed()) {
-        result = getTag(buffer, identifier, tlv.children());
+        result = getTag(buffer, identifier, tlv.children(), undecoded);
       }
       if (result != null) {
         return result;

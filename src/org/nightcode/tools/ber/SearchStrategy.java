@@ -14,6 +14,8 @@
 
 package org.nightcode.tools.ber;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 interface SearchStrategy {
@@ -26,7 +28,7 @@ interface SearchStrategy {
 
   byte[] getContent(BerBuffer buffer, byte[] identifier, List<BerTlv> tlvs);
 
-  BerFrame getTag(BerBuffer buffer, byte[] identifier, List<BerTlv> tlvs);
+  BerFrame getTag(BerBuffer buffer, byte[] identifier, List<BerTlv> tlvs, List<Undecoded> undecoded);
 
   default boolean contains(BerBuffer src, byte[] target, final int position, final int length) {
     if (target.length != length) {
@@ -38,5 +40,19 @@ interface SearchStrategy {
       }
     }
     return true;
+  }
+  
+  default List<Undecoded> getUndecoded(int offset, int limit, List<Undecoded> undecoded) {
+    if (undecoded.isEmpty()) {
+      return Collections.emptyList();
+    }
+   
+    List<Undecoded> subset = new ArrayList<>();
+    for (Undecoded u : undecoded) {
+      if (u.offset() >= offset && u.offset() + u.length() <= limit) {
+        subset.add(u);
+      }
+    }
+    return subset;
   }
 }
