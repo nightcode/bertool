@@ -137,6 +137,11 @@ public class BerFrameTest {
     assertEquals(2, berFrame.getAllContents(tag).size());
     assertArrayEquals(hexToByteArray("31"), berFrame.getAllContents(tag).get(0));
     assertArrayEquals(hexToByteArray("37"), berFrame.getAllContents(tag).get(1));
+
+    berFrame = BerFrame.parseFrom(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"));
+
+    List<byte[]> contents = berFrame.getAllContents((byte) 0xA5);
+    assertFalse(contents.isEmpty());
   }
 
   @Test void testGetAllContentsInt() {

@@ -140,7 +140,7 @@ public final class BerFrame {
    * @return the contents octets
    */
   public List<byte[]> getAllContents(final byte identifier) {
-    return search.getAllContents(buffer, BerUtil.identifierToByteArray(identifier), tlvs);
+    return search.getAllContents(buffer, new byte[] {identifier}, tlvs);
   }
 
   /**
