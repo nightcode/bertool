@@ -150,19 +150,25 @@ final class BerUtil {
       }
       throw new IllegalStateException("wrong identifier leading octet value: 0x" + Integer.toHexString(identifier[0] & 0xFF));
     }
+    if (identifier.length > 1 && (identifier[1] & 0x7F) == 0x00) {
+      throw new IllegalStateException("identifier has a non-minimal subsequent octet: 0x" + Integer.toHexString(identifier[1] & 0xFF));
+    }
     int index = 1;
     while (index < identifier.length && (identifier[index] & 0x80) == 0x80) {
       index++;
     }
     index++;
-    if (index > identifier.length) {
-      throw new IllegalStateException("raw TLV has wrong identifier");
+    if (index != identifier.length) {
+      throw new IllegalStateException("wrong identifier value");
     }
   }
 
   static void checkRawTlv(byte[] rawTlv) {
     if (rawTlv == null || rawTlv.length < 2) {
       throw new IllegalStateException("raw TLV must be at least 2 bytes length");
+    }
+    if (rawTlv[0] == 0x00) {
+      throw new IllegalStateException("raw TLV has wrong identifier leading octet value: 0x00");
     }
 
     int index = 1;

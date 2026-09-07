@@ -27,6 +27,12 @@ public class BerUtilTest {
   @Test void shouldThrowExceptionForIllegalIdentifier() {
     Throwable th = assertThrows(IllegalStateException.class, () -> BerUtil.checkIdentifier(new byte[] {0x1E, 0x01 }));
     assertEquals("wrong identifier leading octet value: 0x1e", th.getMessage());
+
+    th = assertThrows(IllegalStateException.class, () -> BerUtil.checkIdentifier(new byte[] {(byte) 0x9F, 0x1A, (byte) 0xFF }));
+    assertEquals("wrong identifier value", th.getMessage());
+
+    th = assertThrows(IllegalStateException.class, () -> BerUtil.checkIdentifier(new byte[] {0x1F, (byte) 0x80, 0x12 }));
+    assertEquals("identifier has a non-minimal subsequent octet: 0x80", th.getMessage());
   }
 
   @Test void shouldThrowExceptionForIllegalHexString() {
