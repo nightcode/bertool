@@ -38,7 +38,7 @@ final class DirectBerBuffer implements BerBuffer {
   }
 
   @Override public int checkLimit(final int limit) {
-    if (limit > capacity) {
+    if (limit < 0 || limit > capacity) {
       throw new IndexOutOfBoundsException(String.format("limit is beyond capacity (l=%d; c=%d)", limit, capacity));
     }
     return limit;
@@ -91,7 +91,7 @@ final class DirectBerBuffer implements BerBuffer {
     int count = Math.min(srcBuffer.remaining(), capacity - index);
     count = Math.min(count, length);
     ByteBuffer src = srcBuffer.duplicate();
-    src.limit(length);
+    src.limit(src.position() + count);
     buffer.position(index);
     buffer.put(src.slice());
     srcBuffer.position(srcBuffer.position() + count);

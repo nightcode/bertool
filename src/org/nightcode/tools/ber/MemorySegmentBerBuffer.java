@@ -51,7 +51,7 @@ final class MemorySegmentBerBuffer implements BerBuffer {
   }
 
   @Override public int checkLimit(final int limit) {
-    if (limit > capacity) {
+    if (limit < 0 || limit > capacity) {
       throw new IndexOutOfBoundsException(String.format("limit is beyond capacity (l=%d; c=%d)", limit, capacity));
     }
     return limit;
