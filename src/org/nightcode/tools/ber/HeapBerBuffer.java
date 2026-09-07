@@ -97,7 +97,7 @@ final class HeapBerBuffer implements BerBuffer {
 
   @Override public int putBytes(final int index, final byte[] src, final int offset, final int length) {
     final int count = Math.min(length, capacity - index);
-    System.arraycopy(src, arrayOffset + offset, array, index, count);
+    System.arraycopy(src, offset, array, arrayOffset + index, count);
     return count;
   }
 
