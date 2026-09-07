@@ -41,12 +41,11 @@ interface SearchStrategy {
     }
     return true;
   }
-  
+
   default List<Undecoded> getUndecoded(int offset, int limit, List<Undecoded> undecoded) {
     if (undecoded.isEmpty()) {
       return Collections.emptyList();
     }
-   
     List<Undecoded> subset = new ArrayList<>();
     for (Undecoded u : undecoded) {
       if (u.offset() >= offset && u.offset() + u.length() <= limit) {
