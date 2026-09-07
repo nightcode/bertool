@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2019 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
@@ -19,35 +17,26 @@ package org.nightcode.tools.ber;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import org.junit.Rule;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
-@RunWith(Theories.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class BerUtilTest {
 
-  @Rule
-  public final ExpectedException exceptionRule = ExpectedException.none();
-
-  @Theory
-  public void shouldThrowExceptionForIllegalIdentifier() {
-    exceptionRule.expectMessage("Wrong identifier leading octet value: 0x1e");
-    BerUtil.checkIdentifier(new byte[] { 0x1E, 0x01 });
-  }
-  
-  @Theory
-  public void shouldThrowExceptionForIllegalHexString() {
-    exceptionRule.expectMessage("hexadecimal string <012> must have an even number of characters.");
-    BerUtil.hexToByteArray("012");
+  @Test void shouldThrowExceptionForIllegalIdentifier() {
+    Throwable th = assertThrows(IllegalStateException.class, () -> BerUtil.checkIdentifier(new byte[] {0x1E, 0x01 }));
+    assertEquals("Wrong identifier leading octet value: 0x1e", th.getMessage());
   }
 
-  @Theory
-  public void shouldThrowExceptionForInstanceCreation() throws ReflectiveOperationException {
-    exceptionRule.expect(InvocationTargetException.class);
+  @Test void shouldThrowExceptionForIllegalHexString() {
+    Throwable th = assertThrows(IllegalStateException.class, () -> BerUtil.hexToByteArray("012"));
+    assertEquals("hexadecimal string <012> must have an even number of characters.", th.getMessage());
+  }
+
+  @Test void shouldThrowExceptionForInstanceCreation() throws ReflectiveOperationException {
     Constructor<BerUtil> constructor = BerUtil.class.getDeclaredConstructor();
     constructor.setAccessible(true);
-    constructor.newInstance();
+    assertThrows(InvocationTargetException.class, constructor::newInstance);
   }
 }

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2019 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
@@ -18,17 +16,12 @@ package org.nightcode.tools.ber;
 
 import java.nio.ByteBuffer;
 
-import javax.annotation.CheckReturnValue;
-import javax.annotation.meta.When;
-
 interface BerBuffer {
 
   int capacity();
 
-  @CheckReturnValue(when = When.NEVER)
   int checkIndex(final int index);
 
-  @CheckReturnValue(when = When.NEVER)
   int checkLimit(final int limit);
 
   ByteBuffer duplicateByteBuffer();

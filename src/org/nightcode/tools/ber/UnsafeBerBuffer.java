@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2019 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
@@ -17,10 +15,9 @@
 package org.nightcode.tools.ber;
 
 import java.lang.reflect.Field;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
 
 import sun.misc.Unsafe;
 
@@ -29,22 +26,24 @@ final class UnsafeBerBuffer implements BerBuffer {
   private static final Unsafe UNSAFE;
   private static final ByteOrder NATIVE_BYTE_ORDER = ByteOrder.nativeOrder();
 
+  private static final long BYTE_ARRAY_OFFSET;
+  private static final long BUFFER_ADDRESS_OFFSET;
+  
   static {
     try {
-      final PrivilegedExceptionAction<Unsafe> action = new PrivilegedExceptionAction<Unsafe>() {
-        @Override public Unsafe run() throws Exception {
-          final Field field = Unsafe.class.getDeclaredField("theUnsafe");
-          field.setAccessible(true);
-          return (Unsafe) field.get(null);
-        }
-      };
-      UNSAFE = AccessController.doPrivileged(action);
+      final Field field = Unsafe.class.getDeclaredField("theUnsafe");
+      field.setAccessible(true);
+      UNSAFE = (Unsafe) field.get(null);
+      BYTE_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
+      BUFFER_ADDRESS_OFFSET = UNSAFE.objectFieldOffset(Buffer.class.getDeclaredField("address"));
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
   }
 
-  private static final long BYTE_ARRAY_OFFSET = UNSAFE.arrayBaseOffset(byte[].class);
+  private static long addressOf(final ByteBuffer buffer) {
+    return UNSAFE.getLong(buffer, BUFFER_ADDRESS_OFFSET);
+  }
 
   private final byte[] array;
   private final ByteBuffer buffer;
@@ -63,7 +62,7 @@ final class UnsafeBerBuffer implements BerBuffer {
       addressOffset = BYTE_ARRAY_OFFSET + src.arrayOffset();
       array = src.array();
     } else {
-      addressOffset = ((sun.nio.ch.DirectBuffer) src).address();
+      addressOffset = addressOf(src);
       array = null;
     }
     buffer = src;
@@ -120,7 +119,7 @@ final class UnsafeBerBuffer implements BerBuffer {
       dstOffset = BYTE_ARRAY_OFFSET + dstBuffer.arrayOffset();
     } else {
       dstArray = null;
-      dstOffset = ((sun.nio.ch.DirectBuffer) dstBuffer).address();
+      dstOffset = addressOf(dstBuffer);
     }
 
     UNSAFE.copyMemory(array, addressOffset + index
@@ -155,7 +154,7 @@ final class UnsafeBerBuffer implements BerBuffer {
       srcOffset = BYTE_ARRAY_OFFSET + srcBuffer.arrayOffset();
     } else {
       srcArray = null;
-      srcOffset = ((sun.nio.ch.DirectBuffer) srcBuffer).address();
+      srcOffset = addressOf(srcBuffer);
     }
 
     UNSAFE.copyMemory(srcArray, srcOffset + srcBuffer.position()

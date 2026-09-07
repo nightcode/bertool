@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2019 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
@@ -18,35 +16,27 @@ package org.nightcode.tools.ber;
 
 import java.nio.ByteBuffer;
 
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.nightcode.tools.ber.BerUtil.hexToByteArray;
 
-@RunWith(Theories.class)
 public class BerParserTest {
 
   private static final int OFFSET = 10;
 
-  @Rule
-  public final ExpectedException exceptionRule = ExpectedException.none();
-
-  @Test
-  public void testDecodePrimitive() {
+  @Test void testDecodePrimitive() {
     BerFrame berFrame = BerFrame.parseFrom(hexToByteArray("9F2608C2C12B098F3DA6E3"));
 
     assertArrayEquals(hexToByteArray("C2C12B098F3DA6E3"), berFrame.getContent(0x9F26));
   }
 
-  @Test
-  public void testDecodeConstructed() {
+  @Test void testDecodeConstructed() {
     BerFrame berFrame
         = BerFrame.parseFrom(hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060"));
 
@@ -57,8 +47,7 @@ public class BerParserTest {
     assertArrayEquals(hexToByteArray("0060"), berFrame.getContent(0x9F36));
   }
 
-  @Test
-  public void testDecodeConstructedByteBuffer() {
+  @Test void testDecodeConstructedByteBuffer() {
     BerFrame berFrame = BerFrame.parseFrom(ByteBuffer.wrap(hexToByteArray(
         "6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060")));
 
@@ -69,8 +58,7 @@ public class BerParserTest {
     assertArrayEquals(hexToByteArray("0060"), berFrame.getContent(0x9F36));
   }
 
-  @Test
-  public void testDecodeConstructedWithOffset() {
+  @Test void testDecodeConstructedWithOffset() {
     final byte[] ber = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
     final ByteBuffer buffer = ByteBuffer.allocate(ber.length + OFFSET);
     buffer.put((byte) 0xE1);
@@ -85,8 +73,7 @@ public class BerParserTest {
     assertArrayEquals(hexToByteArray("0060"), berFrame.getContent(0x9F36));
   }
 
-  @Test
-  public void testDecodeDefiniteLongForm() {
+  @Test void testDecodeDefiniteLongForm() {
     java.util.Random random = new java.util.Random();
     final byte[] content = new byte[435];
     random.nextBytes(content);
@@ -102,21 +89,18 @@ public class BerParserTest {
     assertArrayEquals(content, berFrame.getContent(0x84));
   }
 
-  @Test
-  public void testDecoderExceptionCase1() {
+  @Test void testDecoderExceptionCase1() {
     byte[] ber = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f360200");
     try {
       BerFrame.parseFrom(ber);
       fail("should throw DecoderException");
     } catch (DecoderException ex) {
-      Assert.assertArrayEquals(hexToByteArray("9f360200"), ex.getUndecoded());
-      Assert.assertArrayEquals(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E")
-          , ex.getPartialBerFrame().getContent(0x6F));
+      assertArrayEquals(hexToByteArray("9f360200"), ex.getUndecoded());
+      assertArrayEquals(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"), ex.getPartialBerFrame().getContent(0x6F));
     }
   }
 
-  @Test
-  public void testDecoderExceptionCase2() {
+  @Test void testDecoderExceptionCase2() {
     byte[] ber = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f360200");
     final ByteBuffer buffer = ByteBuffer.allocate(ber.length + OFFSET * 2);
     buffer.put((byte) 0xE1);
@@ -126,14 +110,12 @@ public class BerParserTest {
       BerFrame.parseFrom(buffer, OFFSET, ber.length);
       fail("should throw DecoderException");
     } catch (DecoderException ex) {
-      Assert.assertArrayEquals(hexToByteArray("9f360200"), ex.getUndecoded());
-      Assert.assertArrayEquals(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E")
-          , ex.getPartialBerFrame().getContent(0x6F));
+      assertArrayEquals(hexToByteArray("9f360200"), ex.getUndecoded());
+      assertArrayEquals(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"), ex.getPartialBerFrame().getContent(0x6F));
     }
   }
 
-  @Test
-  public void testDecoderExceptionCase3() {
+  @Test void testDecoderExceptionCase3() {
     byte[] ber = hexToByteArray("9f360200");
     final ByteBuffer buffer = ByteBuffer.allocate(ber.length + OFFSET * 2);
     buffer.put((byte) 0xE1);
@@ -143,53 +125,49 @@ public class BerParserTest {
       BerFrame.parseFrom(buffer, OFFSET, ber.length);
       fail("should throw DecoderException");
     } catch (DecoderException ex) {
-      Assert.assertArrayEquals(hexToByteArray("9f360200"), ex.getUndecoded());
-      Assert.assertFalse(ex.getPartialBerFrame().getIdentifiers().hasNext());
+      assertArrayEquals(hexToByteArray("9f360200"), ex.getUndecoded());
+      assertFalse(ex.getPartialBerFrame().getIdentifiers().hasNext());
     }
   }
 
-  @Test
-  public void testDecoderExceptionCase4() {
+  @Test void testDecoderExceptionCase4() {
     byte[] ber = hexToByteArray("B78F9D69485B90134E653D0C9CAA283700F29EA478D3FEECC2919997C093705B");
     try {
       BerFrame.parseFrom(ber);
       fail("should throw DecoderException");
     } catch (DecoderException ex) {
-      Assert.assertArrayEquals(hexToByteArray("B78F9D69485B90134E653D0C9CAA283700F29EA478D3FEECC2919997C093705B")
-          , ex.getUndecoded());
+      assertArrayEquals(hexToByteArray("B78F9D69485B90134E653D0C9CAA283700F29EA478D3FEECC2919997C093705B"), ex.getUndecoded());
     }
   }
 
-  @Theory
-  public void shouldThrowExceptionForDecodeIndefiniteForm() {
-    exceptionRule.expectMessage("Indefinite form is not supported yet.");
-
-    BerFrame.parseFrom(hexToByteArray("8480010000"));
+  @Test void shouldThrowExceptionForDecodeIndefiniteForm() {
+    Throwable th = assertThrows(DecoderException.class, () -> BerFrame.parseFrom(hexToByteArray("8480010000")));
+    assertInstanceOf(IllegalStateException.class, th.getCause());
+    assertEquals("Indefinite form is not supported yet.", th.getCause().getMessage());
   }
 
-  @Theory
-  public void shouldThrowExceptionForIncorrectMessageLengthCase1() {
-    exceptionRule.expectMessage("content bound is beyond content limit (b=43; l=42)");
-
+  @Test void shouldThrowExceptionForIncorrectMessageLengthCase1() {
     byte[] ber = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f360200");
     final ByteBuffer buffer = ByteBuffer.allocate(ber.length + OFFSET * 2);
     buffer.put((byte) 0xE1);
     buffer.position(OFFSET);
     buffer.put(ber);
-    BerFrame.parseFrom(buffer, OFFSET, ber.length);
+
+    Throwable th = assertThrows(DecoderException.class, () -> BerFrame.parseFrom(buffer, OFFSET, ber.length));
+    assertInstanceOf(IndexOutOfBoundsException.class, th.getCause());
+    assertEquals("content bound is beyond content limit (b=43; l=42)", th.getCause().getMessage());
   }
 
-  @Theory
-  public void shouldThrowExceptionForIncorrectMessageLengthCase2() {
-    exceptionRule.expectMessage("content bound is beyond content limit (b=137; l=27)");
-
-    BerFrame.parseFrom(hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801022D02656E9f36020060"));
+  @Test void shouldThrowExceptionForIncorrectMessageLengthCase2() {
+    Throwable th = assertThrows(DecoderException.class
+        , () -> BerFrame.parseFrom(hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801022D02656E9f36020060")));
+    assertInstanceOf(IndexOutOfBoundsException.class, th.getCause());
+    assertEquals("content bound is beyond content limit (b=137; l=27)", th.getCause().getMessage());
   }
 
-  @Theory
-  public void shouldThrowExceptionForIncorrectMessageLengthCase3() {
-    exceptionRule.expectMessage("index is beyond bound (i=1; b=0)");
-
-    BerFrame.parseFrom(BerUtil.hexToByteArray("9F"));
+  @Test void shouldThrowExceptionForIncorrectMessageLengthCase3() {
+    Throwable th = assertThrows(DecoderException.class, () -> BerFrame.parseFrom(BerUtil.hexToByteArray("9F")));
+    assertInstanceOf(IndexOutOfBoundsException.class, th.getCause());
+    assertEquals("index is beyond bound (i=1; b=0)", th.getCause().getMessage());
   }
 }

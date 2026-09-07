@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2019 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
@@ -17,9 +15,6 @@
 package org.nightcode.tools.ber;
 
 import java.nio.ByteBuffer;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.meta.When;
 
 final class HeapBerBuffer implements BerBuffer {
 
@@ -44,7 +39,6 @@ final class HeapBerBuffer implements BerBuffer {
     return capacity;
   }
 
-  @CheckReturnValue(when = When.NEVER)
   @Override public int checkIndex(final int index) {
     if (index >= capacity) {
       throw new IndexOutOfBoundsException(String.format("index is beyond bound (i=%d; b=%d)"
@@ -53,7 +47,6 @@ final class HeapBerBuffer implements BerBuffer {
     return index;
   }
 
-  @CheckReturnValue(when = When.NEVER)
   @Override public int checkLimit(final int limit) {
     if (limit > capacity) {
       throw new IndexOutOfBoundsException(String.format("limit is beyond capacity (l=%d; c=%d)"

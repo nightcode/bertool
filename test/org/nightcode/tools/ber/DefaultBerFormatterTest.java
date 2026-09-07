@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2019 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
@@ -18,19 +16,16 @@ package org.nightcode.tools.ber;
 
 import java.io.ByteArrayOutputStream;
 
-import org.junit.Test;
-import org.junit.experimental.theories.Theories;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(Theories.class)
 public class DefaultBerFormatterTest {
 
   private final byte[] BER = BerUtil.hexToByteArray(
       ("6F1A840E 31504159 2E535953 2E444446 3031A508 8801025F 2D02656E 77299f27"
      + "01009f36 0200609F 2608c2c1 2b098f3d a6e39f10 12011125 8013423a 02cfec00"
-     + "00000201 1400ff20 00").replaceAll(" ", ""));
+     + "00000201 1400ff20 00").replace(" ", ""));
 
   private final String expected =
         " ├─[6F]\n"
@@ -45,8 +40,7 @@ public class DefaultBerFormatterTest {
       + " │  └─[9F10] 0111258013423A02CFEC00000002011400FF\n"
       + " └─[20]";
 
-  @Test
-  public void testPrint() throws Exception {
+  @Test void testPrint() throws Exception {
     BerFrame berFrame = BerFrame.parseFrom(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerPrinter printer = new StreamBerPrinter(baos, new DefaultBerFormatter());
@@ -54,8 +48,7 @@ public class DefaultBerFormatterTest {
     assertEquals(expected, baos.toString());
   }
 
-  @Test
-  public void testPrintDefault() throws Exception {
+  @Test void testPrintDefault() throws Exception {
     BerFrame berFrame = BerFrame.parseFrom(BER);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     BerPrinter printer = new StreamBerPrinter(baos);

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2019 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
@@ -21,9 +19,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.nightcode.tools.ber.BerUtil.hexToByteArray;
 
 public class BerBuilderTest {
@@ -36,8 +34,7 @@ public class BerBuilderTest {
     return frame;
   }
 
-  @Test
-  public void testAdd() throws IOException {
+  @Test void testAdd() throws IOException {
     final byte[] expected = hexToByteArray("5E01015F2D01025FDF030103DFDFDF0401045F2D0105");
 
     BerBuilder builder = BerBuilder.newInstance();
@@ -58,8 +55,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, out.toByteArray());
   }
 
-  @Test
-  public void testAddInt() {
+  @Test void testAddInt() {
     final byte[] expected = hexToByteArray("5E01015F2D01025FDF030103DFDFDF0401045F2D0105");
 
     BerBuilder builder = BerBuilder.newInstance();
@@ -75,8 +71,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
   }
   
-  @Test
-  public void testAddLong() {
+  @Test void testAddLong() {
     final byte[] expected = hexToByteArray("5E01015F2D01025FDF030103DFDFDF04"
         + "01045F2D0105DFDFDFDF060106DFDFDFDFDF070107DFDFDFDFDFDF080108DFDFDFDFDFDFDF090109");
 
@@ -97,8 +92,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
   }
 
-  @Test
-  public void testAddBuilder() {
+  @Test void testAddBuilder() {
     final byte[] expected = hexToByteArray("7E030101FF7F2D030101FF7FDF030301"
         + "01FF7FDFDF04030101FF7F2D030101FF5FDFDFDF2D030101FF");
 
@@ -119,8 +113,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
   }
 
-  @Test
-  public void testAddAsciiString() {
+  @Test void testAddAsciiString() {
     final byte[] expected = hexToByteArray("5E02656E5F2D02656E5FDF0302656E5FDFDF0402656E5F2D02656E5FDFDFDF2D02656E");
 
     BerBuilder builder = BerBuilder.newInstance();
@@ -137,8 +130,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
   }
 
-  @Test
-  public void testAddHexString() {
+  @Test void testAddHexString() {
     final byte[] expected = hexToByteArray("5E01015F2D01025FDF0301035FDFDF0401045F2D01055FDFDFDF2D0106");
 
     BerBuilder builder = BerBuilder.newInstance();
@@ -155,8 +147,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, get(buffer, 0, builder.length()));
   }
 
-  @Test
-  public void calculateNumberOfLengthOctets() throws IOException {
+  @Test void calculateNumberOfLengthOctets() throws IOException {
     java.util.Random random = new java.util.Random();
     
     final byte[] content1 = new byte[0x7F];
@@ -171,8 +162,7 @@ public class BerBuilderTest {
     random.nextBytes(content4);
     random.nextBytes(content5);
 
-    ByteBuffer expected = ByteBuffer.allocate(1 + 1 + 0x7F + 1 + 2 + 0xFF + 1 + 3 + 0xFFFF
-        + 1 + 4 + 0xFFFFFF + 1 + 5 + 0x1000000);
+    ByteBuffer expected = ByteBuffer.allocate(1 + 1 + 0x7F + 1 + 2 + 0xFF + 1 + 3 + 0xFFFF + 1 + 4 + 0xFFFFFF + 1 + 5 + 0x1000000);
 
     expected.put(hexToByteArray("517F"));
     expected.put(content1);
@@ -203,8 +193,7 @@ public class BerBuilderTest {
     assertArrayEquals(get(expected, 0, expected.capacity()), out.toByteArray());
   }
 
-  @Test
-  public void testAddBerFrame() {
+  @Test void testAddBerFrame() {
     final byte[] expected = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
     
     BerFrame berFrame = BerFrame.parseFrom(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"));
@@ -222,8 +211,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, buffer);
   }
 
-  @Test
-  public void testAdd128Bytes() {
+  @Test void testAdd128Bytes() {
     java.util.Random random = new java.util.Random();
 
     final byte[] content128 = new byte[0x80];
@@ -242,8 +230,7 @@ public class BerBuilderTest {
     assertArrayEquals(get(expected, 0, expected.capacity()), get(buffer, 0, builder.length()));
   }
 
-  @Test
-  public void testEncodePrimitive() throws IOException {
+  @Test void testEncodePrimitive() throws IOException {
     final byte[] expected = hexToByteArray("9F2608C2C12B098F3DA6E3");
     final byte[] content = hexToByteArray("C2C12B098F3DA6E3");
 
@@ -261,8 +248,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, out.toByteArray());
   }
 
-  @Test
-  public void testEncodeConstructed() throws IOException {
+  @Test void testEncodeConstructed() throws IOException {
     final byte[] expected = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
 
     BerBuilder builderA5 = BerBuilder.newInstance();
@@ -289,8 +275,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, out.toByteArray());
   }
 
-  @Test
-  public void testEncodeConstructedByteArray() throws IOException {
+  @Test void testEncodeConstructedByteArray() throws IOException {
     final byte[] expected = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
 
     BerBuilder builderA5 = BerBuilder.newInstance();
@@ -316,8 +301,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, out.toByteArray());
   }
 
-  @Test
-  public void testEncodeConstructedWithOffset() throws IOException {
+  @Test void testEncodeConstructedWithOffset() throws IOException {
     final byte[] expected = hexToByteArray("6F1A840E315041592E5359532E4444463031A5088801025F2D02656E9f36020060");
 
     BerBuilder builderA5 = BerBuilder.newInstance();
@@ -346,8 +330,7 @@ public class BerBuilderTest {
     assertArrayEquals(expected, out.toByteArray());
   }
 
-  @Test
-  public void testEncodeDefiniteLongForm() throws IOException {
+  @Test void testEncodeDefiniteLongForm() throws IOException {
     final byte[] identifier = hexToByteArray("84");
     Random random = new Random();
     final byte[] content = new byte[435];

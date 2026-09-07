@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2019 The NightCode Open Source Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
@@ -18,8 +16,6 @@ package org.nightcode.tools.ber;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,24 +35,19 @@ final class BerBufferUtil {
     if (noUnsafe) {
       hasUnsafe = false;
     } else {
-      final Object result = AccessController.doPrivileged(new PrivilegedAction<Object>() {
-        @Override public Object run() {
-          try {
-            final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-            unsafeField.setAccessible(true);
-            Unsafe unsafe = (Unsafe) unsafeField.get(null);
-            unsafe.getClass().getDeclaredMethod("getByte", Object.class, long.class);
-            unsafe.getClass().getDeclaredMethod("putByte", Object.class, long.class, byte.class);
-            unsafe.getClass().getDeclaredMethod("putInt", Object.class, long.class, int.class);
-            unsafe.getClass().getDeclaredMethod("copyMemory"
-                , Object.class, long.class, Object.class, long.class, long.class);
-            return Boolean.TRUE;
-          } catch (Exception ex) {
-            return Boolean.FALSE;
-          }
-        }
-      });
-      hasUnsafe = (Boolean) result;
+      try {
+        final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+        unsafeField.setAccessible(true);
+        Unsafe unsafe = (Unsafe) unsafeField.get(null);
+        unsafe.getClass().getDeclaredMethod("getByte", Object.class, long.class);
+        unsafe.getClass().getDeclaredMethod("putByte", Object.class, long.class, byte.class);
+        unsafe.getClass().getDeclaredMethod("putInt", Object.class, long.class, int.class);
+        unsafe.getClass().getDeclaredMethod("copyMemory"
+            , Object.class, long.class, Object.class, long.class, long.class);
+        hasUnsafe = Boolean.TRUE;
+      } catch (Exception ex) {
+        hasUnsafe = Boolean.FALSE;
+      }
       LOGGER.log(Level.FINER, String.format("sun.misc.Unsafe available: %s", hasUnsafe));
     }
 
