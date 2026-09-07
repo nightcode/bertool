@@ -16,6 +16,7 @@ package org.nightcode.tools.ber;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,6 +54,11 @@ public class StreamBerPrinter implements BerPrinter {
   @Override public void print(BerFrame berFrame) throws IOException {
     BerBuffer buffer = berFrame.berBuffer();
     printImpl(buffer, berFrame.getTlvs(), formatter.linePrefix(), formatter.linePrefix().length);
+    for (Undecoded u : berFrame.getUndecoded()) {
+      stream.write(formatter.linePrefix());
+      stream.write(String.format("undecoded [offset=%d length=%d depth=%d] %s%n", u.offset(), u.length(), u.depth(), u.reason())
+                       .getBytes(StandardCharsets.UTF_8));
+    }
     stream.flush();
   }
 
