@@ -117,10 +117,10 @@ public class BerParserTest {
     assertArrayEquals(hexToByteArray("840E315041592E5359532E4444463031A5088801025F2D02656E"), frame.getContent(0x6F));
 
     Undecoded undecoded = frame.getUndecoded().getFirst();
-    assertEquals(38, undecoded.offset());
+    assertEquals(28, undecoded.offset());
     assertEquals(4, undecoded.length());
     assertEquals(0, undecoded.depth());
-    assertEquals("content bound is beyond content limit (p=41, b=43; l=42)", undecoded.reason());
+    assertEquals("content bound is beyond content limit (p=31, b=33; l=32)", undecoded.reason());
   }
 
   @Test void testUndecodedCase3() {
@@ -137,10 +137,10 @@ public class BerParserTest {
     assertEquals(1, frame.getUndecoded().size());
 
     Undecoded undecoded = frame.getUndecoded().getFirst();
-    assertEquals(10, undecoded.offset());
+    assertEquals(0, undecoded.offset());
     assertEquals(4, undecoded.length());
     assertEquals(0, undecoded.depth());
-    assertEquals("content bound is beyond content limit (p=13, b=15; l=14)", undecoded.reason());
+    assertEquals("content bound is beyond content limit (p=3, b=5; l=4)", undecoded.reason());
   }
 
   @Test void testUndecodedCase4() {
@@ -185,10 +185,10 @@ public class BerParserTest {
     assertEquals(1, frame.getUndecoded().size());
 
     Undecoded undecoded = frame.getUndecoded().getFirst();
-    assertEquals(38, undecoded.offset());
+    assertEquals(28, undecoded.offset());
     assertEquals(4, undecoded.length());
     assertEquals(0, undecoded.depth());
-    assertEquals("content bound is beyond content limit (p=41, b=43; l=42)", undecoded.reason());
+    assertEquals("content bound is beyond content limit (p=31, b=33; l=32)", undecoded.reason());
   }
 
   @Test void incorrectMessageLengthCase2() {

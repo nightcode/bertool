@@ -75,16 +75,16 @@ public class BerBufferUtilTest {
       Method      methodArray = clazz.getDeclaredMethod("create", byte[].class);
       methodArray.setAccessible(true);
 
-      Method methodByteBuffer = clazz.getDeclaredMethod("create", ByteBuffer.class);
+      Method methodByteBuffer = clazz.getDeclaredMethod("create", ByteBuffer.class, int.class,  int.class);
       methodByteBuffer.setAccessible(true);
 
       Object target = methodArray.invoke(null, (Object) new byte[BUFFER_CAPACITY]);
       assertEquals(HeapBerBuffer.class.getName(), target.getClass().getName());
 
-      target = methodByteBuffer.invoke(null, ByteBuffer.allocate(BUFFER_CAPACITY));
+      target = methodByteBuffer.invoke(null, ByteBuffer.allocate(BUFFER_CAPACITY), 0, BUFFER_CAPACITY);
       assertEquals(HeapBerBuffer.class.getName(), target.getClass().getName());
 
-      target = methodByteBuffer.invoke(null, ByteBuffer.allocateDirect(BUFFER_CAPACITY));
+      target = methodByteBuffer.invoke(null, ByteBuffer.allocateDirect(BUFFER_CAPACITY), 0, BUFFER_CAPACITY);
       assertEquals(DirectBerBuffer.class.getName(), target.getClass().getName());
 
     } catch (Exception ex) {
@@ -101,16 +101,16 @@ public class BerBufferUtilTest {
       Method      methodArray = clazz.getDeclaredMethod("create", byte[].class);
       methodArray.setAccessible(true);
 
-      Method methodByteBuffer = clazz.getDeclaredMethod("create", ByteBuffer.class);
+      Method methodByteBuffer = clazz.getDeclaredMethod("create", ByteBuffer.class, int.class, int.class);
       methodByteBuffer.setAccessible(true);
 
       Object target = methodArray.invoke(null, new byte[BUFFER_CAPACITY]);
       assertEquals(MemorySegmentBerBuffer.class.getName(), target.getClass().getName());
 
-      target = methodByteBuffer.invoke(null, ByteBuffer.allocate(BUFFER_CAPACITY));
+      target = methodByteBuffer.invoke(null, ByteBuffer.allocate(BUFFER_CAPACITY), 0, BUFFER_CAPACITY);
       assertEquals(MemorySegmentBerBuffer.class.getName(), target.getClass().getName());
 
-      target = methodByteBuffer.invoke(null, ByteBuffer.allocateDirect(BUFFER_CAPACITY));
+      target = methodByteBuffer.invoke(null, ByteBuffer.allocateDirect(BUFFER_CAPACITY),  0, BUFFER_CAPACITY);
       assertEquals(MemorySegmentBerBuffer.class.getName(), target.getClass().getName());
 
     } catch (Exception ex) {

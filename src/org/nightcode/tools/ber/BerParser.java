@@ -34,10 +34,14 @@ final class BerParser {
     if (maxDepth < 1) {
       throw new IllegalArgumentException(String.format("maxDepth must be positive (d=%d)", maxDepth));
     }
+    long bound = (long) offset + length;
+    if (bound > Integer.MAX_VALUE) {
+      throw new IllegalArgumentException(String.format("offset + length must be less than Integer.MAX_VALUE (o=%d)", bound));
+    }
     final int       limit     = berBuffer.checkLimit(offset + length);
     List<BerTlv>    root      = new ArrayList<>();
     List<Undecoded> undecoded = new ArrayList<>();
-    getLevel(berBuffer, root, offset, limit, 0, maxDepth - 1, undecoded); // maxDepth - 1 because root is not counted
+    getLevel(berBuffer, root, offset, limit, 0, maxDepth - 1, undecoded); // (maxDepth - 1) because root is not counted
     return new BerFrame(berBuffer, offset, limit, root, undecoded);
   }
 

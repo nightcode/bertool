@@ -551,7 +551,7 @@ public final class BerBuilder {
    * @param offset in the supplied dstBuffer
    */
   public void writeTo(ByteBuffer dstBuffer, int offset) {
-    final BerBuffer berBuffer = BerBufferUtil.create(dstBuffer);
+    final BerBuffer berBuffer = BerBufferUtil.create(dstBuffer, 0, dstBuffer.capacity());
     berBuffer.checkLimit(offset + length);
     writeTo(berBuffer, offset);
   }

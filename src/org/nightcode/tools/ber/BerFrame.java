@@ -88,11 +88,11 @@ public final class BerFrame {
    * @param srcBuffer which contains the BER data
    */
   public static BerFrame parseFrom(final ByteBuffer srcBuffer) {
-    return parseFrom(srcBuffer, 0, srcBuffer.remaining());
+    return parseFrom(srcBuffer, 0, srcBuffer.limit());
   }
 
   public static BerFrame parseFrom(final ByteBuffer srcBuffer, int maxDepth) {
-    return parseFrom(srcBuffer, 0, srcBuffer.remaining(), maxDepth);
+    return parseFrom(srcBuffer, 0, srcBuffer.limit(), maxDepth);
   }
 
   /**
@@ -107,12 +107,12 @@ public final class BerFrame {
     return parseFrom(srcBuffer, offset, length, DEF_MAX_DEPTH);
   }
 
-  public static BerFrame parseFrom(final ByteBuffer srcBuffer, final int offset, final int length, int maxDepth) {
+  public static BerFrame parseFrom(final ByteBuffer srcBuffer, final int offset, final int length, final int maxDepth) {
     if (maxDepth > DEF_MAX_DEPTH) {
       throw new IllegalArgumentException("maxDepth must be less or equal to " + DEF_MAX_DEPTH);
     }
-    BerBuffer berBuffer = BerBufferUtil.create(srcBuffer);
-    return BerParser.parseFrom(berBuffer, offset, length, maxDepth);
+    BerBuffer berBuffer = BerBufferUtil.create(srcBuffer, offset, length);
+    return BerParser.parseFrom(berBuffer, 0, length, maxDepth);
   }
 
   private final BerBuffer       buffer;

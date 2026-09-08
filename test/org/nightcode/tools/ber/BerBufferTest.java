@@ -21,17 +21,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BerBufferTest {
 
-  private static final int BUFFER_CAPACITY = 1024 * 4;
-  private static final int INDEX = 7;
-  private static final byte BYTE_VALUE = 5;
-  private static final byte[] BYTE_ARRAY_VALUE = "BER Tool".getBytes();
-  private static final int INT_VALUE = 256;
+  private static final int    BUFFER_CAPACITY        = 1024 * 4;
+  private static final int    SMALL_BUFFER_CAPACITY  = 6;
+  private static final int    INDEX                  = 7;
+  private static final byte   BYTE_VALUE             = 5;
+  private static final byte[] BYTE_ARRAY_VALUE       = "BER Tool".getBytes();
+  private static final byte[] SMALL_BYTE_ARRAY_VALUE = new byte[] {(byte) 0xCA, (byte) 0xFE, 0x00, 0x00, (byte) 0xBA, (byte) 0xBE}; 
+  private static final int    INT_VALUE              = 256;
 
   static Stream<BerBuffer> berBuffers() {
     return Stream.of(
@@ -42,6 +45,15 @@ public class BerBufferTest {
         , new DirectBerBuffer(ByteBuffer.allocateDirect(BUFFER_CAPACITY)));
   }
 
+  static Stream<BerBuffer> smallBerBuffers() {
+    return Stream.of(
+        new MemorySegmentBerBuffer(new byte[SMALL_BUFFER_CAPACITY])
+        , new MemorySegmentBerBuffer(ByteBuffer.allocate(SMALL_BUFFER_CAPACITY))
+        , new MemorySegmentBerBuffer(ByteBuffer.allocateDirect(SMALL_BUFFER_CAPACITY))
+        , new HeapBerBuffer(new byte[SMALL_BUFFER_CAPACITY])
+        , new DirectBerBuffer(ByteBuffer.allocateDirect(SMALL_BUFFER_CAPACITY)));
+  }
+  
   @ParameterizedTest @MethodSource("berBuffers")
   public void shouldGetCapacity(final BerBuffer buffer) {
     assertEquals(BUFFER_CAPACITY, buffer.capacity());
@@ -73,6 +85,22 @@ public class BerBufferTest {
     duplicateBuffer.put(INDEX, BYTE_VALUE);
 
     assertEquals(BYTE_VALUE, berBuffer.getByte(INDEX));
+  }
+
+  @ParameterizedTest @MethodSource("smallBerBuffers")
+  void shouldGetByteFromSmallBuffer(final BerBuffer berBuffer) {
+    final ByteBuffer duplicateBuffer = berBuffer.duplicateByteBuffer();
+    duplicateBuffer.put(SMALL_BYTE_ARRAY_VALUE);
+
+    ByteBuffer cafe = ByteBuffer.allocate(2);
+    ByteBuffer babe = ByteBuffer.allocate(2);
+
+    berBuffer.getBytes(0, cafe, cafe.capacity());
+    berBuffer.getBytes(cafe.capacity() + 2, babe, babe.capacity());
+
+    assertAll(
+        () -> assertArrayEquals(new byte[] {(byte) 0xCA, (byte) 0xFE}, cafe.array()),
+        () -> assertArrayEquals(new byte[] {(byte) 0xBA, (byte) 0xBE}, babe.array()));
   }
 
   @ParameterizedTest @MethodSource("berBuffers")

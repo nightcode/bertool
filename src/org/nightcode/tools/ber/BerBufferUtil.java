@@ -28,17 +28,17 @@ enum BerBufferUtil {
     return new MemorySegmentBerBuffer(src);
   }
 
-  static BerBuffer create(ByteBuffer src) {
+  static BerBuffer create(ByteBuffer src, int offset, int length) {
     if (USE_HEAP) {
       if (src.hasArray()) {
         if (src.isReadOnly()) {
           throw new IllegalArgumentException("read only buffer");
         }
-        return new HeapBerBuffer(src.array(), src.arrayOffset() + src.position(), src.remaining());
+        return new HeapBerBuffer(src.array(), src.arrayOffset() + offset, length);
       }
-      return new DirectBerBuffer(src);
+      return new DirectBerBuffer(src, offset, length);
     }
-    return new MemorySegmentBerBuffer(src);
+    return new MemorySegmentBerBuffer(src, offset, length);
   }
 
   static boolean getBoolean(String key, boolean def) {

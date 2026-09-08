@@ -60,7 +60,7 @@ public class BerFrameTest {
     buffer.put(BER);
     BerFrame berFrame = BerFrame.parseFrom(buffer, offset, BER.length);
 
-    assertEquals(buffer.capacity(), berFrame.limit());
+    assertEquals(buffer.capacity(), berFrame.limit() + offset);
   }
 
   @Test void testOffset() {
@@ -71,7 +71,7 @@ public class BerFrameTest {
     buffer.put(BER);
     BerFrame berFrame = BerFrame.parseFrom(buffer, offset, BER.length);
 
-    assertEquals(offset, berFrame.offset());
+    assertEquals(0, berFrame.offset());
   }
 
   @Test void testGetContentEmpty() {

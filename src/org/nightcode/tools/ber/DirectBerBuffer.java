@@ -22,8 +22,15 @@ final class DirectBerBuffer implements BerBuffer {
   private final int capacity;
 
   DirectBerBuffer(ByteBuffer src) {
-    buffer   = src.duplicate();
-    capacity = src.capacity();
+    this(src, 0, src.limit());
+  }
+
+  DirectBerBuffer(ByteBuffer src, int offset, int length) {
+    ByteBuffer buf = src.duplicate().clear();
+    buf.position(offset);
+    buf.limit(offset + length);
+    buffer   = buf.slice();
+    capacity = buffer.capacity();
   }
 
   @Override public int capacity() {
@@ -66,9 +73,10 @@ final class DirectBerBuffer implements BerBuffer {
   @Override public int getBytes(final int index, final ByteBuffer dstBuffer, final int length) {
     int count = Math.min(dstBuffer.remaining(), capacity - index);
     count = Math.min(count, length);
-    buffer.position(index);
-    buffer.limit(index + count);
-    dstBuffer.put(buffer.slice());
+    ByteBuffer srcBuffer = buffer.duplicate();
+    srcBuffer.position(index);
+    srcBuffer.limit(index + count);
+    dstBuffer.put(srcBuffer.slice());
     return count;
   }
 

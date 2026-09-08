@@ -319,7 +319,7 @@ public class BerBuilderTest {
     final int offset = 10;
     final ByteBuffer buffer = ByteBuffer.allocate(expected.length + offset);
     buffer.put((byte) 0xE1);
-    buffer.position(offset);
+    buffer.position(0);
     builder.writeTo(buffer, offset);
 
     assertArrayEquals(expected, get(buffer, offset, builder.length()));

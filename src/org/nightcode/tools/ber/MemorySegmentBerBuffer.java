@@ -34,9 +34,16 @@ final class MemorySegmentBerBuffer implements BerBuffer {
   }
 
   MemorySegmentBerBuffer(ByteBuffer src) {
-    buffer   = src;
-    segment  = MemorySegment.ofBuffer(src.duplicate().clear());
-    capacity = src.capacity();
+    this(src, 0, src.capacity());
+  }
+
+  MemorySegmentBerBuffer(ByteBuffer src, int offset, int length) {
+    ByteBuffer tmp = src.duplicate().clear();
+    tmp.position(offset);
+    tmp.limit(offset + length);
+    buffer   = tmp.slice();
+    segment  = MemorySegment.ofBuffer(buffer.duplicate());
+    capacity = buffer.capacity();
   }
 
   @Override public int capacity() {
