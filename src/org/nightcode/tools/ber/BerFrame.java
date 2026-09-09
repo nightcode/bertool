@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
+import static org.nightcode.tools.ber.BerBufferUtil.getBoolean;
+import static org.nightcode.tools.ber.BerBufferUtil.getInt;
+
 /**
  * Main BER tags container.
  */
@@ -65,7 +68,15 @@ public final class BerFrame {
     }
   }
 
-  private static final int DEF_MAX_DEPTH = Integer.getInteger("org.nightcode.tools.ber.MaxDepth", 8);
+  private static final int MAX_DEPTH_LIMIT;
+
+  static {
+    int limit = getInt("org.nightcode.tools.ber.MaxDepth", 8);
+    if (limit > 64 && !getBoolean("org.nightcode.tools.ber.UnsafeMaxDepth", false)) {
+      throw new IllegalArgumentException(String.format("max depth limit should have a reasonable value, less than 64 (l=%s)", limit));
+    }
+    MAX_DEPTH_LIMIT = limit;
+  }
 
   /**
    * Decode the BER data which contains in the supplied bytes array.
@@ -104,12 +115,12 @@ public final class BerFrame {
    * @param length of the BER data in bytes
    */
   public static BerFrame parseFrom(final ByteBuffer srcBuffer, final int offset, final int length) {
-    return parseFrom(srcBuffer, offset, length, DEF_MAX_DEPTH);
+    return parseFrom(srcBuffer, offset, length, MAX_DEPTH_LIMIT);
   }
 
   public static BerFrame parseFrom(final ByteBuffer srcBuffer, final int offset, final int length, final int maxDepth) {
-    if (maxDepth > DEF_MAX_DEPTH) {
-      throw new IllegalArgumentException("maxDepth must be less or equal to " + DEF_MAX_DEPTH);
+    if (maxDepth > MAX_DEPTH_LIMIT) {
+      throw new IllegalArgumentException("maxDepth must be less or equal to " + MAX_DEPTH_LIMIT);
     }
     BerBuffer berBuffer = BerBufferUtil.create(srcBuffer, offset, length);
     return BerParser.parseFrom(berBuffer, 0, length, maxDepth);

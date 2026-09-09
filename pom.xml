@@ -18,7 +18,7 @@
   <groupId>org.nightcode</groupId>
   <artifactId>bertool</artifactId>
   <packaging>jar</packaging>
-  <version>0.6.2</version>
+  <version>0.6.3-SNAPSHOT</version>
 
   <name>BerTool</name>
   <description>Basic Encoding Rules tool.</description>
@@ -127,6 +127,11 @@
           <version>3.3.1</version>
         </plugin>
         <plugin>
+          <groupId>org.sonatype.central</groupId>
+          <artifactId>central-publishing-maven-plugin</artifactId>
+          <version>0.11.0</version>
+        </plugin>
+        <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>0.8.14</version>
@@ -139,8 +144,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
           <showWarnings>true</showWarnings>
           <showDeprecation>true</showDeprecation>
         </configuration>

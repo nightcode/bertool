@@ -42,7 +42,7 @@ enum BerBufferUtil {
   }
 
   static boolean getBoolean(String key, boolean def) {
-    String value = System.getProperty(key);
+    String value = readString(key);
     if (value == null) {
       return def;
     }
@@ -56,5 +56,21 @@ enum BerBufferUtil {
     }
 
     return def;
+  }
+
+  static int getInt(String key, int def) {
+    String value = readString(key);
+    if (value == null) {
+      return def;
+    }
+    return Integer.parseInt(value);
+  }
+
+  private static String readString(String key) {
+    String value = System.getProperty(key);
+    if (value == null) {
+      value = System.getenv(key);
+    }
+    return value;
   }
 }
